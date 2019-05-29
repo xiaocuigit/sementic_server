@@ -7,18 +7,16 @@
 """
 
 from os.path import join, abspath
-from os import getcwd, listdir
+from os import getcwd
 import yaml
 from pypinyin import lazy_pinyin
 from collections import Counter
 
 
-dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
-_int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-
-
 def build_wrong_table():
+    dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
+    _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+    repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     path_restable = join(dir_yml, "wrong_table.yml")
     _rel = yaml.load(open(join(dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     all_word = [v for vs in list(_rel.values()) + list(_int.values()) for v in vs if len(v) > 1]
@@ -40,7 +38,6 @@ def build_wrong_table():
             e += c
             c = 0
         return res
-
 
     # 规则库
     def transformer(word):
@@ -93,5 +90,3 @@ def build_wrong_table():
     yaml.dump(res_dict, open(path_restable, "w", encoding="utf-8"), allow_unicode=True)
 
 
-if __name__ == '__main__':
-    pass

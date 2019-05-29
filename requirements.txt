@@ -7,3 +7,4 @@ jieba==0.39
 requests==2.19.1
 networkx==2.3
 yaml==0.1.7
+pypinyin==0.34.1

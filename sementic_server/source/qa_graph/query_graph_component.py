@@ -18,7 +18,8 @@ class QueryGraphComponent(Graph):
     def __init__(self, entity):
         nx.MultiDiGraph.__init__(self)
         self.entity = entity
-        account_type_list = ['TEL', 'FTEL', 'QQ', 'WX', 'EMAIL']
+        account_type_list = ['Tel', 'Ftel', 'Qiu', 'Email', 'WechatNum',
+                             'QiuGroup', 'AliPay', 'JD', 'Idcard', 'MblogUid']
         if entity['type'] in account_type_list:
             self.init_account_component()
         elif entity['type'] == 'NAME':
@@ -28,7 +29,14 @@ class QueryGraphComponent(Graph):
             self.node['p_name']['label'] = 'literal'
             self.node['p_name']['type'] = 'string'
             self.node['p_name']['entity'] = entity
-        elif entity['type'] == 'ADDRESS':
+        elif entity['type'] == 'COMPANY':
+            self.add_edge('comp', 'comp_name', 'COMP_NAME')
+            self.node['comp']['label'] = 'concept'
+            self.node['comp']['type'] = 'COMPANY'
+            self.node['comp_name']['label'] = 'literal'
+            self.node['comp_name']['type'] = 'string'
+            self.node['comp_name']['entity'] = entity
+        elif entity['type'] == 'ADDR':
             self.add_edge('addr', 'addr_name', 'ADDR_NAME')
             self.node['addr']['label'] = 'concept'
             self.node['addr']['type'] = 'ADDRESS'

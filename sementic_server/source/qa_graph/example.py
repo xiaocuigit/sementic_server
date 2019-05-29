@@ -28,7 +28,7 @@ if __name__ == '__main__':
         qg = QueryParser(data)
         qg.query_graph.show()
 
-        output_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'output')
+        output_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'output/graph_output')
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         output_path = os.path.join(output_path, 'example.json')

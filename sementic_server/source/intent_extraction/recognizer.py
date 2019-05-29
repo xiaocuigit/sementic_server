@@ -107,7 +107,7 @@ class Recognizer:
                 last_end = t[2]
                 res.append({
                     "type": self.w2tp.get(t[0], "NIL"),
-                    "mention": t[0],
+                    "value": t[0],
                     "offset": t[1],
                 })
 

@@ -38,8 +38,8 @@ class ItemMatcher:
     def matcher(self, q: str):
         res = {"relation": [], "intent": '0', "raw_query": q, "correct_query": None, "correct": []}
         for item in self.reg.query4type(q):
-            if item["type"] in self.rel2id:
-                item.update({"id": self.rel2id[item["type"]]})
+            if item["type"] in self.rel2id.keys():
+                item.update({"id": item["type"]})
                 res["relation"].append(item)
             elif item["type"] in self.int2id:
                 if res["intent"] != '0' and res["intent"] != self.int2id[item["type"]]:
@@ -49,7 +49,7 @@ class ItemMatcher:
 
             else:
                 res["correct"].append(item)
-                res ["correct_query"] = q.replace(item["mention"], item["type"])
+                res ["correct_query"] = q.replace(item["value"], item["type"])
         return res
 
 

@@ -15,7 +15,7 @@ from sementic_server.source.qa_graph.query_parser import QueryParser
 if __name__ == '__main__':
     case_num = 2
     # [1, 2, 4]
-    if os.getcwd().split('\\')[-1] == 'qa_graph':
+    if os.path.basename(os.getcwd()) == 'qa_graph':
         path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
     else:
         path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'test_case', 'case%d.json' % case_num)

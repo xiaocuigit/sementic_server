@@ -27,8 +27,12 @@ if __name__ == '__main__':
         print(data)
         qg = QueryParser(data)
         qg.query_graph.show()
-        output = qg.query_graph.get_data()
-        print(output)
+
+        output_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'output')
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        output_path = os.path.join(output_path, 'example.json')
+        qg.query_graph.export(output_path)
     except Exception as e:
         print(e)
 

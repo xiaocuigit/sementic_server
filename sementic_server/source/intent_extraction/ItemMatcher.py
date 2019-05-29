@@ -1,5 +1,15 @@
-from os.path import join, exists
-from recognizer import Recognizer
+"""
+@description: 与知识库对应的实体编码表
+@author: Cui Rui long
+@email: xiaocuikindle@163.com
+@time: 2019-02-27
+@version: 0.0.1
+"""
+
+
+from os.path import join, exists, abspath
+from os import getcwd
+from sementic_server.source.intent_extraction.recognizer import Recognizer
 import pickle
 import yaml
 
@@ -7,8 +17,8 @@ import yaml
 class ItemMatcher:
     def __init__(self, new=False):
         self.reg = None
-        self.dir_yml = join("yml")
-        self.dir_data = join("data")
+        self.dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
+        self.dir_data = join(abspath(getcwd()), "..", "..", "data", "pkl")
         self.path = join(self.dir_data, "reg.pkl")
         self.rel2id = yaml.load(open(join(self.dir_yml, "rel2id.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
         self.int2id = yaml.load(open(join(self.dir_yml, "int2id.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)

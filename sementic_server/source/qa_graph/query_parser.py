@@ -1,19 +1,52 @@
+"""
+@description: 问答图生成过程
+@author: Xu Zhongkai
+@email: 1399350807@qq.com
+@time: 2019-05-27
+@version: 0.0.1
+"""
+
+
 import networkx as nx
 import json
 import os
 import itertools
 import csv
 import copy
-from graph import Graph
-from query_graph_component import QueryGraphComponent
+from sementic_server.source.qa_graph.graph import Graph
+from sementic_server.source.qa_graph.query_graph_component import QueryGraphComponent
 
 DEFAULT_EDGE = dict()
-path = os.path.join(os.getcwd(), 'ontology', 'default_relation.csv')
-with open(path, 'r') as csv_file:
-    csv_file.readline()
-    csv_reader = csv.reader(csv_file)
-    for line in csv_reader:
-        DEFAULT_EDGE[line[0]] = {'domain': line[1], 'range': line[2]}
+RELATION_DATA = dict()
+
+
+def init_default_edge():
+    if os.getcwd().split('\\')[-1] == 'qa_graph':
+        path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'default_relation.csv')
+    else:
+        path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'default_relation.csv')
+    path = os.path.abspath(path)
+    # path = os.path.join(os.getcwd(), 'ontology', 'default_relation.csv')
+    with open(path, 'r') as csv_file:
+        csv_file.readline()
+        csv_reader = csv.reader(csv_file)
+        for line in csv_reader:
+            DEFAULT_EDGE[line[0]] = {'domain': line[1], 'range': line[2]}
+
+
+def init_relation_data():
+    global RELATION_DATA
+    if os.getcwd().split('\\')[-1] == 'qa_graph':
+        relation_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'relation.json')
+    else:
+        relation_path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'relation.json')
+    relation_path = os.path.abspath(relation_path)
+    with open(relation_path, 'r') as fr:
+        RELATION_DATA = json.load(fr)
+
+
+init_default_edge()
+init_relation_data()
 
 
 class QueryParser:
@@ -93,9 +126,9 @@ class QueryParser:
             if len(v) >= 2:
                 combinations = itertools.combinations(v, 2)
                 for pair in combinations:
-                    # 若存在这两条边，则跳过，不存在则合并
-                    if self.query_graph.has_edge(pair[0], pair[1]) or\
-                            self.query_graph.has_edge(pair[1], pair[0]):
+                    # 若两个节点之间连通，则跳过，不存在则合并
+                    test_graph = nx.to_undirected(self.query_graph)
+                    if nx.has_path(test_graph, pair[0], pair[1]):
                         continue
                     else:
                         mapping = {pair[0]: pair[1]}
@@ -108,18 +141,15 @@ class QueryParser:
             self.entity_component_list.append(nx.MultiDiGraph(component))
 
     def init_relation_component(self):
-        relation_path = os.path.join(os.getcwd(), 'ontology', 'relation.json')
-        with open(relation_path, 'r') as fr:
-            relation_data = json.load(fr)
         for r in self.relation:
-            if r['type'] in relation_data.keys():
+            if r['type'] in RELATION_DATA.keys():
                 relation_component = nx.MultiDiGraph()
                 relation_component.add_edge('temp_0', 'temp_1', r['type'], **r)
                 for n in relation_component.nodes:
                     relation_component.node[n]['label'] = 'concept'
 
-                relation_component.node['temp_0']['type'] = relation_data[r['type']]['domain']
-                relation_component.node['temp_1']['type'] = relation_data[r['type']]['range']
+                relation_component.node['temp_0']['type'] = RELATION_DATA[r['type']]['domain']
+                relation_component.node['temp_1']['type'] = RELATION_DATA[r['type']]['range']
                 self.relation_component_list.append(relation_component)
 
 

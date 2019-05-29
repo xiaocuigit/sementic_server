@@ -14,8 +14,6 @@ from collections import Counter
 
 
 dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
-print(listdir(dir_yml))
-
 _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
 repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
 
@@ -74,7 +72,6 @@ def build_wrong_table():
                         res.append(w.replace(kre, v))
         return res
 
-
     # 运行
     res_dict = {}
     for aw in all_word:
@@ -97,5 +94,4 @@ def build_wrong_table():
 
 
 if __name__ == '__main__':
-    # build_wrong_table()
     pass

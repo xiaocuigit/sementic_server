@@ -1,8 +1,8 @@
 """
-@description: 与知识库对应的实体编码表
-@author: Cui Rui long
-@email: xiaocuikindle@163.com
-@time: 2019-02-27
+@description: 匹配接口函数
+@author: Wu Jiang-Heng
+@email: jiangh_wu@163.com
+@time: 2019-05-29
 @version: 0.0.1
 """
 

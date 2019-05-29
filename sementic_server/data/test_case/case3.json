@@ -1,0 +1,1 @@
+{"query": "15195919704\u7684\u540c\u5b66\u4e2d\u540d\u5b57\u53eb\u5f20\u4e09\u7684\u624b\u673a\u53f7", "entity": [{"type": "TEL", "value": "15195919704", "offset": 0}, {"type": "NAME", "value": "\u5f20\u4e09", "offset": 18}], "relation": [{"type": "SchoolMate", "value": "\u540c\u5b66", "offset": 12}], "intent": "TEL"}

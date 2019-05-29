@@ -33,8 +33,8 @@ class Graph(nx.MultiDiGraph):
 
 
     """
-        统计每种类型的节点的个数
-        """
+    统计每种类型的节点的个数
+    """
     def node_type_statistic(self):
         node_type_dict = dict()
         for n in self.nodes:
@@ -56,6 +56,12 @@ class Graph(nx.MultiDiGraph):
         file_path = os.path.join(dir_path, '%s.json' % file_name)
         with open(file_path, 'w', encoding='utf-8') as fw:
             json.dump(data, fw)
+
+    def get_data(self):
+        """输出结果"""
+        temp_graph = nx.MultiDiGraph(self)
+        data = nx.node_link_data(temp_graph)
+        return data
 
     def show(self):
         """将图显示至屏幕"""

@@ -1,5 +1,14 @@
+"""
+@description: 实体对应的子图组件生成过程
+@author: Xu Zhongkai
+@email: 1399350807@qq.com
+@time: 2019-05-27
+@version: 0.0.1
+"""
+
+
 import networkx as nx
-from graph import Graph
+from sementic_server.source.qa_graph.graph import Graph
 
 
 class QueryGraphComponent(Graph):

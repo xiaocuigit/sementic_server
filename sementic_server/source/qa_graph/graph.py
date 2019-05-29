@@ -12,11 +12,10 @@ import os
 
 
 class Graph(nx.MultiDiGraph):
-    def __init__(self, graph=None, file_name=None):
-        if file_name:
-            path = os.path.join(os.getcwd(), 'export', '%s.json' % file_name)
+    def __init__(self, graph=None, file_path=None):
+        if file_path:
             try:
-                with open(path, 'r', encoding='utf-8') as fr:
+                with open(file_path, 'r', encoding='utf-8') as fr:
                     data = json.load(fr)
                 graph = nx.node_link_graph(data)
             except Exception as e:
@@ -46,14 +45,10 @@ class Graph(nx.MultiDiGraph):
         # self.node_type_dict = node_type_dict
         return node_type_dict
 
-    def export(self, file_name):
+    def export(self, file_path):
         """将图导出至文件"""
         temp_graph = nx.MultiDiGraph(self)
         data = nx.node_link_data(temp_graph)
-        dir_path = os.path.join(os.getcwd(), 'export')
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-        file_path = os.path.join(dir_path, '%s.json' % file_name)
         with open(file_path, 'w', encoding='utf-8') as fw:
             json.dump(data, fw)
 

@@ -21,7 +21,7 @@ RELATION_DATA = dict()
 
 
 def init_default_edge():
-    if os.getcwd().split('\\')[-1] == 'qa_graph':
+    if os.path.basename(os.getcwd()) == 'qa_graph':
         path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'default_relation.csv')
     else:
         path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'default_relation.csv')
@@ -36,7 +36,7 @@ def init_default_edge():
 
 def init_relation_data():
     global RELATION_DATA
-    if os.getcwd().split('\\')[-1] == 'qa_graph':
+    if os.path.basename(os.getcwd()) == 'qa_graph':
         relation_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'relation.json')
     else:
         relation_path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'relation.json')

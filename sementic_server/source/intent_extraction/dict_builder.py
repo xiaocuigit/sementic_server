@@ -1,32 +1,22 @@
 """
-    构建纠错词典
+@description: 构建纠错词典
+@author: Wu Jiang-Heng
+@email: jiangh_wu@163.com
+@time: 2019-05-29
+@version: 0.0.1
 """
-from os.path import join
+
+from os.path import join, abspath
+from os import getcwd
 import yaml
 from pypinyin import lazy_pinyin
 from collections import Counter
 
 
-dir_yml = "yml"
-_int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-
-
-# def build_relation_table():
-#     new_int = dict()
-#     for k, v in _int.items():
-#         new_int[k] = v.copy()
-#         for item in v:
-#             rp = set(item) & repl["ch"].keys()
-#             for _rp in rp:
-#                 for x in repl["ch"][_rp]:
-#                     print(v)
-#                     new_int[k].append(item.replace(_rp, x))
-#
-#     yaml.dump(new_int, open(join(dir_yml,  "quesword.yml"), "w", encoding="utf-8"), allow_unicode=True)
-
-
 def build_wrong_table():
+    dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
+    _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+    repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     path_restable = join(dir_yml, "wrong_table.yml")
     _rel = yaml.load(open(join(dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     all_word = [v for vs in list(_rel.values()) + list(_int.values()) for v in vs if len(v) > 1]
@@ -48,7 +38,6 @@ def build_wrong_table():
             e += c
             c = 0
         return res
-
 
     # 规则库
     def transformer(word):
@@ -80,7 +69,6 @@ def build_wrong_table():
                         res.append(w.replace(kre, v))
         return res
 
-
     # 运行
     res_dict = {}
     for aw in all_word:
@@ -102,6 +90,3 @@ def build_wrong_table():
     yaml.dump(res_dict, open(path_restable, "w", encoding="utf-8"), allow_unicode=True)
 
 
-if __name__ == '__main__':
-    # build_relation_table()
-    build_wrong_table()

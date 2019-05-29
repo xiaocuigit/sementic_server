@@ -1,7 +1,11 @@
 """
-    实现意图、关系的识别
+@description: 实现关系、疑问词的识别
+@author: Wu Jiang-Heng
+@email: jiangh_wu@163.com
+@time: 2019-05-29
+@version: 0.0.1
 """
-from actree import Aho
+from sementic_server.source.intent_extraction.actree import Aho
 from functools import cmp_to_key
 
 

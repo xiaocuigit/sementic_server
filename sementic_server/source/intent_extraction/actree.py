@@ -1,4 +1,11 @@
-"""The implementation of actree"""
+"""
+@description: Ac自动机的实现
+@author: Wu Jiang-Heng
+@email: jiangh_wu@163.com
+@time: 2019-05-29
+@version: 0.0.1
+"""
+
 from queue import Queue
 
 

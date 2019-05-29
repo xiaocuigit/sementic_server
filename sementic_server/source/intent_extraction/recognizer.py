@@ -71,6 +71,8 @@ class Recognizer:
         words = self.query(q)
         w_os = list()
         res = list()
+
+        # find positions of words
         for w in words:
             i = 0
             while i != -1:
@@ -92,13 +94,17 @@ class Recognizer:
 
         w_os = sorted(w_os, key=cmp_to_key(cmp))
 
+        last_end = -1   # 记录上一个关键词结束的位置
         for i, t in enumerate(w_os):
+            if t[1] <= last_end:     # 如果本关键词开始的位置位于上个关键词内，则跳过此关键词
+                continue
             ok = True
             for j in range(i - 1, -1, -1):
                 if t[2] <= w_os[j][2]:
                     ok = False
                     break
             if ok:
+                last_end = t[2]
                 res.append({
                     "type": self.w2tp.get(t[0], "NIL"),
                     "mention": t[0],

@@ -20,8 +20,10 @@ class ItemMatcher:
         self.dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
         self.dir_data = join(abspath(getcwd()), "..", "..", "data", "pkl")
         self.path = join(self.dir_data, "reg.pkl")
-        self.rel2id = yaml.load(open(join(self.dir_yml, "rel2id.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-        self.int2id = yaml.load(open(join(self.dir_yml, "int2id.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+        # self.rel2id = yaml.load(open(join(self.dir_yml, "rel2id.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+        # self.int2id = yaml.load(open(join(self.dir_yml, "int2id.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+        self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+        self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
         if exists(self.path) and not new:
             with open(self.path, "rb") as f:
                 self.reg = pickle.load(f)
@@ -38,14 +40,14 @@ class ItemMatcher:
     def matcher(self, q: str):
         res = {"relation": [], "intent": '0', "raw_query": q, "correct_query": None, "correct": []}
         for item in self.reg.query4type(q):
-            if item["type"] in self.rel2id.keys():
+            if item["type"] in self.relations.keys():
                 item.update({"id": item["type"]})
                 res["relation"].append(item)
-            elif item["type"] in self.int2id:
-                if res["intent"] != '0' and res["intent"] != self.int2id[item["type"]]:
+            elif item["type"] in self.ques_word:
+                if res["intent"] != '0' and res["intent"] != item["type"]:
                     res["intent"] = '1'  # 冲突
                 else:
-                    res["intent"] = self.int2id[item["type"]]
+                    res["intent"] = item["type"]
 
             else:
                 res["correct"].append(item)

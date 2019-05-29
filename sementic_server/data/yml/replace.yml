@@ -1,0 +1,20 @@
+ch:
+  哪:
+    - 那
+    - 哪儿
+    - 那儿
+  什么:
+    - 啥
+
+pinyin:
+  in:
+    - ing
+  en:
+    - eng
+  ing:
+    - in
+  eng:
+    - en
+  ong:
+    - "on"
+

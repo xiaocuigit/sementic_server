@@ -1,0 +1,11 @@
+# 忽略以下目录包含的所有文件
+sementic_server/output/
+sementic_server/.DS_Store
+sementic_server/__pycache__/
+sementic_server/source/ner_task/__pycache__/
+sementic_server/source/qa_graph/__pycache__/
+sementic_server/source/intent_extraction/__pycache__/
+templates/
+.idea/*.*
+.idea/
+.DS_Store

@@ -9,3 +9,4 @@ templates/
 .idea/*.*
 .idea/
 .DS_Store
+sementic_server/data/pkl/

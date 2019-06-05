@@ -72,27 +72,28 @@ class Aho:
         while not q.empty():
             u = q.get()
             for i, x in st[u].next.items():     # 为当前结点的孩子结点x构建fail指针
-                if x > 0:
-                    if u == 0:
-                        """
-                            根节点的孩子结点的fail都为根节点
-                        """
-                        st[st[u].next[i]].fail = 0
-                    else:
-                        """
-                            取出当前结点的fail指针指向结点v，如果v存在边上为i的孩子结点，那么fail指向v
-                            否则 v = v.fail
-                        """
-                        v = st[u].fail
-                        while v > -1:
-                            if st[v].next.get(i, 0) > 0:
-                                st[st[u].next[i]].fail = st[v].next[i]
-                                break
-                            v = st[v].fail
+                if x <= 0:
+                    continue
+                if u == 0:
+                    """
+                        根节点的孩子结点的fail都为根节点
+                    """
+                    st[st[u].next[i]].fail = 0
+                else:
+                    """
+                        取出当前结点的fail指针指向结点v，如果v存在边上为i的孩子结点，那么fail指向v
+                        否则 v = v.fail
+                    """
+                    v = st[u].fail
+                    while v > -1:
+                        if st[v].next.get(i, 0) > 0:
+                            st[st[u].next[i]].fail = st[v].next[i]
+                            break
+                        v = st[v].fail
 
-                        if v == -1:
-                            st[st[u].next[i]].fail = 0
-                    q.put(st[u].next[i])
+                    if v == -1:
+                        st[st[u].next[i]].fail = 0
+                q.put(st[u].next[i])
 
     def match(self, s: list):
         """

@@ -65,6 +65,17 @@ def id2word(id2c: dict, ids: list):
     return word
 
 
+def cmp(x, y):
+    if x[1] < y[1]:
+        return -1
+    elif x[1] > y[1]:
+        return 1
+    if x[2] > y[2]:
+        return -1
+    else:
+        return 1
+
+
 class Recognizer:
     """
     @description: 实现关系、疑问词的识别
@@ -114,17 +125,6 @@ class Recognizer:
                 if i != -1:
                     w_os.append((w, i, i + len(w) - 1))
                     i += 1
-
-        def cmp(x, y):
-            if x[1] < y[1]:
-                return -1
-            elif x[1] > y[1]:
-                return 1
-            else:
-                if x[2] > y[2]:
-                    return -1
-                else:
-                    return 1
 
         w_os = sorted(w_os, key=cmp_to_key(cmp))
 

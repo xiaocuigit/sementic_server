@@ -11,6 +11,7 @@ from sementic_server.source.ner_task.account import get_account_sets
 
 if __name__ == '__main__':
     semantic = SemanticSearch(test_mode=True)
+
     while True:
         sentence = input("please input:")
         result_account = get_account_sets(sentence)

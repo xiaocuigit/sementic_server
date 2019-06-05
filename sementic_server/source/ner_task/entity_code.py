@@ -41,10 +41,11 @@ class EntityCode:
             'COMPANY': "902"
         }
 
-        self.account = ['Qiu', 'Tel', 'Ftel', 'Idcard', 'MblogUid', 'Email', 'WechatNum', 'QiuGroup', 'AliPay', 'JD']
+        self.account = ['Qiu', 'Tel', 'Ftel', 'Idcard', 'MblogUid', 'Email', 'WechatNum', 'QiuGroup', 'AliPay', 'JD',
+                        'UNLABEL']
 
         self.entities = ['NAME', 'COMPANY', 'ADDR', 'DATE', 'Qiu', 'Tel', 'Ftel', 'Idcard', 'MblogUid', 'Email',
-                         'WechatNum', 'QiuGroup', 'AliPay', 'JD']
+                         'WechatNum', 'QiuGroup', 'AliPay', 'JD', 'UNLABEL']
         self.ner_entities = ['NAME', 'COMPANY', 'ADDR', 'DATE']
 
     def get_entity_or_relation_code(self, word):

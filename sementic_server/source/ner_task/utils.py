@@ -172,7 +172,8 @@ def convert_output_data_format(data_param):
     entity = []
     for key, values in data_param["labels"].items():
         for v in values:
-            entity.append({"type": key, "value": v, "offset": data_param["raw_input"].find(v)})
+            begin = data_param["raw_input"].find(v)
+            entity.append({"type": key, "value": v, "begin": begin, "end": begin + len(v) + 1 if begin != -1 else -1})
     output["entity"] = entity
     return output
 

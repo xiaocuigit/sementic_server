@@ -8,7 +8,7 @@
 
 
 from os.path import join, exists, abspath
-from os import getcwd
+from os import getcwd, mkdir
 from sementic_server.source.intent_extraction.recognizer import Recognizer
 import pickle
 import yaml
@@ -30,6 +30,11 @@ class ItemMatcher:
         self.dir_data = join(abspath(getcwd()), "..", "..", "data")
         self.dir_yml = join(self.dir_data, "yml")
         self.dir_pkl = join(self.dir_data, "pkl")
+
+        if not exists(self.dir_yml):
+            mkdir(self.dir_yml)
+        if not exists(self.dir_pkl):
+            mkdir(self.dir_pkl)
 
         # 获得关系词和疑问词的类型词典
         self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)

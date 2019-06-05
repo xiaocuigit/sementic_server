@@ -31,8 +31,6 @@ class ItemMatcher:
         self.dir_yml = join(self.dir_data, "yml")
         self.dir_pkl = join(self.dir_data, "pkl")
 
-        if not exists(self.dir_yml):
-            mkdir(self.dir_yml)
         if not exists(self.dir_pkl):
             mkdir(self.dir_pkl)
 
@@ -91,8 +89,8 @@ class ItemMatcher:
                         cursor = (record[p][0], record[p][1])
                 else:
                     cq += c
+            res_corr['correct_query'] = cq
 
-        res_corr['correct_query'] = cq
         return res_corr
 
     def match(self, q: str, need_correct=True):

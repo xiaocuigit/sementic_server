@@ -58,5 +58,5 @@ class ItemMatcher:
 if __name__ == '__main__':
     from pprint import pprint
     im = ItemMatcher(True)
-    r = im.matcher("张三的爸爸祖父的laopo的是谁")
+    r = im.matcher("张三的爸爸祖父的fuqing的是谁")
     pprint(r)

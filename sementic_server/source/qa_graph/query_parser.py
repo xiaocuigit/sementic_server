@@ -26,7 +26,6 @@ def init_default_edge():
     else:
         path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'default_relation.csv')
     path = os.path.abspath(path)
-    # path = os.path.join(os.getcwd(), 'ontology', 'default_relation.csv')
     with open(path, 'r') as csv_file:
         csv_file.readline()
         csv_reader = csv.reader(csv_file)
@@ -74,7 +73,6 @@ class QueryParser:
             # 节点一样多说明上一轮没有合并
             # 图已连通也不用合并
             self.old_query_graph = copy.deepcopy(self.query_graph)
-            # self.node_type_dict = dict()
             self.node_type_dict = self.query_graph.node_type_statistic()
             self.component_assemble()
         self.add_intention()
@@ -90,7 +88,6 @@ class QueryParser:
     def add_default_edge(self):
         flag = False
         components_set = self.query_graph.get_connected_components_subgraph()
-        # d0 = {'ADDRESS': [0], 'PERSON':[1, 2]}
         d0 = Graph(components_set[0]).node_type_statistic()
         d1 = Graph(components_set[1]).node_type_statistic()
         candidates = itertools.product(d0.keys(), d1.keys())
@@ -114,10 +111,10 @@ class QueryParser:
     def add_intention(self):
         # 也需要依存分析,待改进
         for n in self.query_graph.nodes:
-            if self.query_graph.node[n]['label'] == 'concept':
-                node_type = self.query_graph.node[n]['type']
+            if self.query_graph.nodes[n]['label'] == 'concept':
+                node_type = self.query_graph.nodes[n]['type']
                 if node_type == self.intent:
-                    self.query_graph.node[n]['intent'] = True
+                    self.query_graph.nodes[n]['intent'] = True
                     break
 
     def component_assemble(self):
@@ -146,10 +143,10 @@ class QueryParser:
                 relation_component = nx.MultiDiGraph()
                 relation_component.add_edge('temp_0', 'temp_1', r['type'], **r)
                 for n in relation_component.nodes:
-                    relation_component.node[n]['label'] = 'concept'
+                    relation_component.nodes[n]['label'] = 'concept'
 
-                relation_component.node['temp_0']['type'] = RELATION_DATA[r['type']]['domain']
-                relation_component.node['temp_1']['type'] = RELATION_DATA[r['type']]['range']
+                relation_component.nodes['temp_0']['type'] = RELATION_DATA[r['type']]['domain']
+                relation_component.nodes['temp_1']['type'] = RELATION_DATA[r['type']]['range']
                 self.relation_component_list.append(relation_component)
 
 
@@ -167,9 +164,8 @@ if __name__ == '__main__':
         "intent": 'PERSON'
     }
     qg = QueryParser(data_dict)
+
     qg.query_graph.show()
-    # g = Graph(qg.query_graph)
-    # g.show()
-    qg.query_graph.export('query_graph')
+    # qg.query_graph.export('query_graph')
 
 

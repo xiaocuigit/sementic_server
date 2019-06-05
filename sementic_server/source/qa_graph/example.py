@@ -9,8 +9,10 @@
 
 import os
 import json
+import logging
 from sementic_server.source.qa_graph.query_parser import QueryParser
 
+logger = logging.getLogger("server_log")
 
 if __name__ == '__main__':
     case_num = 2

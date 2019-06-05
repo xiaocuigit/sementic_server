@@ -24,25 +24,25 @@ class QueryGraphComponent(Graph):
             self.init_account_component()
         elif entity['type'] == 'NAME':
             self.add_edge('p', 'p_name', 'HAS_NAME')
-            self.node['p']['label'] = 'concept'
-            self.node['p']['type'] = 'PERSON'
-            self.node['p_name']['label'] = 'literal'
-            self.node['p_name']['type'] = 'string'
-            self.node['p_name']['entity'] = entity
+            self.nodes['p']['label'] = 'concept'
+            self.nodes['p']['type'] = 'PERSON'
+            self.nodes['p_name']['label'] = 'literal'
+            self.nodes['p_name']['type'] = 'string'
+            self.nodes['p_name']['entity'] = entity
         elif entity['type'] == 'COMPANY':
             self.add_edge('comp', 'comp_name', 'COMP_NAME')
-            self.node['comp']['label'] = 'concept'
-            self.node['comp']['type'] = 'COMPANY'
-            self.node['comp_name']['label'] = 'literal'
-            self.node['comp_name']['type'] = 'string'
-            self.node['comp_name']['entity'] = entity
+            self.nodes['comp']['label'] = 'concept'
+            self.nodes['comp']['type'] = 'COMPANY'
+            self.nodes['comp_name']['label'] = 'literal'
+            self.nodes['comp_name']['type'] = 'string'
+            self.nodes['comp_name']['entity'] = entity
         elif entity['type'] == 'ADDR':
             self.add_edge('addr', 'addr_name', 'ADDR_NAME')
-            self.node['addr']['label'] = 'concept'
-            self.node['addr']['type'] = 'ADDRESS'
-            self.node['addr_name']['label'] = 'literal'
-            self.node['addr_name']['type'] = 'string'
-            self.node['addr_name']['entity'] = entity
+            self.nodes['addr']['label'] = 'concept'
+            self.nodes['addr']['type'] = 'ADDRESS'
+            self.nodes['addr_name']['label'] = 'literal'
+            self.nodes['addr_name']['type'] = 'string'
+            self.nodes['addr_name']['entity'] = entity
         else:
             print(entity)
             print('Unknown entity type!')
@@ -51,15 +51,15 @@ class QueryGraphComponent(Graph):
         self.add_edge('person', 'account', 'HAS_%s' % self.entity['type'])
         self.add_edge('account', 'account_num', 'ACCOUNT_NUM')
 
-        self.node['person']['label'] = 'concept'
-        self.node['person']['type'] = 'PERSON'
+        self.nodes['person']['label'] = 'concept'
+        self.nodes['person']['type'] = 'PERSON'
 
-        self.node['account']['label'] = 'concept'
-        self.node['account']['type'] = self.entity['type']
+        self.nodes['account']['label'] = 'concept'
+        self.nodes['account']['type'] = self.entity['type']
 
-        self.node['account_num']['label'] = 'literal'
-        self.node['account_num']['type'] = 'string'
-        self.node['account_num']['entity'] = self.entity
+        self.nodes['account_num']['label'] = 'literal'
+        self.nodes['account_num']['type'] = 'string'
+        self.nodes['account_num']['entity'] = self.entity
 
 
 if __name__ == '__main__':
@@ -69,7 +69,3 @@ if __name__ == '__main__':
     c1 = QueryGraphComponent(e[1])
     c1.show()
 
-    # g = nx.disjoint_union_all([Graph(c0), Graph(c1)])
-    # # c = QueryGraphComponent(e)
-    # # g = Graph(c)
-    # g.show()

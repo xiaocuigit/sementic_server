@@ -59,7 +59,7 @@ class ItemMatcher:
             self.reg = Recognizer(concepts)
             pickle.dump(self.reg, open(self.path_reg, "wb"))
 
-    def _correct(self, q: str):
+    def correct(self, q: str):
         """
         纠错函数
         :param q:   原始查询
@@ -104,7 +104,7 @@ class ItemMatcher:
         """
         res = {"relation": [], "intent": '0', "raw_query": q, "query": q, "is_corr": need_correct, "correct_info": None}
         if need_correct:
-            res["correct_info"] = self._correct(q)
+            res["correct_info"] = self.correct(q)
             res["query"] = res["correct_info"]["correct_query"]
 
         for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词

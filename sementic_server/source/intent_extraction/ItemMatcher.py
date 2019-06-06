@@ -91,8 +91,8 @@ class ItemMatcher:
                         cursor = (record[p][0], record[p][1])
                 else:
                     cq += c
+            res_corr['correct_query'] = cq
 
-        res_corr['correct_query'] = cq
         return res_corr
 
     def match(self, q: str, need_correct=True):

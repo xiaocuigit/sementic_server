@@ -8,7 +8,6 @@
 
 
 import os
-import json
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
@@ -19,8 +18,8 @@ if __name__ == '__main__':
     item_matcher = ItemMatcher(new=True)
     while True:
         sentence = input("please input:")
-        intent = item_matcher.matcher(sentence)
-        result_account = get_account_sets(sentence)
+        intent = item_matcher.match(sentence)
+        result_account = get_account_sets(intent["query"])
         result = semantic.sentence_ner_entities(result_account)
         print(dict(result))
         print(intent)

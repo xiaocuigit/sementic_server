@@ -13,31 +13,31 @@ from pypinyin import lazy_pinyin
 from collections import Counter
 
 
+def power_set(n):
+    res = [[]]
+    b, e, c = 0, 1, 0
+    while b < e:
+        x = 0
+        if not res[b] == []:
+            x = res[b][-1] + 1
+        for i in range(x, n):
+            c += 1
+            tmp = res[b].copy()
+            tmp.append(i)
+            res.append(tmp)
+
+        b += 1
+        e += c
+        c = 0
+    return res
+
+
 def build_wrong_table():
     dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
     _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-    path_restable = join(dir_yml, "wrong_table.yml")
     _rel = yaml.load(open(join(dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     all_word = [v for vs in list(_rel.values()) + list(_int.values()) for v in vs if len(v) > 1]
-
-    def power_set(n):
-        res = [[]]
-        b, e, c = 0, 1, 0
-        while b < e:
-            x = 0
-            if not res[b] == []:
-                x = res[b][-1] + 1
-            for i in range(x, n):
-                c += 1
-                tmp = res[b].copy()
-                tmp.append(i)
-                res.append(tmp)
-
-            b += 1
-            e += c
-            c = 0
-        return res
 
     # 规则库
     def transformer(word):
@@ -87,6 +87,9 @@ def build_wrong_table():
         for xi in x:
             res_dict[k].remove(xi)
 
+    path_restable = join(dir_yml, "wrong_table.yml")
     yaml.dump(res_dict, open(path_restable, "w", encoding="utf-8"), allow_unicode=True)
 
 
+if __name__ == '__main__':
+    build_wrong_table()

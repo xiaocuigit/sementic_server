@@ -23,6 +23,7 @@ ID = 'Idcard'
 MBLOG = 'MblogUid'
 ALIPAY = 'AliPay'
 JD = 'JD'
+UNLABEL = 'UNLABEL'
 
 
 def is_legal_id_card(candidate):
@@ -271,7 +272,7 @@ def get_account_sets(raw_input):
     account_list = defaultdict(list)
     sentence = raw_input
     for result in re.findall(pattern_account, raw_input):
-        if len(result) != 0:
+        if len(result) >= 3:
             if is_email(result):
                 label = get_candidate_label(raw_input, result)
                 if label:
@@ -305,6 +306,12 @@ def get_account_sets(raw_input):
                 else:
                     account_list[QQ].append(result)
                     sentence = sentence.replace(result, QQ)
+            else:
+                if result in ['QQ', 'qq']:
+                    continue
+                # 未识别账户标识为 UNLABEL 标签
+                account_list[UNLABEL].append(result)
+                sentence = sentence.replace(result, UNLABEL)
 
     account_result = {'raw_input': raw_input, 'labels': account_list, 'new_input': sentence}
     return account_result

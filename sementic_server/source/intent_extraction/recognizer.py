@@ -31,6 +31,13 @@ def build_vocab(vo_dict: dict):
 
 
 def word2id(c2id: dict, word: str):
+    """
+    将一个词用词典c2id组织成列表的形式
+
+    :param c2id: 字符->id的词典
+    :param word: 输入的单词
+    :return:    输入单词对应的字符索引列表
+    """
     word_id = list()
 
     for i, c in enumerate(word):
@@ -42,18 +49,46 @@ def word2id(c2id: dict, word: str):
 
 
 def id2word(id2c: dict, ids: list):
+    """
+    将一个字符索引列表组织成单词
+
+    :param id2c: id->字符的词典
+    :param ids:  输入的字符索引列表
+    :return:     字符列表对应的单词
+    """
     word = ""
     for i in ids:
         if i in id2c:
             word += id2c[i]
         else:
-            word += "---"
+            return ""
     return word
 
 
+def cmp(x, y):
+    if x[1] < y[1]:
+        return -1
+    elif x[1] > y[1]:
+        return 1
+    if x[2] > y[2]:
+        return -1
+    else:
+        return 1
+
+
 class Recognizer:
+    """
+    @description: 实现关系、疑问词的识别
+    @author: Wu Jiang-Heng
+    @email: jiangh_wu@163.com
+    @time: 2019-05-29
+    @version: 0.0.1
+    """
     def __init__(self, vocab: dict):
-        # 建树
+        """
+        利用词典建树
+        :param vocab:
+        """
         self.w2tp, self.c2id, self.id2c = build_vocab(vocab)
         self.actree = Aho()
         for vls in vocab.values():
@@ -62,12 +97,22 @@ class Recognizer:
         self.actree.build()
 
     def query(self, q: str):
+        """
+        利用AC自动机查询q中包含的词典词汇
+        :param q:
+        :return:
+        """
         q2id = word2id(self.c2id, q)
         match_node = self.actree.match(q2id)
         res_word_id = self.actree.parse(match_node)
         return [id2word(self.id2c, rwi) for rwi in res_word_id]
 
     def query4type(self, q: str):
+        """
+        将词典词汇和其类型对应
+        :param q:
+        :return:
+        """
         words = self.query(q)
         w_os = list()
         res = list()
@@ -80,17 +125,6 @@ class Recognizer:
                 if i != -1:
                     w_os.append((w, i, i + len(w) - 1))
                     i += 1
-
-        def cmp(x, y):
-            if x[1] < y[1]:
-                return -1
-            elif x[1] > y[1]:
-                return 1
-            else:
-                if x[2] > y[2]:
-                    return -1
-                else:
-                    return 1
 
         w_os = sorted(w_os, key=cmp_to_key(cmp))
 
@@ -108,7 +142,8 @@ class Recognizer:
                 res.append({
                     "type": self.w2tp.get(t[0], "NIL"),
                     "value": t[0],
-                    "offset": t[1],
+                    "begin": t[1],
+                    "end":  t[2] + 1
                 })
 
         return res

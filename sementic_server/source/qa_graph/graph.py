@@ -8,7 +8,8 @@
 
 import networkx as nx
 import json
-import os
+import logging
+logger = logging.getLogger("server_log")
 
 
 class Graph(nx.MultiDiGraph):
@@ -19,7 +20,7 @@ class Graph(nx.MultiDiGraph):
                     data = json.load(fr)
                 graph = nx.node_link_graph(data)
             except Exception as e:
-                print(e)
+                logger.error(e)
         nx.MultiDiGraph.__init__(self, graph)
 
     def get_connected_components_subgraph(self):
@@ -37,12 +38,11 @@ class Graph(nx.MultiDiGraph):
     def node_type_statistic(self):
         node_type_dict = dict()
         for n in self.nodes:
-            if self.node[n]['label'] == 'concept':
-                node_type = self.node[n]['type']
+            if self.nodes[n]['label'] == 'concept':
+                node_type = self.nodes[n]['type']
                 if node_type not in node_type_dict.keys():
                     node_type_dict[node_type] = list()
                 node_type_dict[node_type].append(n)
-        # self.node_type_dict = node_type_dict
         return node_type_dict
 
     def export(self, file_path):
@@ -61,14 +61,14 @@ class Graph(nx.MultiDiGraph):
     def show(self):
         """将图显示至屏幕"""
         if not self:
-            print("There is nothing to show!")
+            logger.info("There is nothing to show!")
             return
         flag = True
         if not self.is_multigraph():
             flag = False
         print('=================The graph have %d nodes==================' % len(self.nodes))
         for n in self.nodes:
-            data = self.node[n]
+            data = self.nodes[n]
             print(str(n).ljust(30), '\t', str(data).ljust(30))
         # print('=================The graph have %d edges==================' % len(self.edges))
         print('The graph have %d edges'.center(100, '=') % len(self.edges))

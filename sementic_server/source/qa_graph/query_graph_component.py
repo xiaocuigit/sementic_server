@@ -23,7 +23,7 @@ class QueryGraphComponent(Graph):
         if entity['type'] in account_type_list:
             self.init_account_component()
         elif entity['type'] == 'NAME':
-            self.add_edge('p', 'p_name', 'HAS_NAME')
+            self.add_edge('p', 'p_name', 'NAME')
             self.nodes['p']['label'] = 'concept'
             self.nodes['p']['type'] = 'PERSON'
             self.nodes['p_name']['label'] = 'literal'
@@ -37,7 +37,7 @@ class QueryGraphComponent(Graph):
             self.nodes['comp_name']['type'] = 'string'
             self.nodes['comp_name']['entity'] = entity
         elif entity['type'] == 'ADDR':
-            self.add_edge('addr', 'addr_name', 'ADDR_NAME')
+            self.add_edge('addr', 'addr_name', 'ADDR')
             self.nodes['addr']['label'] = 'concept'
             self.nodes['addr']['type'] = 'ADDRESS'
             self.nodes['addr_name']['label'] = 'literal'
@@ -48,14 +48,22 @@ class QueryGraphComponent(Graph):
             print('Unknown entity type!')
 
     def init_account_component(self):
-        self.add_edge('person', 'account', 'HAS_%s' % self.entity['type'])
+        # 由于本体定义与实体定义未统一，做一个映射
+        mapping = {'Tel': 'MobileNum',
+                   }
+        if self.entity['type'] in mapping.keys():
+            temp_type = mapping[self.entity['type']]
+        else:
+            temp_type = self.entity['type']
+
+        self.add_edge('person', 'account', 'Phas%s' % temp_type)
         self.add_edge('account', 'account_num', 'ACCOUNT_NUM')
 
         self.nodes['person']['label'] = 'concept'
         self.nodes['person']['type'] = 'PERSON'
 
         self.nodes['account']['label'] = 'concept'
-        self.nodes['account']['type'] = self.entity['type']
+        self.nodes['account']['type'] = temp_type
 
         self.nodes['account_num']['label'] = 'literal'
         self.nodes['account_num']['type'] = 'string'

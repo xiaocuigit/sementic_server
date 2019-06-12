@@ -11,6 +11,7 @@ import networkx as nx
 import json
 import os
 import itertools
+import pandas as pd
 import csv
 import copy
 from sementic_server.source.qa_graph.graph import Graph
@@ -34,14 +35,25 @@ def init_default_edge():
 
 
 def init_relation_data():
+    """
+    将object_attribute.csv中的对象属性读取为一个关系字典
+    :return:
+    """
     global RELATION_DATA
     if os.path.basename(os.getcwd()) == 'qa_graph':
-        relation_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'relation.json')
+        relation_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir,
+                                     'data', 'ontology', 'object_attribute.csv')
     else:
-        relation_path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'relation.json')
-    relation_path = os.path.abspath(relation_path)
-    with open(relation_path, 'r') as fr:
-        RELATION_DATA = json.load(fr)
+        relation_path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'object_attribute.csv')
+    df = pd.read_csv(relation_path)
+    for i, row in df.iterrows():
+        temp_dict = dict()
+        temp_dict['domain'] = row['domain']
+        temp_dict['range'] = row['range']
+        if not isinstance(row['belong'], bool):
+            row['belong'] = False
+        temp_dict['belong'] = row['belong']
+        RELATION_DATA[row['property']] = temp_dict
 
 
 init_default_edge()
@@ -155,17 +167,16 @@ if __name__ == '__main__':
         "entity": [{"type": "NAME",
                     "value": "张三",
                     "code": 0},
-                   {"type": "TEL", "value": "139999999999", "code": 0}],
-        "relation": [{"type": "ParentToChild",
-                      "value": "父亲",
+                   {"type": "Tel", "value": "18220566120", "code": 0}],
+        "relation": [{"type": "HusbandToWife",
+                      "value": "妻子",
                       "offset": 3,
                       "code": 0},
                      ],
         "intent": 'PERSON'
     }
-    qg = QueryParser(data_dict)
 
+    qg = QueryParser(data_dict)
     qg.query_graph.show()
-    # qg.query_graph.export('query_graph')
 
 

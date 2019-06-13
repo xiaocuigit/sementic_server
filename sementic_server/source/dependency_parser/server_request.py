@@ -5,7 +5,6 @@ from server_config import config
 
 
 class ServerRequest:
-
     # 初始化服务器参数
     def __init__(self):
         self.server_ip = config['server_ip']
@@ -23,7 +22,7 @@ class ServerRequest:
         dependency_tree = response_dict['sentences'][0]['enhancedPlusPlusDependencies']
         tokens = response_dict['sentences'][0]['tokens']
 
-        return dependency_tree,tokens
+        return dependency_tree, tokens
 
 if __name__ == '__main__':
     dependency_tree,tokens = ServerRequest().get_dependency('张三的老婆是谁')

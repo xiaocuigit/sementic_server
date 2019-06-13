@@ -12,7 +12,7 @@ class ServerRequest:
         self.annotators = config['server_type']['depparse']
 
     # 发送请求到服务器
-    def send_request(self,data):
+    def send_request(self, data):
         url = 'http://'+self.server_ip+':'+self.server_port+'/?properties={"annotators":"'+self.annotators+'","outputFormat":"json"}'
 
         # 请求的数据必须编码为UTF-8

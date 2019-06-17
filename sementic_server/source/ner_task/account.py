@@ -14,15 +14,15 @@ from collections import defaultdict
 
 PUNCTUATION = [',', '，', '~', '!', '！', '。', '.', '?', '？']
 EMAIL = 'Email'
-MPHONE = 'Tel'
-PHONE = 'Ftel'
-QQ = 'Qiu'
-QQ_GROUP = 'QiuGroup'
-WECHAT = 'WechatNum'
-ID = 'Idcard'
-MBLOG = 'MblogUid'
-ALIPAY = 'AliPay'
-JD = 'JD'
+MPHONE = 'MOB'
+PHONE = 'PHONE'
+QQ = 'QQNUM'
+QQ_GROUP = 'GROUP_NUM'
+WECHAT = 'WX'
+ID = 'CERT_CODE'
+MBLOG = 'WEIBO_UID'
+ALIPAY = 'WANGWANG'
+JD = 'WANGWANG'
 UNLABEL = 'UNLABEL'
 
 

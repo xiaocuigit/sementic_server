@@ -6,13 +6,13 @@ import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
-from sementic_server.source.intent_extraction.ItemMatcher import ItemMatcher
+from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.ner_task.account import get_account_sets
 
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
-item_matcher = ItemMatcher(True)
+item_matcher = ItemMatcher(new_actree=True)
 
 logger = logging.getLogger("server_log")
 

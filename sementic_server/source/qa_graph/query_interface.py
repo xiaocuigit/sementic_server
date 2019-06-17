@@ -192,7 +192,7 @@ class QueryInterface(object):
 
 
 if __name__ == '__main__':
-    case_num = 4
+    case_num = 1
     # [1, 2, 4]
     if os.path.basename(os.getcwd()) == 'qa_graph':
         path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)

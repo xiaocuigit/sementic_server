@@ -8,8 +8,9 @@
 
 
 from os.path import join, exists, abspath
-from os import getcwd, mkdir
+from os import mkdir
 from sementic_server.source.intent_extraction.recognizer import Recognizer
+from sementic_server.source.intent_extraction.system_info import SystemInfo
 import pickle
 import yaml
 
@@ -22,12 +23,14 @@ class ItemMatcher:
     @time: 2019-05-29
     @version: 0.0.1
     """
-    def __init__(self, new=False):
+    def __init__(self, new_actree=False, is_test=False):
         self.reg = None     # 识别AC
         self.corr = None    # 纠错AC
-        
+        si = SystemInfo(is_test)
+
         # 获得根目录的地址
-        self.dir_data = join(abspath(getcwd()), "..", "..", "data")
+        self.dir_data = join(si.base_path, "data")
+
         self.dir_yml = join(self.dir_data, "yml")
         self.dir_pkl = join(self.dir_data, "pkl")
 
@@ -42,7 +45,7 @@ class ItemMatcher:
 
         # 构建纠错AC
         self.path_corr = join(self.dir_pkl, "corr.pkl")
-        if exists(self.path_corr) and not new:
+        if exists(self.path_corr) and not new_actree:
             with open(self.path_reg, "rb") as f:
                 self.reg = pickle.load(f)
         else:
@@ -52,7 +55,7 @@ class ItemMatcher:
 
         # 构建识别AC
         self.path_reg = join(self.dir_pkl, "reg.pkl")
-        if exists(self.path_reg) and not new:
+        if exists(self.path_reg) and not new_actree:
             with open(self.path_reg, "rb") as f:
                 self.reg = pickle.load(f)
         else:
@@ -123,6 +126,6 @@ class ItemMatcher:
 
 if __name__ == '__main__':
     from pprint import pprint
-    im = ItemMatcher(True)
+    im = ItemMatcher(new_actree=True, is_test=True)
     r = im.match("张三的爸爸祖父的laopoo的是谁")
     pprint(r)

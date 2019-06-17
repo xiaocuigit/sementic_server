@@ -15,6 +15,17 @@ import pickle
 import yaml
 
 
+def load_actree(pkl_path):
+    with open(pkl_path, "rb") as f:
+        return pickle.load(f)
+
+
+def build_actree(dict_info, pkl_path):
+    reg = Recognizer(dict_info)
+    pickle.dump(reg, open(pkl_path, "wb"))
+    return reg
+
+
 class ItemMatcher:
     """
     @description: 匹配接口类
@@ -30,39 +41,37 @@ class ItemMatcher:
 
         # 获得根目录的地址
         self.dir_data = join(si.base_path, "data")
-
         self.dir_yml = join(self.dir_data, "yml")
         self.dir_pkl = join(self.dir_data, "pkl")
 
-        if not exists(self.dir_yml):
-            mkdir(self.dir_yml)
-        if not exists(self.dir_pkl):
-            mkdir(self.dir_pkl)
-
         # 获得关系词和疑问词的类型词典
+        assert exists(self.dir_yml)
         self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
         self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+        self.reg_dict = self.relations.copy()
+        self.reg_dict.update(self.ques_word)
 
-        # 构建纠错AC
+        # 纠错词典
+        self.wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+
+        # actree
+        if not exists(self.dir_pkl):
+            mkdir(self.dir_pkl)
         self.path_corr = join(self.dir_pkl, "corr.pkl")
-        if exists(self.path_corr) and not new_actree:
-            with open(self.path_reg, "rb") as f:
-                self.reg = pickle.load(f)
-        else:
-            wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-            self.corr = Recognizer(wrong_word)
-            pickle.dump(self.corr, open(self.path_corr, "wb"))
-
-        # 构建识别AC
         self.path_reg = join(self.dir_pkl, "reg.pkl")
-        if exists(self.path_reg) and not new_actree:
-            with open(self.path_reg, "rb") as f:
-                self.reg = pickle.load(f)
+        self.corr = None
+        self.reg = None
+
+        if new_actree:
+            self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
+            self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
+        elif not exists(self.path_corr):
+            self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
+        elif not exists(self.path_reg):
+            self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
         else:
-            concepts = self.relations.copy()
-            concepts.update(self.ques_word)
-            self.reg = Recognizer(concepts)
-            pickle.dump(self.reg, open(self.path_reg, "wb"))
+            self.corr = load_actree(pkl_path=self.path_corr)
+            self.reg = load_actree(pkl_path=self.path_reg)
 
     def correct(self, q: str):
         """
@@ -126,6 +135,12 @@ class ItemMatcher:
 
 if __name__ == '__main__':
     from pprint import pprint
+    from time import time
     im = ItemMatcher(new_actree=True, is_test=True)
-    r = im.match("张三的爸爸祖父的laopoo的是谁")
+    r = im.match("张三的爸爸祖父的naopoo的是谁")
     pprint(r)
+    while 1:
+        i = input()
+        s = time()
+        pprint(im.match(i))
+        print(time() - s)

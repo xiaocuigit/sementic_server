@@ -13,4 +13,4 @@ class SystemInfo(object):
         if is_test:
             self.base_path = join(abspath(getcwd()), "..", "..")
         else:
-            self.base_path = join(abspath(getcwd()), "sementic_server", "data")
+            self.base_path = join(abspath(getcwd()), "sementic_server")

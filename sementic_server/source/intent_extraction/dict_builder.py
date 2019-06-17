@@ -6,12 +6,11 @@
 @version: 0.0.1
 """
 
-from os.path import join, abspath
-from os import getcwd
+from os.path import join
 import yaml
 from pypinyin import lazy_pinyin
 from collections import Counter
-
+from sementic_server.source.intent_extraction.system_info import SystemInfo
 
 def power_set(n):
     res = [[]]
@@ -32,8 +31,9 @@ def power_set(n):
     return res
 
 
-def build_wrong_table():
-    dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
+def build_wrong_table(is_test=False):
+    si = SystemInfo(is_test)
+    dir_yml = join(si.base_path, "..", "..", "data", "yml")
     _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     _rel = yaml.load(open(join(dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
@@ -89,6 +89,7 @@ def build_wrong_table():
 
     path_restable = join(dir_yml, "wrong_table.yml")
     yaml.dump(res_dict, open(path_restable, "w", encoding="utf-8"), allow_unicode=True)
+
 
 
 if __name__ == '__main__':

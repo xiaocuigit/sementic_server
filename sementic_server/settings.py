@@ -26,7 +26,7 @@ SECRET_KEY = 'e%yhc*2simuiu0+sf8s-ea$$8ap(*c^%(%zmbi(%+k%+w026n&'
 # DEBUG = True
 DEBUG = False
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['*', ]
 
 # Application definition
 LOGGING_DIR = "./sementic_server/output/logs"
@@ -55,7 +55,8 @@ LOGGING = {
         },
         'fileHandler': {
             'level': 'INFO',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            "when": "D",
             'formatter': 'simple',
             'filename': '%s/server.log' % LOGGING_DIR
         }

@@ -13,11 +13,13 @@ from sementic_server.source.intent_extraction.recognizer import Recognizer
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 import pickle
 import yaml
-from sementic_server.source.intent_extraction.logger import construt_log, logger
+from sementic_server.source.intent_extraction.logger import construt_log, get_logger
 import logging
 from time import time
 
-logging.getLogger("server_log")
+
+correct_logger = get_logger()
+server_logger = logging.getLogger("server_log")
 
 
 def load_actree(pkl_path):
@@ -127,7 +129,7 @@ class ItemMatcher:
                     cq += c
             res_corr['correct_query'] = cq
 
-        logger.info(f"{construt_log(raw_query=q, correct_info=res_corr, using_time=time()-start_time)}")
+        correct_logger.info(f"{construt_log(raw_query=q, correct_info=res_corr, using_time=time()-start_time)}")
         logging.info(f"Correcting the query time used: {time()-start_time}")
         return res_corr
 

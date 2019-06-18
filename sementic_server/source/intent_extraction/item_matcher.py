@@ -7,22 +7,33 @@
 """
 
 
-from os.path import join, exists, abspath
+from os.path import join, exists
 from os import mkdir
 from sementic_server.source.intent_extraction.recognizer import Recognizer
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 import pickle
 import yaml
+from sementic_server.source.intent_extraction.logger import construt_log, logger
+import logging
+from time import time
+
+logging.getLogger("server_log")
 
 
 def load_actree(pkl_path):
+    start = time()
     with open(pkl_path, "rb") as f:
-        return pickle.load(f)
+        aho = pickle.load(f)
+        logging.info(f"Loading AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")
+        return aho
 
 
 def build_actree(dict_info, pkl_path):
+    start = time()
     reg = Recognizer(dict_info)
     pickle.dump(reg, open(pkl_path, "wb"))
+    logging.info(f"Building AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")
+
     return reg
 
 
@@ -45,14 +56,19 @@ class ItemMatcher:
         self.dir_pkl = join(self.dir_data, "pkl")
 
         # 获得关系词和疑问词的类型词典
-        assert exists(self.dir_yml)
-        self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-        self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+        self.relations, self.ques_word, self.wrong_word = dict(), dict(), dict()
+        try:
+            self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+            self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+            self.wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"), encoding="utf-8"),
+                                        Loader=yaml.SafeLoader)
+        except FileNotFoundError as e:
+            logging.error(f"Cannot find the file in {self.dir_yml}, {e}")
+
         self.reg_dict = self.relations.copy()
         self.reg_dict.update(self.ques_word)
 
         # 纠错词典
-        self.wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
 
         # actree
         if not exists(self.dir_pkl):
@@ -62,16 +78,21 @@ class ItemMatcher:
         self.corr = None
         self.reg = None
 
-        if new_actree:
-            self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
-            self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
-        elif not exists(self.path_corr):
-            self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
-        elif not exists(self.path_reg):
-            self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
-        else:
-            self.corr = load_actree(pkl_path=self.path_corr)
-            self.reg = load_actree(pkl_path=self.path_reg)
+        try:
+            if new_actree:
+                self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
+                self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
+            elif not exists(self.path_corr):
+                self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
+            elif not exists(self.path_reg):
+                self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
+            else:
+                self.corr = load_actree(pkl_path=self.path_corr)
+                self.reg = load_actree(pkl_path=self.path_reg)
+        except Exception as e:
+            logging.error(f"Building or Loading AC-Tree failed. {e}")
+
+        del self.wrong_word
 
     def correct(self, q: str):
         """
@@ -79,6 +100,7 @@ class ItemMatcher:
         :param q:   原始查询
         :return:    纠错列表
         """
+        start_time = time()
         res_corr = {"correct_query": q, "correct": []}
         record = []
         for item in self.corr.query4type(q):
@@ -105,6 +127,8 @@ class ItemMatcher:
                     cq += c
             res_corr['correct_query'] = cq
 
+        logger.info(f"{construt_log(raw_query=q, correct_info=res_corr, using_time=time()-start_time)}")
+        logging.info(f"Correcting the query time used: {time()-start_time}")
         return res_corr
 
     def match(self, q: str, need_correct=True):

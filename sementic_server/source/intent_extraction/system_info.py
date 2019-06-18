@@ -1,5 +1,5 @@
-from os import getcwd
-from os.path import abspath, join
+from os import getcwd, makedirs
+from os.path import abspath, join, exists
 
 
 class SystemInfo(object):
@@ -14,3 +14,7 @@ class SystemInfo(object):
             self.base_path = join(abspath(getcwd()), "..", "..")
         else:
             self.base_path = join(abspath(getcwd()), "sementic_server")
+
+        self.log_path_corr = join(self.base_path, "output", "correction_record")
+        if not exists(self.log_path_corr):
+            makedirs(self.log_path_corr)

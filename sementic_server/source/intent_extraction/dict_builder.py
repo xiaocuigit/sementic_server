@@ -72,8 +72,7 @@ def transformer(word:str, repl):
 
         pos_list = sorted(pos_list, key=cmp_to_key(cmp))
         pos_list = power_set(pos_list)[1:]
-        if w == "laopo":
-            print(pos_list)
+
         for pl in pos_list:
             sz = len(pl)
             ix, b, e = 0, pl[0][1], pl[0][2]

@@ -1,9 +1,17 @@
+"""
+@description: 问答图生成过程
+@author: Xu Zhongkai
+@email: 1399350807@qq.com
+@time: 2019-06-02
+@version: 0.0.1
+"""
+
+
 import os
 import json
 import logging
 from copy import deepcopy
 import networkx as nx
-import matplotlib.pylab as plt
 from sementic_server.source.qa_graph.query_parser import QueryParser, RELATION_DATA
 
 logger = logging.getLogger("server_log")
@@ -167,8 +175,6 @@ class QueryInterface(object):
 
         intent_node = self.get_intent_node()
         shortest_path = nx.shortest_path(self.graph, header, intent_node)
-        print('shortest_path')
-        print(shortest_path)
         logger.info('shortest_path:')
         logger.info(shortest_path)
         for node in shortest_path:

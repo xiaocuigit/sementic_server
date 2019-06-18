@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import timeit
 import json
 import logging
@@ -9,6 +10,7 @@ from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.ner_task.account import get_account_sets
+from sementic_server.source.qa_graph.query_parser import QueryParser
 
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
@@ -50,6 +52,7 @@ def get_result(request):
     logger.info("Error Correction model...")
     t_error = timeit.default_timer()
     result_intent = item_matcher.match(sentence)
+    logger.info(result_intent)
     logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_error))
 
     logger.info("Account and NER model...")
@@ -62,8 +65,25 @@ def get_result(request):
     logger.info("Another model...")
     t_another = timeit.default_timer()
     # 添加其他模块调用
+    entity = dict(result_ner).get('entity')
+    relation = result_intent.get('relation')
+    intention = result_intent.get('intent')
+    if intention == '0':
+        intention = 'PERSON'
+    data = dict(entity=entity, relation=relation, intent=intention)
+
+    try:
+        qg = QueryParser(data)
+        qg.query_graph.show()
+
+        output_path = os.path.join(os.getcwd(), 'sementic_server/output', 'graph_output')
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        output_path = os.path.join(output_path, 'example.json')
+        qg.query_graph.export(output_path)
+    except Exception as e:
+        print(e)
     logger.info("Another model done. Time consume: {0}".format(timeit.default_timer() - t_another))
-    logger.info("End Another model...")
     end_time = timeit.default_timer()
 
     logger.info("Full time consume: {0} S.\n".format(end_time - start_time))

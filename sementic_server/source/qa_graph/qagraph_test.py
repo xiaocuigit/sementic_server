@@ -11,11 +11,11 @@ import os
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
-from sementic_server.source.intent_extraction.ItemMatcher import ItemMatcher
+from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 
 if __name__ == '__main__':
     semantic = SemanticSearch(test_mode=True)
-    item_matcher = ItemMatcher(new=True)
+    item_matcher = ItemMatcher(True)
     while True:
         sentence = input("please input:")
         intent = item_matcher.match(sentence)

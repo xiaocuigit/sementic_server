@@ -9,6 +9,7 @@
 import networkx as nx
 import json
 import logging
+
 logger = logging.getLogger("server_log")
 
 
@@ -67,11 +68,14 @@ class Graph(nx.MultiDiGraph):
         if not self.is_multigraph():
             flag = False
         print('=================The graph have %d nodes==================' % len(self.nodes))
+        logger.info('=================The graph have %d nodes==================' % len(self.nodes))
         for n in self.nodes:
             data = self.nodes[n]
             print(str(n).ljust(30), '\t', str(data).ljust(30))
+            logger.info(str(n).ljust(30), '\t', str(data).ljust(30))
         # print('=================The graph have %d edges==================' % len(self.edges))
         print('The graph have %d edges'.center(100, '=') % len(self.edges))
+        logger.info('The graph have %d edges'.center(100, '=') % len(self.edges))
         for e in self.edges:
             # multigraph的边结构为(u, v, k)
             # 非multigraph的边结构为(u, v)
@@ -80,6 +84,7 @@ class Graph(nx.MultiDiGraph):
             else:
                 data = self.get_edge_data(e[0], e[1])
             print(str(e).ljust(30), '\t', str(data).ljust(30))
+            logger.info(str(e).ljust(30), '\t', str(data).ljust(30))
 
 
 if __name__ == '__main__':

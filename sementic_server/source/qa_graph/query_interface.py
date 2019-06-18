@@ -1,9 +1,12 @@
 import os
 import json
+import logging
 from copy import deepcopy
 import networkx as nx
 import matplotlib.pylab as plt
 from sementic_server.source.qa_graph.query_parser import QueryParser, RELATION_DATA
+
+logger = logging.getLogger("server_log")
 
 
 class QueryInterface(object):
@@ -166,6 +169,8 @@ class QueryInterface(object):
         shortest_path = nx.shortest_path(self.graph, header, intent_node)
         print('shortest_path')
         print(shortest_path)
+        logger.info('shortest_path:')
+        logger.info(shortest_path)
         for node in shortest_path:
             if node == header:
                 continue

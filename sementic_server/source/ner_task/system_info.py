@@ -45,11 +45,11 @@ class SystemInfo(object):
     _instance = None  # 单例模式-用来存放实例
 
     def __init__(self, is_test=False):
-        # if is_test:
-        #     self.base_path = '../'
-        # else:
-        #     self.base_path = os.getcwd() + '/sementic_server/'
-        self.base_path = '../../'
+        if is_test:
+            self.base_path = '../../'
+        else:
+            self.base_path = os.getcwd() + '/sementic_server/'
+        # self.base_path = '../../'
 
         self.config_path = self.base_path + "config/"
         self.config_file = "model.config"

@@ -104,6 +104,7 @@ class DependencyParser:
             new_entity['origin_end'] = new_entity['end']
 
             # 构造新实体，替换值
+            print(entity['type'])
             if entity['type'] == self.ner_entities_dics['NAME']:
                 new_entity['value'] = replace_words['NAME'][0]
             elif entity['type'] == self.ner_entities_dics['COMPANY']:

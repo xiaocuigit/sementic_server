@@ -25,7 +25,7 @@ class QueryGraphComponent(Graph):
         nx.MultiDiGraph.__init__(self)
         self.entity = entity
         account_type_list = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup', 'WeChatGroup',
-                             'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
+                             'Alipay', 'DouYin', 'JD', 'TaoBao', 'Idcard_DL', 'Idcard_TW', 'MicroBlog', 'UNLABEL']
         if entity['type'] in account_type_list:
             self.init_account_component()
         elif entity['type'] == 'Person':
@@ -52,7 +52,7 @@ class QueryGraphComponent(Graph):
         else:
             logger.info('Unknown type: %s' % entity['type'])
 
-    def entity_type_mapping(self, old_type):
+    def entity_type_mapping(self):
         """
         由于本体定义与实体定义未统一
         将实体类型做一个映射
@@ -67,11 +67,11 @@ class QueryGraphComponent(Graph):
         self.entity['type'] = new_type
 
     def init_account_component(self):
-        self.add_edge('person', 'account', 'Phas%s' % self.entity['type'])
+        self.add_edge('p', 'account', 'Phas%s' % self.entity['type'])
         self.add_edge('account', 'account_num', 'ACCOUNT_NUM')
 
-        self.nodes['person']['label'] = 'concept'
-        self.nodes['person']['type'] = 'PERSON'
+        self.nodes['p']['label'] = 'concept'
+        self.nodes['p']['type'] = 'Person'
 
         self.nodes['account']['label'] = 'concept'
         self.nodes['account']['type'] = self.entity['type']

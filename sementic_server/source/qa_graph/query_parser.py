@@ -13,9 +13,11 @@ import os
 import itertools
 import pandas as pd
 import csv
+import json
 import copy
 from sementic_server.source.qa_graph.graph import Graph
 from sementic_server.source.qa_graph.query_graph_component import QueryGraphComponent
+from sementic_server.source.qa_graph.dep_map import DepMap
 
 DEFAULT_EDGE = dict()
 RELATION_DATA = dict()
@@ -62,17 +64,31 @@ init_relation_data()
 
 
 class QueryParser:
-    def __init__(self, query_data):
+    def __init__(self, query_data, dependency=None):
         logger.info('Query Parsing...')
         self.relation = query_data.setdefault('relation', list())
         self.entity = query_data.setdefault('entity', list())
         self.intent = query_data['intent']
-
+        self.dependency = dependency
         self.relation_component_list = list()
         self.entity_component_list = list()
         # 获取实体和关系对应的子图组件
         self.init_relation_component()
         self.init_entity_component()
+
+        # 若有依存分析，根据依存分析来获取组件图
+        if self.dependency and len(self.dependency) > 0:
+            logger.info('dependency exist.')
+            print('dependency exist.')
+            dm = DepMap(query_data['dependency'], self.relation_component_list, self.entity_component_list)
+            if dm.check_dep():
+                # 使用依存分析，获取self.component_graph
+                if nx.algorithms.is_weakly_connected(dm.dep_graph):
+                    self.query_graph = dm.dep_graph
+                    self.determine_intention()
+                    return
+                else:
+                    logger.info('dependency wrong!')
         # 得到子图组件构成的集合，用图表示
         self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
         self.query_graph = copy.deepcopy(self.component_graph)
@@ -134,9 +150,23 @@ class QueryParser:
     def add_intention_on_node(self, node):
         self.query_graph.nodes[node]['intent'] = True
 
+    def add_intention_on_nodes(self, node_list):
+        """
+        在一批节点中优先选择person节点进行插入
+        :param node_list: 带插入的一组空节点
+        :return:
+        """
+        for node in node_list:
+            if self.query_graph.nodes[node]['type'] == 'Person':
+                self.query_graph.nodes[node]['intent'] = True
+                return
+        # 若找不到person
+        node = node_list[0]
+        self.query_graph.nodes[node]['intent'] = True
+
     def is_none_node(self, node):
         current_graph = self.query_graph
-        if current_graph.nodes[node]['type'] != 'concept':
+        if current_graph.nodes[node]['label'] != 'concept':
             return False
         neighbors = current_graph.neighbors(node)
         for n in neighbors:
@@ -161,8 +191,9 @@ class QueryParser:
         1.1、通过添加依存分析信息来确定意图
         1.2、没有依存分析的情况下，默认第一个该类型的实体为查询意图
         2、未识别出意图类型的，将图中的空节点（概念）认为是查询意图
-        2.1、若有多个空节点，默认第一个空节点
-        2.2、没有空节点，默认第一个概念节点
+        2.1、若有多个空节点，默认第一个person空节点
+        2.2、没有空节点，默认第一个person概念节点
+        2.3、若没有person，默认第一个概念节点
         :return:
         """
         if self.intent:
@@ -173,12 +204,13 @@ class QueryParser:
             none_nodes = self.get_none_nodes()
             if len(none_nodes) > 0:
                 # 有空节点
-                self.add_intention_on_node(none_nodes[0])
+                self.add_intention_on_nodes(none_nodes)
             else:
                 # 没有空节点
+                temp_node_list = list()
                 for n in self.query_graph.nodes:
-                    self.add_intention_on_node(n)
-                    break
+                    temp_node_list.append(n)
+                self.add_intention_on_nodes(temp_node_list)
 
     def component_assemble(self):
         # 之后根据依存分析来完善
@@ -214,20 +246,15 @@ class QueryParser:
 
 
 if __name__ == '__main__':
-    data_dict = {
-        "entity": [{"type": "Person",
-                    "value": "张三",
-                    "code": 0},
-                   {"type": "MobileNumber", "value": "18220566120", "code": 0}],
-        "relation": [{"type": "HusbandToWife",
-                      "value": "妻子",
-                      "offset": 3,
-                      "code": 0},
-                     ],
-        "intent": 'PERSON'
-    }
-    dependency = [{'from': {'from_offset': 0, 'value': '父亲'}, 'to': {'to_offset': 9, 'value': '同事'}},
-                  {'from': {'from_offset': 3, 'value': '张三'}, 'to': {'to_offset': 9, 'value': '同事'}},
-                  {'from': {'from_offset': 6, 'value': '15195919704'}, 'to': {'to_offset': 9, 'value': '同事'}}]
-    qg = QueryParser(data_dict)
+    case_num = 2
+    path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
+    path = os.path.abspath(path)
+
+    with open(path, 'r') as fr:
+        data = json.load(fr)
+    print(data)
+    dep = data.get('dependency')
+    print('dep', dep)
+
+    qg = QueryParser(data, data['dependency'])
     qg.query_graph.show()

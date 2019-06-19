@@ -8,9 +8,10 @@
 
 
 import networkx as nx
-import json
+import logging
 import os
 import itertools
+import pandas as pd
 import csv
 import copy
 from sementic_server.source.qa_graph.graph import Graph
@@ -18,15 +19,15 @@ from sementic_server.source.qa_graph.query_graph_component import QueryGraphComp
 
 DEFAULT_EDGE = dict()
 RELATION_DATA = dict()
+logger = logging.getLogger("server_log")
 
 
 def init_default_edge():
-    if os.getcwd().split('\\')[-1] == 'qa_graph':
+    if os.path.basename(os.getcwd()) == 'qa_graph':
         path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'default_relation.csv')
     else:
         path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'default_relation.csv')
     path = os.path.abspath(path)
-    # path = os.path.join(os.getcwd(), 'ontology', 'default_relation.csv')
     with open(path, 'r') as csv_file:
         csv_file.readline()
         csv_reader = csv.reader(csv_file)
@@ -35,14 +36,25 @@ def init_default_edge():
 
 
 def init_relation_data():
+    """
+    将object_attribute.csv中的对象属性读取为一个关系字典
+    :return:
+    """
     global RELATION_DATA
-    if os.getcwd().split('\\')[-1] == 'qa_graph':
-        relation_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'relation.json')
+    if os.path.basename(os.getcwd()) == 'qa_graph':
+        relation_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir,
+                                     'data', 'ontology', 'object_attribute.csv')
     else:
-        relation_path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'relation.json')
-    relation_path = os.path.abspath(relation_path)
-    with open(relation_path, 'r') as fr:
-        RELATION_DATA = json.load(fr)
+        relation_path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'object_attribute.csv')
+    df = pd.read_csv(relation_path)
+    for i, row in df.iterrows():
+        temp_dict = dict()
+        temp_dict['domain'] = row['domain']
+        temp_dict['range'] = row['range']
+        if not isinstance(row['belong'], bool):
+            row['belong'] = False
+        temp_dict['belong'] = row['belong']
+        RELATION_DATA[row['property']] = temp_dict
 
 
 init_default_edge()
@@ -51,9 +63,10 @@ init_relation_data()
 
 class QueryParser:
     def __init__(self, query_data):
+        logger.info('Query Parsing...')
         self.relation = query_data.setdefault('relation', list())
         self.entity = query_data.setdefault('entity', list())
-        self.intent = query_data.setdefault('intent', 'PERSON')
+        self.intent = query_data['intent']
 
         self.relation_component_list = list()
         self.entity_component_list = list()
@@ -74,23 +87,21 @@ class QueryParser:
             # 节点一样多说明上一轮没有合并
             # 图已连通也不用合并
             self.old_query_graph = copy.deepcopy(self.query_graph)
-            # self.node_type_dict = dict()
             self.node_type_dict = self.query_graph.node_type_statistic()
             self.component_assemble()
-        self.add_intention()
-
         while not nx.algorithms.is_weakly_connected(self.query_graph):
             # 若不连通则在联通分量之间添加默认边
             flag = self.add_default_edge()
             if not flag:
-                print('未添加上说明缺少默认边')
+                logger.info('default edge missing!')
                 # 未添加上说明缺少默认边
                 break
+        # 经过上面两个循环，得到连通的图，下面确定意图
+        self.determine_intention()
 
     def add_default_edge(self):
         flag = False
         components_set = self.query_graph.get_connected_components_subgraph()
-        # d0 = {'ADDRESS': [0], 'PERSON':[1, 2]}
         d0 = Graph(components_set[0]).node_type_statistic()
         d1 = Graph(components_set[1]).node_type_statistic()
         candidates = itertools.product(d0.keys(), d1.keys())
@@ -111,13 +122,62 @@ class QueryParser:
                     return flag
         return flag
 
-    def add_intention(self):
-        # 也需要依存分析,待改进
+    def determine_intention_by_type(self):
+        # 根据意图类型来确定意图，对应determine_intention中的1.2
         for n in self.query_graph.nodes:
-            if self.query_graph.node[n]['label'] == 'concept':
-                node_type = self.query_graph.node[n]['type']
+            if self.query_graph.nodes[n]['label'] == 'concept':
+                node_type = self.query_graph.nodes[n]['type']
                 if node_type == self.intent:
-                    self.query_graph.node[n]['intent'] = True
+                    self.add_intention_on_node(n)
+                    break
+
+    def add_intention_on_node(self, node):
+        self.query_graph.nodes[node]['intent'] = True
+
+    def is_none_node(self, node):
+        current_graph = self.query_graph
+        if current_graph.nodes[node]['type'] != 'concept':
+            return False
+        neighbors = current_graph.neighbors(node)
+        for n in neighbors:
+            # 目前判断条件为出边没有字面值，认为是空节点
+            # 考虑拓扑排序的终点
+            if current_graph.nodes[n]['label'] == 'literal':
+                return False
+        return True
+
+    def get_none_nodes(self):
+        none_node_list = list()
+        current_graph = self.query_graph
+        for node in current_graph.nodes:
+            if self.is_none_node(node):
+                none_node_list.append(node)
+        return none_node_list
+
+    def determine_intention(self):
+        """
+        确定意图：
+        1、识别出意图类型的，
+        1.1、通过添加依存分析信息来确定意图
+        1.2、没有依存分析的情况下，默认第一个该类型的实体为查询意图
+        2、未识别出意图类型的，将图中的空节点（概念）认为是查询意图
+        2.1、若有多个空节点，默认第一个空节点
+        2.2、没有空节点，默认第一个概念节点
+        :return:
+        """
+        if self.intent:
+            # 意图不为空
+            self.determine_intention_by_type()
+        else:
+            # 意图为空，添加意图，对应上文注释2
+            none_nodes = self.get_none_nodes()
+            if len(none_nodes) > 0:
+                # 有空节点
+                self.add_intention_on_node(none_nodes[0])
+            else:
+                # 没有空节点
+                for n in self.query_graph.nodes:
+                    self.add_intention_on_node(n)
                     break
 
     def component_assemble(self):
@@ -146,30 +206,28 @@ class QueryParser:
                 relation_component = nx.MultiDiGraph()
                 relation_component.add_edge('temp_0', 'temp_1', r['type'], **r)
                 for n in relation_component.nodes:
-                    relation_component.node[n]['label'] = 'concept'
+                    relation_component.nodes[n]['label'] = 'concept'
 
-                relation_component.node['temp_0']['type'] = RELATION_DATA[r['type']]['domain']
-                relation_component.node['temp_1']['type'] = RELATION_DATA[r['type']]['range']
+                relation_component.nodes['temp_0']['type'] = RELATION_DATA[r['type']]['domain']
+                relation_component.nodes['temp_1']['type'] = RELATION_DATA[r['type']]['range']
                 self.relation_component_list.append(relation_component)
 
 
 if __name__ == '__main__':
     data_dict = {
-        "entity": [{"type": "NAME",
+        "entity": [{"type": "Person",
                     "value": "张三",
                     "code": 0},
-                   {"type": "TEL", "value": "139999999999", "code": 0}],
-        "relation": [{"type": "ParentToChild",
-                      "value": "父亲",
+                   {"type": "MobileNumber", "value": "18220566120", "code": 0}],
+        "relation": [{"type": "HusbandToWife",
+                      "value": "妻子",
                       "offset": 3,
                       "code": 0},
                      ],
         "intent": 'PERSON'
     }
+    dependency = [{'from': {'from_offset': 0, 'value': '父亲'}, 'to': {'to_offset': 9, 'value': '同事'}},
+                  {'from': {'from_offset': 3, 'value': '张三'}, 'to': {'to_offset': 9, 'value': '同事'}},
+                  {'from': {'from_offset': 6, 'value': '15195919704'}, 'to': {'to_offset': 9, 'value': '同事'}}]
     qg = QueryParser(data_dict)
     qg.query_graph.show()
-    # g = Graph(qg.query_graph)
-    # g.show()
-    qg.query_graph.export('query_graph')
-
-

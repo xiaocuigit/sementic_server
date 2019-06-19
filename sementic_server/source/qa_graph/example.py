@@ -9,13 +9,15 @@
 
 import os
 import json
+import logging
 from sementic_server.source.qa_graph.query_parser import QueryParser
 
+logger = logging.getLogger("server_log")
 
 if __name__ == '__main__':
     case_num = 2
     # [1, 2, 4]
-    if os.getcwd().split('\\')[-1] == 'qa_graph':
+    if os.path.basename(os.getcwd()) == 'qa_graph':
         path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
     else:
         path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'test_case', 'case%d.json' % case_num)
@@ -27,8 +29,12 @@ if __name__ == '__main__':
         print(data)
         qg = QueryParser(data)
         qg.query_graph.show()
-        output = qg.query_graph.get_data()
-        print(output)
+
+        output_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'output/graph_output')
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        output_path = os.path.join(output_path, 'example.json')
+        qg.query_graph.export(output_path)
     except Exception as e:
         print(e)
 

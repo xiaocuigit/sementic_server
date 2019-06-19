@@ -89,6 +89,7 @@ class QueryParser:
                     return
                 else:
                     logger.info('dependency wrong!')
+                    print('dependency wrong!')
         # 得到子图组件构成的集合，用图表示
         self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
         self.query_graph = copy.deepcopy(self.component_graph)

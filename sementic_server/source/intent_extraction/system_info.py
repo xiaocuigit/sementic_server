@@ -15,6 +15,7 @@ class SystemInfo(object):
         else:
             self.base_path = join(abspath(getcwd()), "sementic_server")
 
-        self.log_path_corr = join(self.base_path, "output", "correction_record")
-        if not exists(self.log_path_corr):
-            makedirs(self.log_path_corr)
+        self.base_log_path_corr = join(self.base_path, "output", "correction_record")
+        if not exists(self.base_log_path_corr):
+            makedirs(self.base_log_path_corr)
+        self.log_path_corr = join(self.base_log_path_corr, "record.log")

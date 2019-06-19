@@ -14,8 +14,12 @@ def get_logger(name, path):
     fh = TimedRotatingFileHandler(path, when="D")
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
+
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.FATAL)
     logger.addHandler(fh)
-    logger.propagate = False
+    logger.addHandler(sh)
+    # logger.propagate = False
     return logger
 
 

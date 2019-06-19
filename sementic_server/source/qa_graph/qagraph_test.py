@@ -27,36 +27,16 @@ if __name__ == '__main__':
         print(dict(result))
         print(intent)
 
-        # entity = dict(result).get('entity')
-        # relation = intent.get('relation')
-        # intention = intent.get('intent')
-        # if intention == '0':
-        #     intention = 'PERSON'
-        # data = dict(entity=entity, relation=relation, intent=intention)
-        #
-        # try:
-        #     qg = QueryParser(data)
-        #     qg.query_graph.show()
-        #
-        #     output_path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'output', 'graph_output')
-        #     if not os.path.exists(output_path):
-        #         os.makedirs(output_path)
-        #     output_path = os.path.join(output_path, 'example.json')
-        #     qg.query_graph.export(output_path)
-        # except Exception as e:
-        #     print(e)
         entity = dict(result).get('entity')
         relation = intent.get('relation')
         intention = intent.get('intent')
-        if intention == '0':
-            intention = 'PERSON'
+
         data = dict(entity=entity, relation=relation, intent=intention)
 
         query_graph_result = dict()
         try:
             qg = QueryParser(data)
-            # 这里有问题
-            query_graph = qg.query_graph
+            query_graph = qg.query_graph.get_data()
             qi = QueryInterface(qg.query_graph, sentence)
             query_interface = qi.get_query_data()
             query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}

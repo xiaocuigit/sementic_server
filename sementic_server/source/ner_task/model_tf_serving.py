@@ -87,9 +87,6 @@ class ModelServing(object):
             if mode == self.system_info.MODE_NER:
                 channel = grpc.insecure_channel(self.config["model_ner_address"])
                 self.stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
-            elif mode == self.system_info.MODE_SEN:
-                channel = grpc.insecure_channel(self.config["model_sen_address"])
-                self.stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
             else:
                 logger.error('Please config ip address and port first.')
 

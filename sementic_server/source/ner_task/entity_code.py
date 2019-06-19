@@ -6,30 +6,36 @@
 @version: 0.0.1
 """
 
+import yaml
+import os
+
 
 class EntityCode:
     def __init__(self):
 
-        self.account = ['QQNUM', 'MOB', 'PHONE', 'CERT_CODE', 'WEIBO_UID', 'Email', 'WX', 'GROUP_NUM',
-                        'WANGWANG', 'UNLABEL']
+        self.account = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard_DL', 'Idcard_TW', 'Email', 'WeChat', 'QQGroup',
+                        'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
 
-        self.entities = ['NAME', 'CPNY_NAME', 'ADDR', 'DATE', 'QQNUM', 'MOB', 'PHONE', 'CERT_CODE', 'WEIBO_UID',
-                         'Email', 'WX', 'GROUP_NUM', 'WANGWANG', 'UNLABEL']
-        self.ner_entities = ['NAME', 'CPNY_NAME', 'ADDR', 'DATE']
+        self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
 
-    def get_top_label(self, word):
-        if word in self.account:
-            return "ACCOUNT"
-        elif word in self.ner_entities:
-            return "NER"
+        if os.getcwd().split('/')[-1] == 'sementic_server_v2':
+            f_r = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'node_code.yml'), encoding='utf-8')
         else:
-            return "RELNAME"
+            f_r = open(os.path.join(os.getcwd(), '../../', 'data', 'yml', 'node_code.yml'), encoding='utf-8')
+
+        self.entities_code = yaml.load(f_r, Loader=yaml.SafeLoader)
 
     def get_entities(self):
-        return self.entities
+        return list(self.ner_entities_dics.values()) + self.account
+
+    def get_ner_entities(self):
+        return self.ner_entities_dics
 
     def is_account(self, account):
         if account in self.account:
             return True
         else:
             return False
+
+    def get_entity_code(self):
+        return self.entities_code

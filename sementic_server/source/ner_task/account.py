@@ -14,15 +14,19 @@ from collections import defaultdict
 
 PUNCTUATION = [',', '，', '~', '!', '！', '。', '.', '?', '？']
 EMAIL = 'Email'
-MPHONE = 'MOB'
-PHONE = 'PHONE'
-QQ = 'QQNUM'
-QQ_GROUP = 'GROUP_NUM'
-WECHAT = 'WX'
-ID = 'CERT_CODE'
-MBLOG = 'WEIBO_UID'
-ALIPAY = 'WANGWANG'
-JD = 'WANGWANG'
+MPHONE = 'MobileNumber'
+PHONE = 'FixedPhone'
+QQ = 'QQ'
+QQ_GROUP = 'QQGroup'
+WX_GROUP = 'WeChatGroup'
+WECHAT = 'WeChat'
+ID_DL = 'Idcard_DL'
+ID_TW = 'Idcard_TW'
+MBLOG = 'MicroBlog'
+ALIPAY = 'Alipay'
+DOUYIN = 'DouYin'
+TAOBAO = 'TaoBao'
+JD = 'JD'
 UNLABEL = 'UNLABEL'
 
 
@@ -205,6 +209,22 @@ def is_jing_dong(raw_input, account):
     return None
 
 
+def is_tao_bao(raw_input, account):
+    """
+    判断 account 是否为 淘宝账户
+    :param raw_input:
+    :param account:
+    :return:
+    """
+    tb_labels = ['淘宝', '淘宝账户', '淘宝账号']
+    index = raw_input.find(account)
+    if index != -1:
+        for label in tb_labels:
+            if label in raw_input[:index]:
+                return TAOBAO
+    return None
+
+
 def is_wei_bo(raw_input, account):
     """
     判断 account 是否为 微博账户
@@ -221,7 +241,23 @@ def is_wei_bo(raw_input, account):
     return None
 
 
-def is_qq_group(raw_input, account):
+def is_dou_yin(raw_input, account):
+    """
+    判断 account 是否为 抖音账户
+    :param raw_input:
+    :param account:
+    :return:
+    """
+    dy_labels = ['抖音', '抖音账户', '抖音账号']
+    index = raw_input.find(account)
+    if index != -1:
+        for label in dy_labels:
+            if label in raw_input[:index]:
+                return DOUYIN
+    return None
+
+
+def is_qq_or_qq_group(raw_input, account):
     """
     判断 account 是否为 QQ群账户
     :param raw_input:
@@ -229,11 +265,33 @@ def is_qq_group(raw_input, account):
     :return:
     """
     qq_group = ['QQ群', 'qq群']
+    qq_label = ['QQ', 'qq']
     index = raw_input.find(account)
     if index != -1:
+        # 检测是否为QQ群
         for label in qq_group:
             if label in raw_input[:index]:
                 return QQ_GROUP
+        # 检测是否为QQ
+        for label in qq_label:
+            if label in raw_input[:index]:
+                return QQ
+    return None
+
+
+def is_wx_group(raw_input, account):
+    """
+    判断 account 是否为 微信群账户
+    :param raw_input:
+    :param account:
+    :return:
+    """
+    wx_group = ['微信群', 'wx群']
+    index = raw_input.find(account)
+    if index != -1:
+        for label in wx_group:
+            if label in raw_input[:index]:
+                return WX_GROUP
     return None
 
 
@@ -251,13 +309,19 @@ def get_candidate_label(raw_input, account, qq_group=False):
     label = is_ali_pay(raw_input, account)
     if label:
         return label
+    label = is_tao_bao(raw_input, account)
+    if label:
+        return label
+    label = is_dou_yin(raw_input, account)
+    if label:
+        return label
     label = is_jing_dong(raw_input, account)
     if label:
         return label
     if qq_group:
-        label = is_qq_group(raw_input, account)
-        if label:
-            return QQ_GROUP
+        label = is_qq_or_qq_group(raw_input, account)
+        return label
+
     return None
 
 
@@ -282,8 +346,12 @@ def get_account_sets(raw_input):
                     account_list[EMAIL].append(result)
                     sentence = sentence.replace(result, EMAIL)
             elif is_id_card(result):
-                account_list[ID].append(result)
-                sentence = sentence.replace(result, ID)
+                if len(result) == 18:
+                    account_list[ID_DL].append(result)
+                    sentence = sentence.replace(result, ID_DL)
+                else:
+                    account_list[ID_TW].append(result)
+                    sentence = sentence.replace(result, ID_TW)
             elif is_wechat(result):
                 account_list[WECHAT].append(result)
                 sentence = sentence.replace(result, WECHAT)
@@ -304,8 +372,8 @@ def get_account_sets(raw_input):
                     account_list[label].append(result)
                     sentence = sentence.replace(result, label)
                 else:
-                    account_list[QQ].append(result)
-                    sentence = sentence.replace(result, QQ)
+                    account_list[UNLABEL].append(result)
+                    sentence = sentence.replace(result, UNLABEL)
             else:
                 if result in ['QQ', 'qq']:
                     continue
@@ -330,7 +398,7 @@ def test():
     t10 = "微博15295668650的人住在哪里？"
     t11 = "15295668658住在哪里？34.54,QQ群2656353125"
     t12 = "京东账户15295668658住在哪里？"
-    t13 = "QQ号是2656353125住在哪里？"
+    t13 = "qq号是2656353125住在哪里？"
     test_list = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13]
     for index, raw_input in enumerate(test_list):
         result = get_account_sets(raw_input)

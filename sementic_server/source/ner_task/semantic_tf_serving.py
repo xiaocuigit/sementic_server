@@ -8,7 +8,6 @@
 
 import jieba
 import logging
-import timeit
 
 from sementic_server.source.ner_task.entity_code import EntityCode
 from sementic_server.source.ner_task.system_info import SystemInfo
@@ -22,6 +21,7 @@ class SemanticSearch(object):
     """
     通过调用 sentence_ner_entities 函数实现对：人名、组织结构名、地名和日期 的识别
     """
+
     def __init__(self, test_mode=False):
 
         self.system_info = SystemInfo(is_test=test_mode)
@@ -31,6 +31,7 @@ class SemanticSearch(object):
         self.config = self.system_info.get_config()
 
         self.entity_code = EntityCode()
+        self.ner_entities = self.entity_code.get_ner_entities()
 
         self.labels_list = []
         self.labels_list_split = []
@@ -62,7 +63,7 @@ class SemanticSearch(object):
         for label in entities:
             jieba.add_word(label)
 
-    def __combine_label(self, entities, label='ADDR'):
+    def __combine_label(self, entities, label=None):
         """
         合并实体列表中相连且相同的label
         :param entities:
@@ -101,9 +102,9 @@ class SemanticSearch(object):
         addr_index = -1
 
         for i, entity in enumerate(entities):
-            if 'COMPANY' == entity[1]:
+            if self.ner_entities['COMPANY'] == entity[1]:
                 company_index = i
-            if 'ADDR' == entity[1]:
+            if self.ner_entities['ADDR'] == entity[1]:
                 addr_index = i
 
         if company_index != -1 and addr_index != -1:
@@ -136,9 +137,7 @@ class SemanticSearch(object):
         """
         sentence = result["new_input"]
 
-        t_grpc = timeit.default_timer()
         sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
-        logger.info('Send gRPC request consume: {0} S.'.format(timeit.default_timer() - t_grpc))
 
         word = ""
         label = ""
@@ -157,13 +156,13 @@ class SemanticSearch(object):
                     word = ""
 
                 if temp_label[2:] == 'ORG':
-                    label = 'COMPANY'
+                    label = self.ner_entities['COMPANY']
                 elif temp_label[2:] == 'PER':
-                    label = 'NAME'
+                    label = self.ner_entities['NAME']
                 elif temp_label[2:] == 'DATE':
-                    label = 'DATE'
+                    label = self.ner_entities['DATE']
                 else:
-                    label = 'ADDR'
+                    label = self.ner_entities['ADDR']
 
                 word += sentence[i]
             elif temp_label[0] == 'I' and word != "":
@@ -180,13 +179,13 @@ class SemanticSearch(object):
             entities.append([word, label])
 
         if len(entities) != 0:
-            entities = self.__combine_label(entities, label='ADDR')
-            entities = self.__combine_label(entities, label='COMPANY')
-            entities = self.__combine_label(entities, label='NAME')
-            entities = self.__combine_label(entities, label='DATE')
+            entities = self.__combine_label(entities, label=self.ner_entities['ADDR'])
+            entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
+            entities = self.__combine_label(entities, label=self.ner_entities['NAME'])
+            entities = self.__combine_label(entities, label=self.ner_entities['DATE'])
 
             self.__combine_com_add(entities)
-            entities = self.__combine_label(entities, label='COMPANY')
+            entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
 
         for (word, label) in entities:
             result["new_input"] = result["new_input"].replace(word, label)

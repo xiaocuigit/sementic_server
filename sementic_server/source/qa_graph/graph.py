@@ -68,11 +68,11 @@ class Graph(nx.MultiDiGraph):
         if not self.is_multigraph():
             flag = False
         print('=================The graph have %d nodes==================' % len(self.nodes))
-        logger.info('=================The graph have %d nodes==================' % len(self.nodes))
+        logger.info('=================The graph have {0} nodes=================='.format(len(self.nodes)))
         for n in self.nodes:
             data = self.nodes[n]
             print(str(n).ljust(30), '\t', str(data).ljust(30))
-            logger.info(str(n).ljust(30), '\t', str(data).ljust(30))
+            logger.info("{0}\t{1}".format(str(n).ljust(30), str(data).ljust(30)))
         # print('=================The graph have %d edges==================' % len(self.edges))
         print('The graph have %d edges'.center(100, '=') % len(self.edges))
         logger.info('The graph have %d edges'.center(100, '=') % len(self.edges))

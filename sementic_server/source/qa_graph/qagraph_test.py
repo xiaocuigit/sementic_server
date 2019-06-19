@@ -36,7 +36,6 @@ if __name__ == '__main__':
         query_graph_result = dict()
         try:
             qg = QueryParser(data)
-            # 这里有问题
             query_graph = qg.query_graph.get_data()
             qi = QueryInterface(qg.query_graph, sentence)
             query_interface = qi.get_query_data()

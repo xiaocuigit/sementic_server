@@ -14,7 +14,7 @@ import pprint
 from sementic_server.source.dependency_parser.server_request import ServerRequest
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
-from sementic_server.source.intent_extraction.ItemMatcher import ItemMatcher
+from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 
 class DependencyParser:
 

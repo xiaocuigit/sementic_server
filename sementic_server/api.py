@@ -11,6 +11,7 @@ from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.ner_task.account import get_account_sets
 from sementic_server.source.qa_graph.query_parser import QueryParser
+from sementic_server.source.qa_graph.query_interface import QueryInterface
 
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
@@ -62,7 +63,7 @@ def get_result(request):
     logger.info(result_ner)
     logger.info("NER model done. Time consume: {0}".format(timeit.default_timer() - t_ner))
 
-    logger.info("Another model...")
+    logger.info("Query Graph model...")
     t_another = timeit.default_timer()
     # 添加其他模块调用
     entity = dict(result_ner).get('entity')
@@ -72,20 +73,19 @@ def get_result(request):
         intention = 'PERSON'
     data = dict(entity=entity, relation=relation, intent=intention)
 
+    query_graph_result = dict()
     try:
         qg = QueryParser(data)
-        qg.query_graph.show()
-
-        output_path = os.path.join(os.getcwd(), 'sementic_server/output', 'graph_output')
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
-        output_path = os.path.join(output_path, 'example.json')
-        qg.query_graph.export(output_path)
+        query_graph = qg.query_graph
+        qi = QueryInterface(qg.query_graph, sentence)
+        query_interface = qi.get_query_data()
+        query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
     except Exception as e:
-        print(e)
-    logger.info("Another model done. Time consume: {0}".format(timeit.default_timer() - t_another))
+        logger.info(e)
+
+    logger.info("Query Graph model done. Time consume: {0}".format(timeit.default_timer() - t_another))
     end_time = timeit.default_timer()
 
     logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
     # 返回JSON格式数据，将 result_ner 替换成需要返回的JSON数据
-    return JsonResponse(result_ner, json_dumps_params={'ensure_ascii': False})
+    return JsonResponse(query_graph_result, json_dumps_params={'ensure_ascii': False})

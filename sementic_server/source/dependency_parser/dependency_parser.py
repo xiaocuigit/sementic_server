@@ -25,14 +25,14 @@ class DependencyParser:
 
         self.logger = logging.getLogger("server_log")
         if os.getcwd().split('/')[-1] == 'sementic_server_v2':
-            replace_words = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'replaceword.yml'), encoding='utf-8')
+            replace_words_dir = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'replaceword.yml'), encoding='utf-8')
         else:
-            replace_words = open(os.path.join(os.getcwd(), '../../', 'data', 'yml', 'replaceword.yml'), encoding='utf-8')
+            replace_words_dir = open(os.path.join(os.getcwd(), '../../', 'data', 'yml', 'replaceword.yml'), encoding='utf-8')
         #self.replace_words = yaml.load(open(join(self.dir_yml, "replaceword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
         self.account = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard_DL', 'Idcard_TW', 'Email', 'WeChat', 'QQGroup',
                         'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
         self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
-        self.entities_code = yaml.load(replace_words, Loader=yaml.SafeLoader)
+        self.replace_words = yaml.load(replace_words_dir, Loader=yaml.SafeLoader)
 
     def get_denpendency_tree(self, sentence):
         """

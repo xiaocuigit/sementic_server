@@ -27,23 +27,24 @@ if __name__ == '__main__':
         result = semantic.sentence_ner_entities(result_account)
         print(dict(result))
         print(intent)
-
         entity = dict(result).get('entity')
         relation = intent.get('relation')
         intention = intent.get('intent')
-
+        dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations =\
+            DependencyParser().get_denpendency_tree(sentence, entity, relation)
+        print(dependency_graph)
+        dep = dependency_graph
         data = dict(entity=entity, relation=relation, intent=intention)
-
+        print('dep')
+        print(dep)
         query_graph_result = dict()
-        try:
-            qg = QueryParser(data)
-            query_graph = qg.query_graph.get_data()
-            qi = QueryInterface(qg.query_graph, sentence)
-            query_interface = qi.get_query_data()
-            query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
-            pprint(query_graph_result)
-        except Exception as e:
-            pprint(e)
+        qg = QueryParser(data, dep)
+        query_graph = qg.query_graph.get_data()
+        qi = QueryInterface(qg.query_graph, sentence)
+        query_interface = qi.get_query_data()
+        query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
+        pprint(query_graph_result)
+
 
 
 

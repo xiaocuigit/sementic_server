@@ -17,8 +17,8 @@ class EntityCode:
                         'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
 
         self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
-
-        if 'source' in os.getcwd().split('/'):
+        rootpath = str(os.getcwd()).replace("\\", "/")
+        if 'source' in rootpath.split('/'):
             f_r = open(os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'yml', 'node_code.yml'), encoding='utf-8')
         else:
             f_r = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'node_code.yml'), encoding='utf-8')

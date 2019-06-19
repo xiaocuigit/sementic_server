@@ -3,7 +3,7 @@
 # 用于配置斯坦福nlp服务的服务器地址
 
 config = {
-    'server_ip': 'localhost',
+    'server_ip': '10.201.23.159',
     'server_port': '9000',
     'server_type':{
         'tokenize': 'tokenize',

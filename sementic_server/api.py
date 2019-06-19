@@ -12,6 +12,7 @@ from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.ner_task.account import get_account_sets
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
+from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
@@ -77,9 +78,13 @@ def get_result(request):
     intention = result_intent.get('intent')
     data = dict(entity=entity, relation=relation, intent=intention)
 
+    dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
+        DependencyParser().get_denpendency_tree(sentence, entity, relation)
+    dep = dependency_graph
+    
     query_graph_result = dict()
     try:
-        qg = QueryParser(data)
+        qg = QueryParser(data, dep)
         query_graph = qg.query_graph.get_data()
         qi = QueryInterface(qg.query_graph, sentence)
         query_interface = qi.get_query_data()

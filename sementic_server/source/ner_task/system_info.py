@@ -45,7 +45,8 @@ class SystemInfo(object):
     _instance = None  # 单例模式-用来存放实例
 
     def __init__(self, is_test=False):
-        if 'source' in os.getcwd().split('/'):
+        rootpath = str(os.getcwd()).replace("\\", "/")
+        if 'source' in rootpath.split('/'):
             self.base_path = os.path.join(os.path.pardir, os.path.pardir)
         else:
             self.base_path = os.path.join(os.getcwd(), 'sementic_server')

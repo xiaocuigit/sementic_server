@@ -34,7 +34,7 @@ class DependencyParser:
         self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
         self.replace_words = yaml.load(replace_words_dir, Loader=yaml.SafeLoader)
 
-    def get_denpendency_tree(self, sentence):
+    def get_denpendency_tree(self, sentence, entities, relations):
         """
         :param:sentence,输入的句子
         return:
@@ -55,8 +55,6 @@ class DependencyParser:
             'characterOffsetEnd'字符在句子中的末尾位置
             'pos'表示字符的词性
         """
-        # 得到实体和关系
-        entities, relations = self.get_entities_relations(sentence)
         # 替换实体，更新关系
         sentence_replaced, entities_replaced, relations_updated = self.replace_entities_relations(sentence, entities,
                                                                                                   relations)
@@ -153,7 +151,7 @@ class DependencyParser:
             relations:关系列表
         """
         semantic = SemanticSearch(test_mode=True)
-        item_matcher = ItemMatcher(new=True)
+        item_matcher = ItemMatcher(new_actree=True,is_test=True)
 
         intent = item_matcher.match(sentence)
         result_account = get_account_sets(sentence)
@@ -291,7 +289,9 @@ if __name__ == '__main__':
     #                                                                                                        relations)
     #dependency_tree, tokens = ServerRequest().get_dependency(sentence_replaced)
     #dependency_tree, tokens = DependencyParser().recover_tokens(dependency_tree, tokens, entities_replaced, relations_updated)
-    dependency_tree_recovered, tokens_recovered, dependency_graph, entity, relation = DependencyParser().get_denpendency_tree(sentence)
+    # 得到实体和关系
+    entities, relations = DependencyParser().get_entities_relations(sentence)
+    dependency_tree_recovered, tokens_recovered, dependency_graph, entity, relation = DependencyParser().get_denpendency_tree(sentence, entities, relations)
     #pprint.pprint(dependency_tree_recovered)
     #pprint.pprint(tokens_recovered)
     pprint.pprint(dependency_graph)

@@ -15,6 +15,7 @@ from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_interface import QueryInterface
+from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 if __name__ == '__main__':
     semantic = SemanticSearch(test_mode=True)

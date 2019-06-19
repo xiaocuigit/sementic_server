@@ -81,7 +81,6 @@ class DependencyParser:
         # 替换后的实体数组
         entities_replaced = []
         for entity in entities:
-            print("entity="+str(entity))
             new_entity = copy.deepcopy(entity)
             # 保存原来的信息，用于后面换回来
             #print(new_entity)
@@ -247,7 +246,7 @@ class DependencyParser:
         return entity_dependency_list
 
 if __name__ == '__main__':
-    sentence = '15195919704的同学中名字叫张三的手机号'
+    sentence = '15195919704的同学有哪些'
     #entities = [{'type': 'Tel', 'value': '15842062826', 'start': 19, 'end': 30}, {'type': 'ADDR', 'value': '东莞常平司马村珠江啤酒厂', 'start': 1, 'end':13}]
     #relations = [{'id': 'HusbandToWife', 'start': 31, 'end': 33, 'type': 'HusbandToWife', 'value': '老婆'}]
     # 替换实体，更新关系

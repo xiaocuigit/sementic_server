@@ -4,6 +4,8 @@ import json
 import pprint
 from sementic_server.source.dependency_parser.server_request import ServerRequest
 
+from os.path import join, abspath
+from os import getcwd
 class DependencyParser:
 
     # 用于替换句子中的一个词
@@ -21,9 +23,8 @@ class DependencyParser:
 
     # 用于替换原始句子中的实体，替换的同时关系也要更新
     def replace_entities_relations(self, sentence, entities, relations_replaced):
-        replace_words = yaml.load(
-            open(u"D:\Files\面试\项目经验\项目代码\sementic_server_v2\sementic_server\data\yml\\replaceword.yml",
-                 encoding="utf-8"), Loader=yaml.SafeLoader)
+        dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
+        replace_words = yaml.load(open(join(dir_yml, "replaceword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
         #replace_words = yaml.load(open(join(dir_yml, "replaceword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
         # 防止引用传递把原始数据修改掉
         sentence = copy.deepcopy(sentence)

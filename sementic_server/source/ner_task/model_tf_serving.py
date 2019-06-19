@@ -87,9 +87,6 @@ class ModelServing(object):
             if mode == self.system_info.MODE_NER:
                 channel = grpc.insecure_channel(self.config["model_ner_address"])
                 self.stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
-            elif mode == self.system_info.MODE_SEN:
-                channel = grpc.insecure_channel(self.config["model_sen_address"])
-                self.stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
             else:
                 logger.error('Please config ip address and port first.')
 
@@ -193,8 +190,6 @@ class ModelServing(object):
             pred_ids_result = np.array(result_future.result().outputs['pred_ids'].int_val)
             pred_label_result = convert_id_to_label(pred_ids_result, self.id2label)
 
-            print(sentence)
-            print(pred_label_result)
             return sentence, pred_label_result
 
     def test_send_grpc_request_ner(self, raw_sen):

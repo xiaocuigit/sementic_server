@@ -1,0 +1,5 @@
+{Person: 100, QQ: 210, MobileNumber: 220, WeChat: 230, Email: 240, DouYin: 250, JD: 260,
+  Alipay: 270, TaoBao: 280, MicroBlog: 290, Addr: 310, Vehicle: 410, PlateNumber: 420,
+  'MAC ': 431, IMEI: 432, ICCID: 441, IMSI: 442, SocialSecurityCard: 451, BankCard: 452,
+  Idcard_DL: 461, Idcard_TW: 462, FixedPhone: 470, QQGroup: 511, WeChatGroup: 512,
+  Company: 521, Office: 524}

@@ -1,0 +1,4 @@
+2019-06-19 10:33:45 - correction - INFO: - {'raw_query': 'asdf ', 'correct_info': {'correct_query': 'asdf ', 'correct': []}, 'using_time': 5.626678466796875e-05}
+2019-06-19 10:33:53 - correction - INFO: - {'raw_query': 'asf eadf ', 'correct_info': {'correct_query': 'asf eadf ', 'correct': []}, 'using_time': 6.127357482910156e-05}
+2019-06-19 10:34:09 - correction - INFO: - {'raw_query': '', 'correct_info': {'correct_query': '', 'correct': []}, 'using_time': 3.314018249511719e-05}
+2019-06-19 10:34:09 - correction - INFO: - {'raw_query': 'asda sf asf', 'correct_info': {'correct_query': 'asda sf asf', 'correct': []}, 'using_time': 3.600120544433594e-05}

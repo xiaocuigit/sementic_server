@@ -75,8 +75,6 @@ def get_result(request):
     entity = dict(result_ner).get('entity')
     relation = result_intent.get('relation')
     intention = result_intent.get('intent')
-    if intention == '0':
-        intention = 'PERSON'
     data = dict(entity=entity, relation=relation, intent=intention)
 
     query_graph_result = dict()

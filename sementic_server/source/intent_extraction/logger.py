@@ -11,7 +11,7 @@ def get_logger(name, path):
         '%(asctime)s - %(name)s - %(levelname)s: - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S')
     # 使用FileHandler输出到文件, 文件默认level:ERROR
-    fh = TimedRotatingFileHandler(path, when="D")
+    fh = TimedRotatingFileHandler(path, when="D", encoding='utf-8')
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
 

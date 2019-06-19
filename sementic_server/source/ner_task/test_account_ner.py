@@ -20,3 +20,4 @@ if __name__ == '__main__':
         result_account = get_account_sets(result["query"])
         result_ner = semantic.sentence_ner_entities(result_account)
         pprint(result_ner)
+        pprint(result)

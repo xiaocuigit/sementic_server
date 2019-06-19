@@ -1,4 +1,0 @@
-2019-06-18 20:23:36 - intent_extraction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的是谁', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的是谁', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 6.29425048828125e-05}
-2019-06-18 20:25:02 - intent_extraction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的是谁', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的是谁', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 7.009506225585938e-05}
-2019-06-18 20:27:06 - intent_extraction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的是谁', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的是谁', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 6.008148193359375e-05}
-2019-06-18 20:59:07 - intent_extraction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的是谁', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的是谁', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 6.4849853515625e-05}

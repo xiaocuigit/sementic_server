@@ -1,6 +1,6 @@
 import requests
 import urllib
-from server_config import config
+from sementic_server.source.dependency_parser.server_config import config
 
 
 class ServerRequest:

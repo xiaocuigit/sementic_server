@@ -190,8 +190,6 @@ class ModelServing(object):
             pred_ids_result = np.array(result_future.result().outputs['pred_ids'].int_val)
             pred_label_result = convert_id_to_label(pred_ids_result, self.id2label)
 
-            print(sentence)
-            print(pred_label_result)
             return sentence, pred_label_result
 
     def test_send_grpc_request_ner(self, raw_sen):

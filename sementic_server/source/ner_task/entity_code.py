@@ -18,10 +18,10 @@ class EntityCode:
 
         self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
 
-        if os.getcwd().split('/')[-1] == 'sementic_server_v2':
-            f_r = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'node_code.yml'), encoding='utf-8')
-        else:
+        if 'source' in os.getcwd().split('/'):
             f_r = open(os.path.join(os.getcwd(), '../../', 'data', 'yml', 'node_code.yml'), encoding='utf-8')
+        else:
+            f_r = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'node_code.yml'), encoding='utf-8')
 
         self.entities_code = yaml.load(f_r, Loader=yaml.SafeLoader)
 

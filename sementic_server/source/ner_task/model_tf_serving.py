@@ -47,9 +47,9 @@ class ModelServing(object):
             self.batch_size = self.config["pred_batch_size"]
             self.hidden_size = self.config["hidden_size"]
 
-            with open('../../output/labels/label_list.pkl', 'rb') as rf:
+            with open('../../data/labels/label_list.pkl', 'rb') as rf:
                 self.label_list = pickle.load(rf)
-            with open('../../output/labels/label2id.pkl', 'rb') as rf:
+            with open('../../data/labels/label2id.pkl', 'rb') as rf:
                 self.label2id = pickle.load(rf)
                 self.id2label = {value: key for key, value in self.label2id.items()}
 

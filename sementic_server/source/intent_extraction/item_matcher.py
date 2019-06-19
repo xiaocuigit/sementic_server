@@ -54,7 +54,9 @@ class ItemMatcher:
         # 获得根目录的地址
         self.dir_data = join(si.base_path, "data")
         self.dir_yml = join(self.dir_data, "yml")
-        self.dir_pkl = join(self.dir_data, "pkl")
+
+        self.dir_output = join(si.base_path, "output")
+        self.dir_pkl = join(self.dir_output, "pkl")
 
         # 获得关系词和疑问词的类型词典和纠错词典
         self.relations, self.ques_word, self.wrong_word = dict(), dict(), dict()

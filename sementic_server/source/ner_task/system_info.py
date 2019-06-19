@@ -46,11 +46,11 @@ class SystemInfo(object):
 
     def __init__(self, is_test=False):
         if 'source' in os.getcwd().split('/'):
-            self.base_path = '../../'
+            self.base_path = os.path.join(os.path.pardir, os.path.pardir)
         else:
-            self.base_path = os.getcwd() + '/sementic_server/'
+            self.base_path = os.path.join(os.getcwd(), 'sementic_server')
 
-        self.config_path = self.base_path + "config/"
+        self.config_path = os.path.join(self.base_path, "config")
         self.config_file = "model.config"
         self.config = None
 

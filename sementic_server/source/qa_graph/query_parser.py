@@ -134,6 +134,20 @@ class QueryParser:
     def add_intention_on_node(self, node):
         self.query_graph.nodes[node]['intent'] = True
 
+    def add_intention_on_nodes(self, node_list):
+        """
+        在一批节点中优先选择person节点进行插入
+        :param node_list: 带插入的一组空节点
+        :return:
+        """
+        for node in node_list:
+            if self.query_graph.nodes[node]['type'] == 'Person':
+                self.query_graph.nodes[node]['intent'] = True
+                return
+        # 若找不到person
+        node = node_list[0]
+        self.query_graph.nodes[node]['intent'] = True
+
     def is_none_node(self, node):
         current_graph = self.query_graph
         if current_graph.nodes[node]['type'] != 'concept':
@@ -161,8 +175,9 @@ class QueryParser:
         1.1、通过添加依存分析信息来确定意图
         1.2、没有依存分析的情况下，默认第一个该类型的实体为查询意图
         2、未识别出意图类型的，将图中的空节点（概念）认为是查询意图
-        2.1、若有多个空节点，默认第一个空节点
-        2.2、没有空节点，默认第一个概念节点
+        2.1、若有多个空节点，默认第一个person空节点
+        2.2、没有空节点，默认第一个person概念节点
+        2.3、若没有person，默认第一个概念节点
         :return:
         """
         if self.intent:
@@ -173,12 +188,13 @@ class QueryParser:
             none_nodes = self.get_none_nodes()
             if len(none_nodes) > 0:
                 # 有空节点
-                self.add_intention_on_node(none_nodes[0])
+                self.add_intention_on_nodes(none_nodes)
             else:
                 # 没有空节点
+                temp_node_list = list()
                 for n in self.query_graph.nodes:
-                    self.add_intention_on_node(n)
-                    break
+                    temp_node_list.append(n)
+                self.add_intention_on_nodes(temp_node_list)
 
     def component_assemble(self):
         # 之后根据依存分析来完善

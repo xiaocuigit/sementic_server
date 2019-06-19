@@ -76,7 +76,7 @@ def get_result(request):
     query_graph_result = dict()
     try:
         qg = QueryParser(data)
-        query_graph = qg.query_graph
+        query_graph = qg.query_graph.get_data()
         qi = QueryInterface(qg.query_graph, sentence)
         query_interface = qi.get_query_data()
         query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}

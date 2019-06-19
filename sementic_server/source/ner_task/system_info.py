@@ -45,16 +45,16 @@ class SystemInfo(object):
     _instance = None  # 单例模式-用来存放实例
 
     def __init__(self, is_test=False):
-        if os.getcwd().split('/')[-1] == 'sementic_server_v2':
-            self.base_path = os.getcwd() + '/sementic_server/'
-        else:
+        if 'source' in os.getcwd().split('/'):
             self.base_path = '../../'
+        else:
+            self.base_path = os.getcwd() + '/sementic_server/'
 
         self.config_path = self.base_path + "config/"
         self.config_file = "model.config"
         self.config = None
 
-        self.label_path = self.base_path + 'output/labels/'
+        self.label_path = os.path.join(self.base_path, 'data', 'labels')
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:

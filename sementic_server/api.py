@@ -64,19 +64,23 @@ def get_result(request):
     logger.info("NER model done. Time consume: {0}".format(timeit.default_timer() - t_ner))
 
     logger.info("Query Graph model...")
+    t_dependence = timeit.default_timer()
+    # 依存分析模块
+
+    logger.info("Query Graph model done. Time consume: {0}".format(timeit.default_timer() - t_dependence))
+
+    logger.info("Query Graph model...")
     t_another = timeit.default_timer()
     # 添加其他模块调用
     entity = dict(result_ner).get('entity')
     relation = result_intent.get('relation')
     intention = result_intent.get('intent')
-    if intention == '0':
-        intention = 'PERSON'
     data = dict(entity=entity, relation=relation, intent=intention)
 
     query_graph_result = dict()
     try:
         qg = QueryParser(data)
-        query_graph = qg.query_graph
+        query_graph = qg.query_graph.get_data()
         qi = QueryInterface(qg.query_graph, sentence)
         query_interface = qi.get_query_data()
         query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}

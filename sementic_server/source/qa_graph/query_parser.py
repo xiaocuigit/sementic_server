@@ -65,7 +65,8 @@ init_relation_data()
 
 class QueryParser:
     def __init__(self, query_data, dependency=None):
-        logger.info('Query Parsing...')
+        logger.info('Query Graph Parsing...')
+        print('Query Graph Parsing...')
         self.relation = query_data.setdefault('relation', list())
         self.entity = query_data.setdefault('entity', list())
         self.intent = query_data['intent']
@@ -80,7 +81,7 @@ class QueryParser:
         if self.dependency and len(self.dependency) > 0:
             logger.info('dependency exist.')
             print('dependency exist.')
-            dm = DepMap(query_data['dependency'], self.relation_component_list, self.entity_component_list)
+            dm = DepMap(self.dependency, self.relation_component_list, self.entity_component_list)
             if dm.check_dep():
                 # 使用依存分析，获取self.component_graph
                 if nx.algorithms.is_weakly_connected(dm.dep_graph):

@@ -15,6 +15,7 @@ def get_logger(name, path):
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
+    logger.propagate = False
     return logger
 
 

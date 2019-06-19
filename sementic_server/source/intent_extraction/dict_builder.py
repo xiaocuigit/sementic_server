@@ -12,7 +12,6 @@ from pypinyin import lazy_pinyin
 from collections import Counter
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 from sementic_server.source.intent_extraction.recognizer import cmp, cmp_to_key
-
 import logging
 logger = logging.getLogger("server_log")
 

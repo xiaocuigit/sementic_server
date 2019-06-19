@@ -5,6 +5,7 @@
 @time: 2019-02-27
 @version: 0.0.1
 """
+from collections import defaultdict
 
 import jieba
 import logging
@@ -12,7 +13,6 @@ import logging
 from sementic_server.source.ner_task.entity_code import EntityCode
 from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.ner_task.model_tf_serving import ModelServing
-from sementic_server.source.ner_task.utils import convert_output_data_format
 
 logger = logging.getLogger("server_log")
 
@@ -32,6 +32,7 @@ class SemanticSearch(object):
 
         self.entity_code = EntityCode()
         self.ner_entities = self.entity_code.get_ner_entities()
+        self.code = self.entity_code.get_entity_code()
 
         self.labels_list = []
         self.labels_list_split = []
@@ -127,6 +128,25 @@ class SemanticSearch(object):
                 template_sen = template_sen.replace(label, self.labels_list_split[i])
         return template_sen
 
+    def __convert_output_data_format(self, data_param):
+        """
+        将 data_param 数据转换成问答图模块需要的数据格式
+        :param data_param:
+        :return:
+        """
+        output = defaultdict()
+        output["query"] = data_param["raw_input"]
+        output["template"] = data_param["new_input"]
+        entity = []
+        for key, values in data_param["labels"].items():
+            for v in values:
+                begin = data_param["raw_input"].find(v)
+                entity.append(
+                    {"type": key, "value": v, "code": self.code[key], "begin": begin,
+                     "end": begin + len(v) + 1 if begin != -1 else -1})
+        output["entity"] = entity
+        return output
+
     def sentence_ner_entities(self, result):
         """
         使用 BERT 模型对句子进行实体识别，返回标记实体的句子
@@ -191,5 +211,5 @@ class SemanticSearch(object):
             result["new_input"] = result["new_input"].replace(word, label)
             result["labels"].setdefault(label, []).append(word)
 
-        result = convert_output_data_format(result)
+        result = self.__convert_output_data_format(result)
         return result

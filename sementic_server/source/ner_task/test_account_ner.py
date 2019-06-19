@@ -13,7 +13,7 @@ from pprint import pprint
 
 if __name__ == '__main__':
     semantic = SemanticSearch(test_mode=True)
-    item_matcher = ItemMatcher(True)
+    item_matcher = ItemMatcher(True, is_test=True)
     while True:
         sentence = input("please input:")
         result = item_matcher.match(sentence)

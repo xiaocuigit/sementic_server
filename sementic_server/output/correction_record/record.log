@@ -59,3 +59,7 @@
 2019-06-20 14:02:45 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 0.00016498565673828125}
 2019-06-20 14:06:43 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 0.00018930435180664062}
 2019-06-20 14:07:12 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 0.00012683868408203125}
+2019-06-20 14:36:11 - correction - INFO: - {'raw_query': '在百度工作的李四的老婆是谁', 'correct_info': {'correct_query': '在百度工作的李四的老婆是谁', 'correct': []}, 'using_time': 7.605552673339844e-05}
+2019-06-20 14:37:24 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 7.915496826171875e-05}
+2019-06-20 15:02:55 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 0.00010514259338378906}
+2019-06-20 16:02:14 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 7.605552673339844e-05}

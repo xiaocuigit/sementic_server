@@ -18,20 +18,24 @@ from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 
+
 class DependencyParser:
 
-    def __init__(self,):
+    def __init__(self, ):
         self.dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
 
         self.logger = logging.getLogger("server_log")
         if os.getcwd().split('/')[-1] == 'sementic_server_v2':
-            replace_words_dir = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'replaceword.yml'), encoding='utf-8')
+            replace_words_dir = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'replaceword.yml'),
+                                     encoding='utf-8')
         else:
-            replace_words_dir = open(os.path.join(os.getcwd(), '../../', 'data', 'yml', 'replaceword.yml'), encoding='utf-8')
-        #self.replace_words = yaml.load(open(join(self.dir_yml, "replaceword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+            replace_words_dir = open(os.path.join(os.getcwd(), '../../', 'data', 'yml', 'replaceword.yml'),
+                                     encoding='utf-8')
+        # self.replace_words = yaml.load(open(join(self.dir_yml, "replaceword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
         self.account = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard_DL', 'Idcard_TW', 'Email', 'WeChat', 'QQGroup',
                         'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
         self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
+        self.rever_ner_entities_dics = {v: k for k, v in self.ner_entities_dics.items()}
         self.replace_words = yaml.load(replace_words_dir, Loader=yaml.SafeLoader)
 
     def get_denpendency_tree(self, sentence, entities, relations):
@@ -56,8 +60,12 @@ class DependencyParser:
             'pos'表示字符的词性
         """
         # 替换实体，更新关系
-        sentence_replaced, entities_replaced, relations_updated = self.replace_entities_relations(sentence, entities,
+        sentence_replaced, entities_replaced, relations_updated = self.replace_entities_relations_2(sentence, entities,
                                                                                                   relations)
+
+        pprint.pprint(entities_replaced)
+        pprint.pprint(relations_updated)
+
         # 调用nlp工具获得依存关系
         dependency_tree, tokens = ServerRequest().get_dependency(sentence_replaced)
         # 还原依存关系树中的实体和关系
@@ -70,6 +78,38 @@ class DependencyParser:
         dependency_graph = self.find_dependency_graph(dependency_tree_recovered, tokens, entities, relations)
 
         return dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations
+
+    def replace_entities_relations_2(self, sentence, entities, relations):
+        new_sen = copy.deepcopy(sentence)
+        c_entities = copy.deepcopy(entities)
+        c_relations = copy.deepcopy(relations)
+        max_k = len(self.replace_words['NAME'])
+        for idx, entity in enumerate(c_entities):
+            if idx >= max_k:
+                raise ValueError('没有足够的实体替换')
+
+            old_value = entity["value"]
+            if entity['type'] in self.account:
+                new_value = self.replace_words['NAME'][idx]
+            else:
+                new_value = self.replace_words[self.rever_ner_entities_dics[entity['type']]][idx]
+            new_sen = new_sen.replace(old_value, new_value)
+            entity['value'] = new_value
+            entity['origin_word'] = old_value
+            entity['origin_start'] = entity['begin']
+            entity['origin_end'] = entity['end']
+
+        for entity in c_entities:
+            s = new_sen.find(entity['value'])
+            entity['begin'] = s
+            entity['end'] = s + len(entity['value'])
+
+        for rel in c_relations:
+            s = new_sen.find(rel['value'])
+            rel['begin'] = s
+            rel['end'] = s + len(rel['value'])
+
+        return new_sen, c_entities, c_relations
 
     def replace_entities_relations(self, sentence, entities, relations_replaced):
         """
@@ -96,7 +136,7 @@ class DependencyParser:
         for entity in entities:
             new_entity = copy.deepcopy(entity)
             # 保存原来的信息，用于后面换回来
-            #print(new_entity)
+            # print(new_entity)
             new_entity['origin_word'] = new_entity['value']
             new_entity['origin_start'] = new_entity['begin']
             new_entity['origin_end'] = new_entity['end']
@@ -118,7 +158,8 @@ class DependencyParser:
             # 替换的新实体初始位置不变，但长度变化了，所以更新一下end字段
             new_entity['end'] = new_entity['begin'] + len(new_entity['value'])
             # 替换原句子中的词
-            sentence = self.replace_string(sentence, entity['value'], new_entity['value'], entity['begin'])
+            # sentence = self.replace_string(sentence, entity['value'], new_entity['value'], entity['begin'])
+            sentence = sentence.replace(entity['value'], new_entity['value'])
 
             # 替换完之后，更新实体和关系的start和end
             move_len = len(entity['value']) - len(new_entity['value'])
@@ -141,7 +182,6 @@ class DependencyParser:
             entities_replaced.append(new_entity)
         return sentence, entities_replaced, relations_replaced
 
-
     def get_entities_relations(self, sentence):
         """
         调用NER服务得到实体和关系
@@ -151,15 +191,15 @@ class DependencyParser:
             relations:关系列表
         """
         semantic = SemanticSearch(test_mode=True)
-        item_matcher = ItemMatcher(new_actree=True,is_test=True)
+        item_matcher = ItemMatcher(new_actree=True, is_test=True)
 
         intent = item_matcher.match(sentence)
         result_account = get_account_sets(sentence)
         result = semantic.sentence_ner_entities(result_account)
         entities = dict(result).get('entity')
         relations = intent.get('relation')
-        print('entities='+str(entities))
-        print('relations='+str(relations))
+        print('entities=' + str(entities))
+        print('relations=' + str(relations))
 
         return entities, relations
 
@@ -220,7 +260,6 @@ class DependencyParser:
         rear_str = raw_str[start + len(sub_str):]
         return front_str + mid_str + rear_str
 
-
     # 根据依存关系确定实体和边的依存关系
     def find_dependency_graph(self, dependency_tree_recovered, tokens, entities_replaced, relations_updated):
         """
@@ -257,6 +296,7 @@ class DependencyParser:
                         for pre_edge in dependency_tree_recovered:
                             if pre_edge['dependent'] == governor['governor']:
                                 governor = copy.deepcopy(pre_edge)
+                                break
                     # 将寻找到的实体和边的依存关系联系起来，并去除根节点的情况
                     if governor['governorGloss'] != 'ROOT':
                         from_value = edge['dependentGloss']
@@ -275,23 +315,38 @@ class DependencyParser:
                             to_type = 'relation'
                         entity_dependency_list.append({'from': {'value': from_value, 'from_offset': from_offset,
                                                                 'type': from_type}, 'to': {'value': to_value,
-                                                                'to_offset': to_offset, 'type': to_type}})
+                                                                                           'to_offset': to_offset,
+                                                                                           'type': to_type}})
 
         return entity_dependency_list
 
+
 if __name__ == '__main__':
-    sentence = '15195919704的同学有哪些'
-    #entities = [{'type': 'Tel', 'value': '15842062826', 'start': 19, 'end': 30}, {'type': 'ADDR', 'value': '东莞常平司马村珠江啤酒厂', 'start': 1, 'end':13}]
-    #relations = [{'id': 'HusbandToWife', 'start': 31, 'end': 33, 'type': 'HusbandToWife', 'value': '老婆'}]
+    sentence = '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆'
+    entities = [{'type': 'MobileNumber', 'value': '15842062826', 'code': 220, 'begin': 19, 'end': 31},
+                {'type': 'Addr', 'value': '东莞常平司马村珠江啤酒厂', 'code': 310, 'begin': 1, 'end': 14}]
+    relations = [{'type': 'HusbandToWife', 'value': '老婆', 'begin': 31, 'end': 33}]
+    dp = DependencyParser()
+    new_sen, c_entities, c_relations = dp.replace_entities_relations_2(sentence, entities, relations)
+    pprint.pprint(new_sen)
+    pprint.pprint(c_entities)
+    pprint.pprint(c_relations)
+
+    print("\n===========\n")
+
+    pprint.pprint(sentence)
+    pprint.pprint(entities)
+    pprint.pprint(relations)
     # 替换实体，更新关系
-    #sentence_replaced, entities_replaced, relations_updated = DependencyParser().replace_entities_relations(sentence,
+    # sentence_replaced, entities_replaced, relations_updated = DependencyParser().replace_entities_relations(sentence,
     #                                                                                                        entities,
     #                                                                                                        relations)
-    #dependency_tree, tokens = ServerRequest().get_dependency(sentence_replaced)
-    #dependency_tree, tokens = DependencyParser().recover_tokens(dependency_tree, tokens, entities_replaced, relations_updated)
+    # dependency_tree, tokens = ServerRequest().get_dependency(sentence_replaced)
+    # dependency_tree, tokens = DependencyParser().recover_tokens(dependency_tree, tokens, entities_replaced, relations_updated)
     # 得到实体和关系
-    entities, relations = DependencyParser().get_entities_relations(sentence)
-    dependency_tree_recovered, tokens_recovered, dependency_graph, entity, relation = DependencyParser().get_denpendency_tree(sentence, entities, relations)
-    #pprint.pprint(dependency_tree_recovered)
-    #pprint.pprint(tokens_recovered)
-    pprint.pprint(dependency_graph)
+    # entities, relations = DependencyParser().get_entities_relations(sentence)
+    # dependency_tree_recovered, tokens_recovered, dependency_graph, entity, relation = DependencyParser().get_denpendency_tree(
+    #     sentence, entities, relations)
+    # # pprint.pprint(dependency_tree_recovered)
+    # # pprint.pprint(tokens_recovered)
+    # pprint.pprint(dependency_graph)

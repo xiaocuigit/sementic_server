@@ -29,3 +29,33 @@
 2019-06-19 23:00:06 - correction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 0.00010395050048828125}
 2019-06-19 23:00:09 - correction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 9.393692016601562e-05}
 2019-06-19 23:00:09 - correction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 0.00012993812561035156}
+2019-06-19 23:12:52 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 8.034706115722656e-05}
+2019-06-19 23:23:47 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 0.00015163421630859375}
+2019-06-19 23:25:13 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 8.606910705566406e-05}
+2019-06-19 23:25:44 - correction - INFO: - {'raw_query': '15295668765的老婆', 'correct_info': {'correct_query': '15295668765的老婆', 'correct': []}, 'using_time': 7.700920104980469e-05}
+2019-06-19 23:26:12 - correction - INFO: - {'raw_query': '张飒的', 'correct_info': {'correct_query': '张飒的', 'correct': []}, 'using_time': 4.9114227294921875e-05}
+2019-06-19 23:26:18 - correction - INFO: - {'raw_query': '张三的手机号是什么', 'correct_info': {'correct_query': '张三的手机号是什么', 'correct': []}, 'using_time': 6.508827209472656e-05}
+2019-06-19 23:28:13 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 9.393692016601562e-05}
+2019-06-20 09:29:14 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 7.605552673339844e-05}
+2019-06-20 09:33:05 - correction - INFO: - {'raw_query': '张三的老婆是谁？', 'correct_info': {'correct_query': '张三的老婆是谁？', 'correct': []}, 'using_time': 6.198883056640625e-05}
+2019-06-20 09:34:27 - correction - INFO: - {'raw_query': '张三的妻子是谁》', 'correct_info': {'correct_query': '张三的妻子是谁》', 'correct': []}, 'using_time': 6.031990051269531e-05}
+2019-06-20 09:35:00 - correction - INFO: - {'raw_query': '张三的手机号是多少', 'correct_info': {'correct_query': '张三的手机号是多少', 'correct': []}, 'using_time': 6.103515625e-05}
+2019-06-20 09:35:43 - correction - INFO: - {'raw_query': '住在南京东南大学九龙湖校区的李志的老师是谁', 'correct_info': {'correct_query': '住在南京东南大学九龙湖校区的李志的老师是谁', 'correct': []}, 'using_time': 9.083747863769531e-05}
+2019-06-20 09:38:47 - correction - INFO: - {'raw_query': '住在南京九龙湖校区的李志的老师有哪些？', 'correct_info': {'correct_query': '住在南京九龙湖校区的李志的老师有哪些？', 'correct': []}, 'using_time': 8.392333984375e-05}
+2019-06-20 09:40:18 - correction - INFO: - {'raw_query': '住在南京九龙湖校区的李志的子', 'correct_info': {'correct_query': '住在南京九龙湖校区的李志的子', 'correct': []}, 'using_time': 0.00045800209045410156}
+2019-06-20 09:40:45 - correction - INFO: - {'raw_query': '住在南京九龙湖校区的李志的妻子是谁？', 'correct_info': {'correct_query': '住在南京九龙湖校区的李志的妻子是谁？', 'correct': []}, 'using_time': 7.510185241699219e-05}
+2019-06-20 10:12:23 - correction - INFO: - {'raw_query': '张三的妻子是谁？', 'correct_info': {'correct_query': '张三的妻子是谁？', 'correct': []}, 'using_time': 6.604194641113281e-05}
+2019-06-20 10:15:19 - correction - INFO: - {'raw_query': '张三的laopoo是谁？', 'correct_info': {'correct_query': '张三的老婆是谁？', 'correct': [{'type': '老婆', 'value': 'laopoo', 'begin': 3, 'end': 9}]}, 'using_time': 0.00010895729064941406}
+2019-06-20 10:20:39 - correction - INFO: - {'raw_query': '张三的laopoo是谁？', 'correct_info': {'correct_query': '张三的老婆是谁？', 'correct': [{'type': '老婆', 'value': 'laopoo', 'begin': 3, 'end': 9}]}, 'using_time': 0.00011014938354492188}
+2019-06-20 10:23:01 - correction - INFO: - {'raw_query': '在百度工作的李四的爸爸是谁', 'correct_info': {'correct_query': '在百度工作的李四的爸爸是谁', 'correct': []}, 'using_time': 7.009506225585938e-05}
+2019-06-20 10:31:29 - correction - INFO: - {'raw_query': '苏宁老总的qingg家是谁', 'correct_info': {'correct_query': '苏宁老总的亲家是谁', 'correct': [{'type': '亲家', 'value': 'qingg家', 'begin': 5, 'end': 11}]}, 'using_time': 0.00012683868408203125}
+2019-06-20 10:36:15 - correction - INFO: - {'raw_query': '东南大学的张老师住在哪里', 'correct_info': {'correct_query': '东南大学的张老师住在哪里', 'correct': []}, 'using_time': 7.295608520507812e-05}
+2019-06-20 10:42:09 - correction - INFO: - {'raw_query': '东南大学的崔老师住在哪里', 'correct_info': {'correct_query': '东南大学的崔老师住在哪里', 'correct': []}, 'using_time': 7.176399230957031e-05}
+2019-06-20 10:42:27 - correction - INFO: - {'raw_query': '东南大学的王老师住在哪里', 'correct_info': {'correct_query': '东南大学的王老师住在哪里', 'correct': []}, 'using_time': 6.985664367675781e-05}
+2019-06-20 13:58:20 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 6.890296936035156e-05}
+2019-06-20 13:59:09 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 7.104873657226562e-05}
+2019-06-20 13:59:54 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 7.390975952148438e-05}
+2019-06-20 14:00:31 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 0.000125885009765625}
+2019-06-20 14:02:45 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 0.00016498565673828125}
+2019-06-20 14:06:43 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 0.00018930435180664062}
+2019-06-20 14:07:12 - correction - INFO: - {'raw_query': '张三的老婆姚明是谁', 'correct_info': {'correct_query': '张三的老婆姚明是谁', 'correct': []}, 'using_time': 0.00012683868408203125}

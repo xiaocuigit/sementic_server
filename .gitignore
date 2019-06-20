@@ -11,3 +11,4 @@ templates/
 sementic_server/data/pkl/
 sementic_server/output/
 .log
+__pycache__/

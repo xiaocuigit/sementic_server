@@ -63,3 +63,7 @@
 2019-06-20 14:37:24 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 7.915496826171875e-05}
 2019-06-20 15:02:55 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 0.00010514259338378906}
 2019-06-20 16:02:14 - correction - INFO: - {'raw_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct_info': {'correct_query': '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆', 'correct': []}, 'using_time': 7.605552673339844e-05}
+2019-06-21 14:29:50 - correction - INFO: - {'raw_query': '张三的爸爸祖父的naopoo的', 'correct_info': {'correct_query': '张三的爸爸祖父的老婆的', 'correct': [{'type': '老婆', 'value': 'naopoo', 'begin': 8, 'end': 14}]}, 'using_time': 6.103515625e-05}
+2019-06-21 14:41:48 - correction - INFO: - {'raw_query': '东南大学的汪老师的xuesheng', 'correct_info': {'correct_query': '东南大学的汪老师的xuesheng', 'correct': []}, 'using_time': 5.4836273193359375e-05}
+2019-06-21 14:46:28 - correction - INFO: - {'raw_query': '东南大学的汪老师的xuesheng', 'correct_info': {'correct_query': '东南大学的汪老师的xuesheng', 'correct': []}, 'using_time': 4.291534423828125e-05}
+2019-06-21 14:46:57 - correction - INFO: - {'raw_query': '东南大学的汪老师的xuesheng', 'correct_info': {'correct_query': '东南大学的汪老师的xuesheng', 'correct': []}, 'using_time': 5.507469177246094e-05}

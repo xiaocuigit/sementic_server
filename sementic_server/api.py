@@ -98,3 +98,25 @@ def get_result(request):
     logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
     # 返回JSON格式数据，将 result_ner 替换成需要返回的JSON数据
     return JsonResponse(query_graph_result, json_dumps_params={'ensure_ascii': False})
+
+
+@csrf_exempt
+def correct(request):
+    print(request.method)
+
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
+    request_data = request.POST
+    sentence = request_data['sentence']
+    need_correct = request_data.get('need_correct', True)
+
+    start_time = timeit.default_timer()
+    result = dict()
+    try:
+        result = item_matcher.match(sentence, need_correct)
+        end_time = timeit.default_timer()
+        logger.info("intent_extraction - time consume: {0} S.\n".format(end_time - start_time))
+    except Exception as e:
+        logger.error(f"intent_extraction - {e}")
+    return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

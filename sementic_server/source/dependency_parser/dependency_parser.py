@@ -16,6 +16,7 @@ import logging
 from sementic_server.source.dependency_parser.server_request import ServerRequest
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
+from sementic_server.source.ner_task.entity_code import EntityCode
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 
 logger = logging.getLogger("server_log")
@@ -33,9 +34,10 @@ class DependencyParser:
         else:
             replace_words_dir = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'replaceword.yml'),
                                      encoding='utf-8')
-        self.account = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard_DL', 'Idcard_TW', 'Email', 'WeChat', 'QQGroup',
-                        'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
-        self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
+        entity_code = EntityCode()
+
+        self.account = entity_code.get_account()
+        self.ner_entities_dics = entity_code.get_ner_entities()
         self.rever_ner_entities_dics = {v: k for k, v in self.ner_entities_dics.items()}
         self.replace_words = yaml.load(replace_words_dir, Loader=yaml.SafeLoader)
 
@@ -324,8 +326,8 @@ class DependencyParser:
 
 if __name__ == '__main__':
     sentence = '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆'
-    entities = [{'type': 'MobileNumber', 'value': '15842062826', 'code': 220, 'begin': 19, 'end': 31},
-                {'type': 'Addr', 'value': '东莞常平司马村珠江啤酒厂', 'code': 310, 'begin': 1, 'end': 14}]
+    entities = [{'type': 'MOB_NUM', 'value': '15842062826', 'code': 220, 'begin': 19, 'end': 31},
+                {'type': 'ADDR_ID', 'value': '东莞常平司马村珠江啤酒厂', 'code': 310, 'begin': 1, 'end': 14}]
     relations = [{'type': 'HusbandToWife', 'value': '老婆', 'begin': 31, 'end': 33}]
     dp = DependencyParser()
     new_sen, c_entities, c_relations = dp.replace_entities_relations_2(sentence, entities, relations)

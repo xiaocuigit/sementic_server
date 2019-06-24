@@ -18,20 +18,21 @@ from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 
+logger = logging.getLogger("server_log")
+
 
 class DependencyParser:
 
     def __init__(self, ):
         self.dir_yml = join(abspath(getcwd()), "..", "..", "data", "yml")
 
-        self.logger = logging.getLogger("server_log")
-        if os.getcwd().split('/')[-1] == 'sementic_server_v2':
-            replace_words_dir = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'replaceword.yml'),
-                                     encoding='utf-8')
-        else:
+        rootpath = str(os.getcwd()).replace("\\", "/")
+        if 'source' in rootpath.split('/'):
             replace_words_dir = open(os.path.join(os.getcwd(), '../../', 'data', 'yml', 'replaceword.yml'),
                                      encoding='utf-8')
-        # self.replace_words = yaml.load(open(join(self.dir_yml, "replaceword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+        else:
+            replace_words_dir = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'replaceword.yml'),
+                                     encoding='utf-8')
         self.account = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard_DL', 'Idcard_TW', 'Email', 'WeChat', 'QQGroup',
                         'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
         self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
@@ -61,7 +62,7 @@ class DependencyParser:
         """
         # 替换实体，更新关系
         sentence_replaced, entities_replaced, relations_updated = self.replace_entities_relations_2(sentence, entities,
-                                                                                                  relations)
+                                                                                                    relations)
 
         pprint.pprint(entities_replaced)
         pprint.pprint(relations_updated)

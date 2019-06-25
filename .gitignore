@@ -8,7 +8,8 @@ templates/
 .idea/*.*
 .idea/
 .DS_Store
-sementic_server/data/pkl/
 sementic_server/output/
-*/logs/*.*
 __pycache__/
+
+*.log
+*.xml

@@ -26,3 +26,8 @@
 [2019-06-25 11:04:36] item_matcher.py 135-->Correcting the query time used: 0.0002181529998779297
 [2019-06-25 11:04:36] api.py 119-->intent_extraction - time consume: 0.0006759559999949261 S.
 
+[2019-06-25 11:13:14] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.3150050640106201
+[2019-06-25 11:13:14] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.01532292366027832
+[2019-06-25 11:13:31] item_matcher.py 135-->Correcting the query time used: 0.0008289813995361328
+[2019-06-25 11:13:31] api.py 119-->intent_extraction - time consume: 0.0009828100000000006 S.
+

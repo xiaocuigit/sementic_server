@@ -5,11 +5,11 @@ sementic_server/source/ner_task/__pycache__/
 sementic_server/source/qa_graph/__pycache__/
 sementic_server/source/intent_extraction/__pycache__/
 templates/
+**/.idea
 .idea/*.*
 .idea/
 .DS_Store
 sementic_server/output/
 __pycache__/
-
 *.log
 *.xml

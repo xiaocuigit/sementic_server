@@ -1,65 +1,28 @@
-[2019-06-21 14:25:11] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.26641201972961426
-[2019-06-21 14:25:11] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.011049270629882812
-[2019-06-21 14:25:12] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.30149102210998535
-[2019-06-21 14:25:12] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007195234298706055
-[2019-06-21 14:29:13] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.26410889625549316
-[2019-06-21 14:29:13] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007506132125854492
-[2019-06-21 14:29:14] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.31644105911254883
-[2019-06-21 14:29:14] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007662773132324219
-[2019-06-21 14:29:52] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2983818054199219
-[2019-06-21 14:29:52] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007615089416503906
-[2019-06-21 14:29:53] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.34760117530822754
-[2019-06-21 14:29:53] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008324146270751953
-[2019-06-21 14:31:52] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.28755688667297363
-[2019-06-21 14:31:52] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008227109909057617
-[2019-06-21 14:31:54] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.343264102935791
-[2019-06-21 14:31:54] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.00987386703491211
-[2019-06-21 14:32:12] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2678217887878418
-[2019-06-21 14:32:12] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007730960845947266
-[2019-06-21 14:32:22] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.26973485946655273
-[2019-06-21 14:32:22] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007158994674682617
-[2019-06-21 14:32:31] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2948648929595947
-[2019-06-21 14:32:31] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008284807205200195
-[2019-06-21 14:32:45] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2593710422515869
-[2019-06-21 14:32:45] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007812023162841797
-[2019-06-21 14:33:03] api.py 106-->仅支持post访问
-[2019-06-21 14:33:20] api.py 106-->仅支持post访问
-[2019-06-21 14:33:55] api.py 106-->仅支持post访问
-[2019-06-21 14:34:33] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.27071404457092285
-[2019-06-21 14:34:33] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.0070989131927490234
-[2019-06-21 14:34:38] api.py 106-->仅支持post访问
-[2019-06-21 14:35:04] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2599620819091797
-[2019-06-21 14:35:04] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007246971130371094
-[2019-06-21 14:35:41] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2766909599304199
-[2019-06-21 14:35:41] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007582902908325195
-[2019-06-21 14:35:56] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.27541494369506836
-[2019-06-21 14:35:56] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.00850987434387207
-[2019-06-21 14:36:19] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2841358184814453
-[2019-06-21 14:36:19] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008196115493774414
-[2019-06-21 14:36:34] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2909719944000244
-[2019-06-21 14:36:34] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.009015083312988281
-[2019-06-21 14:36:39] api.py 108-->仅支持post访问
-[2019-06-21 14:37:05] api.py 108-->仅支持post访问
-[2019-06-21 14:38:46] api.py 108-->仅支持post访问
-[2019-06-21 14:41:28] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2683372497558594
-[2019-06-21 14:41:28] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008901834487915039
-[2019-06-21 14:41:42] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.25810909271240234
-[2019-06-21 14:41:42] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007421255111694336
-[2019-06-21 14:41:48] item_matcher.py 133-->Correcting the query time used: 0.0005869865417480469
-[2019-06-21 14:41:48] api.py 119-->intent_extraction - time consume: 0.0007457000000012926 S.
+[2019-06-24 17:17:23] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2914917469024658
+[2019-06-24 17:17:23] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007920980453491211
+[2019-06-24 17:17:37] item_matcher.py 133-->Correcting the query time used: 0.00038814544677734375
+[2019-06-24 17:17:37] api.py 119-->intent_extraction - time consume: 0.0006134099999997034 S.
 
-[2019-06-21 14:41:59] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2862730026245117
-[2019-06-21 14:41:59] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007758140563964844
-[2019-06-21 14:41:59] api.py 108-->仅支持post访问
-[2019-06-21 14:46:28] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2665567398071289
-[2019-06-21 14:46:28] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.007494926452636719
-[2019-06-21 14:46:28] item_matcher.py 133-->Correcting the query time used: 0.0005130767822265625
-[2019-06-21 14:46:28] api.py 119-->intent_extraction - time consume: 0.0007449980000000522 S.
+[2019-06-25 10:55:44] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2789318561553955
+[2019-06-25 10:55:44] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008054018020629883
+[2019-06-25 10:56:01] item_matcher.py 134-->Correcting the query time used: 0.0007679462432861328
+[2019-06-25 10:56:01] api.py 119-->intent_extraction - time consume: 0.0009280179999997529 S.
 
-[2019-06-21 14:46:52] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.26880598068237305
-[2019-06-21 14:46:52] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008640050888061523
-[2019-06-21 14:46:57] item_matcher.py 133-->Correcting the query time used: 0.0002942085266113281
-[2019-06-21 14:46:57] api.py 119-->intent_extraction - time consume: 0.0004537060000000537 S.
+[2019-06-25 10:59:34] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.266707181930542
+[2019-06-25 10:59:34] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.0075299739837646484
+[2019-06-25 10:59:50] item_matcher.py 134-->Correcting the query time used: 0.0006110668182373047
+[2019-06-25 10:59:50] api.py 119-->intent_extraction - time consume: 0.0008695880000004763 S.
 
-[2019-06-21 14:51:35] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2972238063812256
-[2019-06-21 14:51:35] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.008730173110961914
+[2019-06-25 11:03:10] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.28159093856811523
+[2019-06-25 11:03:10] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.00817108154296875
+[2019-06-25 11:03:32] item_matcher.py 35-->Building AC-Tree "corr.pkl", time used: 0.2893071174621582
+[2019-06-25 11:03:32] item_matcher.py 35-->Building AC-Tree "reg.pkl", time used: 0.00861811637878418
+[2019-06-25 11:03:34] item_matcher.py 135-->Correcting the query time used: 0.0010230541229248047
+[2019-06-25 11:03:34] api.py 119-->intent_extraction - time consume: 0.001459134000000084 S.
+
+[2019-06-25 11:04:16] item_matcher.py 135-->Correcting the query time used: 0.00037598609924316406
+[2019-06-25 11:04:16] api.py 119-->intent_extraction - time consume: 0.0009395260000033545 S.
+
+[2019-06-25 11:04:36] item_matcher.py 135-->Correcting the query time used: 0.0002181529998779297
+[2019-06-25 11:04:36] api.py 119-->intent_extraction - time consume: 0.0006759559999949261 S.
+

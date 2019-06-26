@@ -105,7 +105,9 @@ class ItemMatcher:
         start_time = time()
         res_corr = {"correct_query": query, "correct": []}
         record = []
-        for item in self.corr.query4type(query):
+        # change the query to the lower.
+        for item in self.corr.query4type(query.lower()):
+            item["value"] = query[item["begin"]: item["end"]]
             res_corr["correct"].append(item)
             record.append((item['begin'], item['end'], item['type']))
 
@@ -126,7 +128,7 @@ class ItemMatcher:
                         p += 1
                         cursor = (record[p][0], record[p][1])
                 else:
-                    cq += c
+                    cq += c  # 加上原句中的字符
             res_corr['correct_query'] = cq
 
         self.correct_logger.info(f"{construt_log(raw_query=query, correct_info=res_corr, using_time=time()-start_time)}")

@@ -29,6 +29,7 @@ def load_actree(pkl_path):
 
 
 def build_actree(dict_info, pkl_path):
+
     start = time()
     reg = Recognizer(dict_info)
     pickle.dump(reg, open(pkl_path, "wb"))
@@ -37,7 +38,7 @@ def build_actree(dict_info, pkl_path):
     return reg
 
 
-class ItemMatcher:
+class ItemMatcher(object):
     """
     @description: 匹配接口类
     @author: Wu Jiang-Heng
@@ -59,12 +60,17 @@ class ItemMatcher:
         self.dir_pkl = join(self.dir_output, "pkl")
 
         # 获得关系词和疑问词的类型词典和纠错词典
-        self.relations, self.ques_word, self.wrong_word = dict(), dict(), dict()
+        self.relations, self.relation_code, self.ques_word, self.wrong_word = dict(), dict(), dict(), dict()
         try:
-            self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-            self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-            self.wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"), encoding="utf-8"),
-                                        Loader=yaml.SafeLoader)
+            self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"),
+                                            encoding="utf-8"), Loader=yaml.SafeLoader)
+            self.relation_code = yaml.load(open(join(self.dir_yml, "relation_code.yml"),
+                                            encoding="utf-8"), Loader=yaml.SafeLoader)
+            self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"),
+                                            encoding="utf-8"), Loader=yaml.SafeLoader)
+            self.wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"),
+                                            encoding="utf-8"), Loader=yaml.SafeLoader)
+
         except FileNotFoundError as e:
             server_logger.error(f"Cannot find the file in {self.dir_yml}, {e}")
 
@@ -76,22 +82,20 @@ class ItemMatcher:
             mkdir(self.dir_pkl)
         self.path_corr = join(self.dir_pkl, "corr.pkl")
         self.path_reg = join(self.dir_pkl, "reg.pkl")
-        self.corr = None
-        self.reg = None
 
-        try:
-            if new_actree:
+        if new_actree:
+            self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
+            self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
+        else:
+            if not exists(self.path_corr):
                 self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
-                self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
-            elif not exists(self.path_corr):
-                self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
-            elif not exists(self.path_reg):
-                self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
             else:
                 self.corr = load_actree(pkl_path=self.path_corr)
+
+            if not exists(self.path_reg):
+                self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
+            else:
                 self.reg = load_actree(pkl_path=self.path_reg)
-        except Exception as e:
-            server_logger.error(f"Building or Loading AC-Tree failed. {e}")
 
         del self.wrong_word
         del si
@@ -151,6 +155,7 @@ class ItemMatcher:
 
         for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词
             if item["type"] in self.relations.keys():
+                item["code"] = self.relation_code[item["type"]]
                 res["relation"].append(item)
             elif item["type"] in self.ques_word:
                 if res["intent"] is not None and res["intent"] != item["type"]:
@@ -165,7 +170,7 @@ if __name__ == '__main__':
     from pprint import pprint
     from time import time
     im = ItemMatcher(new_actree=True, is_test=True)
-    r = im.match("张三的爸爸祖父的naopoo的")
+    r = im.match("张三的爸爸祖父的lailai的")
     pprint(r)
     while 1:
         i = input()

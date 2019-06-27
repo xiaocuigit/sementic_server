@@ -20,9 +20,14 @@ def build_vocab(vo_dict: dict):
     word2type = dict()
     char_pool = set()
     for k, v in vo_dict.items():
-        word2type.update({vi: k for vi in v})
-        char_pool.update({vii for vi in v for vii in vi})
-    
+        word2type.update({vi: k for vi in v if vi is not None})
+
+        for vi in v:
+            if vi is not None:
+                for vii in vi:
+                    char_pool.add(vii)
+
+
     char_pool = list(char_pool)
     char2id = {c: i+1 for i, c in enumerate(char_pool)}
     id2char = {i+1: c for i, c in enumerate(char_pool)}
@@ -93,7 +98,8 @@ class Recognizer:
         self.actree = Aho()
         for vls in vocab.values():
             for vl in vls:
-                self.actree.insert(word2id(self.c2id, vl))
+                if vl is not None:
+                    self.actree.insert(word2id(self.c2id, vl))
         self.actree.build()
 
     def query(self, q: str):

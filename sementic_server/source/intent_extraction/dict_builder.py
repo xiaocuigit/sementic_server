@@ -16,7 +16,12 @@ import logging
 logger = logging.getLogger("server_log")
 
 
-def power_set(l):
+def power_set(l: int):
+    """
+    生成 0~l的幂集
+    :param l:  某个词的长度
+
+    """
     res = [[]]
     for i in l:
         sz = len(res)
@@ -29,6 +34,12 @@ def power_set(l):
 
 # 规则库
 def transformer(word:str, repl):
+    """
+    纠错词库生成规则
+    :param word:  某个词
+    :param repl:  替换规则
+
+    """
     res = list()
 
     outer = {chr(i) for i in range(ord("a"), ord("z") + 1)}
@@ -97,11 +108,15 @@ def transformer(word:str, repl):
 
 
 def build_wrong_table(is_test=False):
+    """
+    构建纠错词库
+    :param is_test:  是否测试模式
+    """
     si = SystemInfo(is_test)
     dir_yml = join(si.base_path, "data", "yml")
     _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     _rel = yaml.load(open(join(dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-    all_word = [v for vs in list(_rel.values()) + list(_int.values()) for v in vs if len(v) > 1]
+    all_word = [v for vs in list(_rel.values()) + list(_int.values()) for v in vs if v is not None and len(v) > 1]
     repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
 
     # 运行
@@ -127,7 +142,7 @@ def build_wrong_table(is_test=False):
     logger.info(f"Build correct table - conflict count: {conflict}")
 
     path_restable = join(dir_yml, "wrong_table.yml")
-    yaml.dump(res_dict, open(path_restable, "w", encoding="utf-8"), allow_unicode=True)
+    yaml.dump(res_dict, open(path_restable, "w", encoding="utf-8"), allow_unicode=True, default_flow_style=False)
 
 
 if __name__ == '__main__':

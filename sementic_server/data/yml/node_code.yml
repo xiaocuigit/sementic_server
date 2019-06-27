@@ -1,5 +1,5 @@
-{Person: 100, QQ: 210, MobileNumber: 220, WeChat: 230, Email: 240, DouYin: 250, JD: 260,
-  Alipay: 270, TaoBao: 280, MicroBlog: 290, Addr: 310, Vehicle: 410, PlateNumber: 420,
+{NAME: 100, QQ_NUM: 210, MOB_NUM: 220, WECHAT_VALUE: 230, EMAIL_VALUE: 240, DOUYIN_VALUE: 250, JD_VALUE: 260,
+  ALIPAY_VALU: 270, TAOBAO_VALUE: 280, MICROBLOG_VALUE: 290, ADDR_ID: 310, Vehicle: 410, PlateNumber: 420,
   'MAC ': 431, IMEI: 432, ICCID: 441, IMSI: 442, SocialSecurityCard: 451, BankCard: 452,
-  Idcard_DL: 461, Idcard_TW: 462, FixedPhone: 470, QQGroup: 511, WeChatGroup: 512,
+  IDCARD_VALUE: 461, PHONE_NUM: 470, QQ_GROUP_NUM: 511, WX_GROUP_NUM: 512,
   Company: 521, Office: 524, DATE: 000}

@@ -40,7 +40,8 @@ if __name__ == '__main__':
         try:
             query_graph_result = dict()
             t = dict(data=data, dep=dep)
-            json.dump(t, open('test_case.json', 'w'))
+            p = os.path.join(os.getcwd(), 'test_case.json')
+            json.dump(t, open(p, 'w'))
             qg = QueryParser(data, dep)
             query_graph = qg.query_graph.get_data()
             if not query_graph:

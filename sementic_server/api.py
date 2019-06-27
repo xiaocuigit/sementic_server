@@ -81,7 +81,7 @@ def get_result(request):
     dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
         DependencyParser().get_denpendency_tree(sentence, entity, relation)
     dep = dependency_graph
-    
+
     query_graph_result = dict()
     try:
         qg = QueryParser(data, dep)

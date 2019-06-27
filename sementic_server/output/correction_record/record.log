@@ -2,3 +2,11 @@
 2019-06-19 10:33:53 - correction - INFO: - {'raw_query': 'asf eadf ', 'correct_info': {'correct_query': 'asf eadf ', 'correct': []}, 'using_time': 6.127357482910156e-05}
 2019-06-19 10:34:09 - correction - INFO: - {'raw_query': '', 'correct_info': {'correct_query': '', 'correct': []}, 'using_time': 3.314018249511719e-05}
 2019-06-19 10:34:09 - correction - INFO: - {'raw_query': 'asda sf asf', 'correct_info': {'correct_query': 'asda sf asf', 'correct': []}, 'using_time': 3.600120544433594e-05}
+2019-06-19 23:06:48 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}
+2019-06-19 23:07:59 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}
+2019-06-19 23:09:56 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}
+2019-06-19 23:11:41 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}
+2019-06-19 23:12:33 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}
+2019-06-19 23:14:16 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}
+2019-06-19 23:15:31 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}
+2019-06-19 23:17:42 - correction - INFO: - {'raw_query': '张三的老婆是谁', 'correct_info': {'correct_query': '张三的老婆是谁', 'correct': []}, 'using_time': 0.0}

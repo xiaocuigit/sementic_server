@@ -54,7 +54,9 @@ class ItemMatcher:
         # 获得根目录的地址
         self.dir_data = join(si.base_path, "data")
         self.dir_yml = join(self.dir_data, "yml")
-        self.dir_pkl = join(self.dir_data, "pkl")
+
+        self.dir_output = join(si.base_path, "output")
+        self.dir_pkl = join(self.dir_output, "pkl")
 
         # 获得关系词和疑问词的类型词典和纠错词典
         self.relations, self.ques_word, self.wrong_word = dict(), dict(), dict()
@@ -103,7 +105,9 @@ class ItemMatcher:
         start_time = time()
         res_corr = {"correct_query": query, "correct": []}
         record = []
-        for item in self.corr.query4type(query):
+        # change the query to the lower.
+        for item in self.corr.query4type(query.lower()):
+            item["value"] = query[item["begin"]: item["end"]]
             res_corr["correct"].append(item)
             record.append((item['begin'], item['end'], item['type']))
 
@@ -124,7 +128,7 @@ class ItemMatcher:
                         p += 1
                         cursor = (record[p][0], record[p][1])
                 else:
-                    cq += c
+                    cq += c  # 加上原句中的字符
             res_corr['correct_query'] = cq
 
         self.correct_logger.info(f"{construt_log(raw_query=query, correct_info=res_corr, using_time=time()-start_time)}")

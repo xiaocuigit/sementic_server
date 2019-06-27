@@ -19,5 +19,6 @@ from sementic_server import api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('get_result/', api.get_result, name='get_result')
+    path('get_result/', api.get_result, name='get_result'),
+    path(r'correct', api.correct, name='correct')
 ]

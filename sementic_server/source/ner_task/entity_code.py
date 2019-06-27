@@ -13,23 +13,28 @@ import os
 class EntityCode:
     def __init__(self):
 
-        self.account = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard_DL', 'Idcard_TW', 'Email', 'WeChat', 'QQGroup',
-                        'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
+        self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',
+                        'WX_GROUP_NUM', 'ALIPAY_VALU', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
+                        'UNLABEL']
 
-        self.ner_entities_dics = {'NAME': 'Person', 'COMPANY': 'Company', 'ADDR': 'Addr', 'DATE': 'DATE'}
+        self.ner_entities_dics = {'NAME': 'NAME', 'COMPANY': 'CPNY_NAME', 'ADDR': 'ADDR_ID', 'DATE': 'DATE'}
         rootpath = str(os.getcwd()).replace("\\", "/")
         if 'source' in rootpath.split('/'):
-            f_r = open(os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'yml', 'node_code.yml'), encoding='utf-8')
+            f_r = open(os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'yml', 'node_code.yml'),
+                       encoding='utf-8')
         else:
             f_r = open(os.path.join(os.getcwd(), 'sementic_server', 'data', 'yml', 'node_code.yml'), encoding='utf-8')
 
         self.entities_code = yaml.load(f_r, Loader=yaml.SafeLoader)
 
-    def get_entities(self):
-        return list(self.ner_entities_dics.values()) + self.account
+    def get_account(self):
+        return self.account
 
     def get_ner_entities(self):
         return self.ner_entities_dics
+
+    def get_entities(self):
+        return list(self.ner_entities_dics.values()) + self.account
 
     def is_account(self, account):
         if account in self.account:

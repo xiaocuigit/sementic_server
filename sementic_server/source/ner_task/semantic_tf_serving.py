@@ -201,7 +201,6 @@ class SemanticSearch(object):
         if len(entities) != 0:
             entities = self.__combine_label(entities, label=self.ner_entities['ADDR'])
             entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
-            entities = self.__combine_label(entities, label=self.ner_entities['NAME'])
             entities = self.__combine_label(entities, label=self.ner_entities['DATE'])
 
             self.__combine_com_add(entities)

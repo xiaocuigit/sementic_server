@@ -13,20 +13,19 @@ import re
 from collections import defaultdict
 
 PUNCTUATION = [',', '，', '~', '!', '！', '。', '.', '?', '？']
-EMAIL = 'Email'
-MPHONE = 'MobileNumber'
-PHONE = 'FixedPhone'
-QQ = 'QQ'
-QQ_GROUP = 'QQGroup'
-WX_GROUP = 'WeChatGroup'
-WECHAT = 'WeChat'
-ID_DL = 'Idcard_DL'
-ID_TW = 'Idcard_TW'
-MBLOG = 'MicroBlog'
-ALIPAY = 'Alipay'
-DOUYIN = 'DouYin'
-TAOBAO = 'TaoBao'
-JD = 'JD'
+EMAIL = 'EMAIL_VALUE'
+MPHONE = 'MOB_NUM'
+PHONE = 'PHONE_NUM'
+QQ = 'QQ_NUM'
+QQ_GROUP = 'QQ_GROUP_NUM'
+WX_GROUP = 'WX_GROUP_NUM'
+WECHAT = 'WECHAT_VALUE'
+ID = 'IDCARD_VALUE'
+MBLOG = 'MICROBLOG_VALUE'
+ALIPAY = 'ALIPAY_VALU'
+DOUYIN = 'DOUYIN_VALUE'
+TAOBAO = 'TAOBAO_VALUE'
+JD = 'JD_VALUE'
 UNLABEL = 'UNLABEL'
 
 
@@ -346,12 +345,8 @@ def get_account_sets(raw_input):
                     account_list[EMAIL].append(result)
                     sentence = sentence.replace(result, EMAIL)
             elif is_id_card(result):
-                if len(result) == 18:
-                    account_list[ID_DL].append(result)
-                    sentence = sentence.replace(result, ID_DL)
-                else:
-                    account_list[ID_TW].append(result)
-                    sentence = sentence.replace(result, ID_TW)
+                account_list[ID].append(result)
+                sentence = sentence.replace(result, ID)
             elif is_wechat(result):
                 account_list[WECHAT].append(result)
                 sentence = sentence.replace(result, WECHAT)

@@ -24,28 +24,35 @@ class QueryGraphComponent(Graph):
         logger.info('Type: %s \t Value: %s' % (entity['type'], entity['value']))
         nx.MultiDiGraph.__init__(self)
         self.entity = entity
-        account_type_list = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup', 'WeChatGroup',
-                             'Alipay', 'DouYin', 'JD', 'TaoBao', 'Idcard_DL', 'Idcard_TW', 'MicroBlog', 'UNLABEL']
-        if entity['type'] in account_type_list:
+
+        self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',
+                        'WX_GROUP_NUM', 'ALIPAY_VALU', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
+                        'UNLABEL']
+
+        self.ner_entities_dics = {'NAME': 'NAME', 'COMPANY': 'CPNY_NAME', 'ADDR': 'ADDR_VALUE', 'DATE': 'DATE'}
+
+        self.p_has_account_list = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
+                                   'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
+        if entity['type'] in self.account:
             self.init_account_component()
-        elif entity['type'] == 'Person':
+        elif entity['type'] == 'NAME':
             self.add_edge('p', 'p_name', 'NAME')
             self.nodes['p']['label'] = 'concept'
-            self.nodes['p']['type'] = 'PERSON'
+            self.nodes['p']['type'] = 'Person'
             self.nodes['p_name']['label'] = 'literal'
             self.nodes['p_name']['type'] = 'string'
             self.nodes['p_name']['entity'] = entity
-        elif entity['type'] == 'Company':
-            self.add_edge('comp', 'comp_name', 'COMP_NAME')
+        elif entity['type'] == 'CPNY_NAME':
+            self.add_edge('comp', 'comp_name', 'CPNY_NAME')
             self.nodes['comp']['label'] = 'concept'
-            self.nodes['comp']['type'] = 'COMPANY'
+            self.nodes['comp']['type'] = 'Company'
             self.nodes['comp_name']['label'] = 'literal'
             self.nodes['comp_name']['type'] = 'string'
             self.nodes['comp_name']['entity'] = entity
-        elif entity['type'] == 'Addr':
-            self.add_edge('addr', 'addr_name', 'ADDR')
+        elif entity['type'] == 'ADDR_VALUE':
+            self.add_edge('addr', 'addr_name', 'ADDR_VALUE')
             self.nodes['addr']['label'] = 'concept'
-            self.nodes['addr']['type'] = 'ADDRESS'
+            self.nodes['addr']['type'] = 'Addr'
             self.nodes['addr_name']['label'] = 'literal'
             self.nodes['addr_name']['type'] = 'string'
             self.nodes['addr_name']['entity'] = entity
@@ -67,8 +74,12 @@ class QueryGraphComponent(Graph):
         self.entity['type'] = new_type
 
     def init_account_component(self):
-        self.add_edge('p', 'account', 'Phas%s' % self.entity['type'])
-        self.add_edge('account', 'account_num', 'ACCOUNT_NUM')
+        t = self.entity['type']
+        index = self.account.index(t)
+        edge_type = self.p_has_account_list[index]
+
+        self.add_edge('p', 'account', edge_type)
+        self.add_edge('account', 'account_num', t)
 
         self.nodes['p']['label'] = 'concept'
         self.nodes['p']['type'] = 'Person'
@@ -82,7 +93,7 @@ class QueryGraphComponent(Graph):
 
 
 if __name__ == '__main__':
-    e = [{"type": "MobileNumber", "value": "139999999999", "code": 0}, {"type": "Person", "value": "李四", "code": 0}]
+    e = [{"type": "MOB_NUM", "value": "139999999999", "code": 0}, {"type": "NAME", "value": "李四", "code": 0}]
     c0 = QueryGraphComponent(e[0])
     c0.show()
     c1 = QueryGraphComponent(e[1])

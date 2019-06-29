@@ -114,6 +114,8 @@ def correct(request):
         logger.error("仅支持post访问")
         return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
     request_data = request.POST
+    print(request)
+    # request_data = json.loads(request.body)
     sentence = request_data['sentence']
     need_correct = request_data.get('need_correct', True)
 

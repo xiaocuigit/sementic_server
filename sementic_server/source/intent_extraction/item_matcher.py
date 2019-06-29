@@ -9,27 +9,37 @@
 
 from os.path import join, exists
 from os import mkdir
-from sementic_server.source.intent_extraction.recognizer import Recognizer
-from sementic_server.source.intent_extraction.system_info import SystemInfo
 import pickle
 import yaml
-from sementic_server.source.intent_extraction.logger import construt_log, get_logger
 import logging
-from time import time
+
+from sementic_server.source.intent_extraction.recognizer import Recognizer
+from sementic_server.source.intent_extraction.system_info import SystemInfo
+from sementic_server.source.intent_extraction.logger import construt_log, get_logger
+
 
 server_logger = logging.getLogger("server_log")
 
 
 def load_actree(pkl_path):
+    """
+    加载已保存的Recognizer实例
+    :param pkl_path:
+    :return:ac自动机对象
+    """
     start = time()
     with open(pkl_path, "rb") as f:
-        aho = pickle.load(f)
+        reg = pickle.load(f)
         server_logger.info(f"Loading AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")
-        return aho
+        return reg
 
 
 def build_actree(dict_info, pkl_path):
-
+    """
+    创建Recognizer实例
+    :param pkl_path:
+    :return:ac自动机对象
+    """
     start = time()
     reg = Recognizer(dict_info)
     pickle.dump(reg, open(pkl_path, "wb"))
@@ -139,6 +149,32 @@ class ItemMatcher(object):
         server_logger.info(f"Correcting the query time used: {time()-start_time}")
         return res_corr
 
+    def main_match(self, query: str, need_correct=True):
+        """
+
+        :param query:   用户的原始查询
+        :param need_correct:    是否需要纠错
+        :return:    纠错、关系识别的结果
+
+        语义解析模块只需要关注'query'字段的结果。
+        """
+        res = {"relation": [], "intent": None, "raw_query": query, "query": query, "is_corr": need_correct, "correct_info": None}
+        if need_correct:
+            res["correct_info"] = self.correct(query)
+            res["query"] = res["correct_info"]["correct_query"]
+
+        for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词
+            if item["type"] in self.relations.keys():
+                item["code"] = self.relation_code[item["type"]]
+                res["relation"].append(item)
+            elif item["type"] in self.ques_word:
+                if res["intent"] is not None and res["intent"] != item["type"]:
+                    res["intent"] = 'conflict'  # 冲突
+                else:
+                    res["intent"] = item["type"]
+
+        return res
+
     def match(self, query: str, need_correct=True):
         """
 
@@ -170,7 +206,7 @@ if __name__ == '__main__':
     from pprint import pprint
     from time import time
     im = ItemMatcher(new_actree=True, is_test=True)
-    r = im.match("张三的爸爸祖父的lailai的")
+    r = im.match("张三的爸爸祖父的lailai的微信号是wx_lailai")
     pprint(r)
     while 1:
         i = input()

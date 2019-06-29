@@ -64,7 +64,8 @@ class SemanticSearch(object):
         for label in entities:
             jieba.add_word(label)
 
-    def __combine_label(self, entities, label=None):
+    @staticmethod
+    def __combine_label(entities, label=None):
         """
         合并实体列表中相连且相同的label
         :param entities:
@@ -147,25 +148,16 @@ class SemanticSearch(object):
         output["entity"] = entity
         return output
 
-    def sentence_ner_entities(self, result):
+    def __get_entities(self, sentence, pred_label_result):
         """
-        使用 BERT 模型对句子进行实体识别，返回标记实体的句子
-        :param result: account_label 模块返回的结果
-        :return:
-            entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
-            result: account_label 模块返回的结果
+        根据BIO标签从识别结果中找出所有的实体
+        :param sentence: 待识别的句子
+        :param pred_label_result: 对该句子预测的标签
+        :return: 返回识别的实体
         """
-        sentence = result["new_input"]
-
-        sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
-
         word = ""
         label = ""
         entities = []
-
-        if sentence is None or pred_label_result is None:
-            return entities, result
-
         for i in range(len(sentence)):
             temp_label = pred_label_result[i]
             if temp_label[0] == 'B':
@@ -198,6 +190,26 @@ class SemanticSearch(object):
                 word = word.replace('##', '')
             entities.append([word, label])
 
+        return entities
+
+    def sentence_ner_entities(self, result):
+        """
+        使用 BERT 模型对句子进行实体识别，返回标记实体的句子
+        :param result: account_label 模块返回的结果
+        :return:
+            entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
+            result: account_label 模块返回的结果
+        """
+        sentence = result["new_input"]
+
+        sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
+
+        if sentence is None or pred_label_result is None:
+            entities = []
+            return entities, result
+
+        entities = self.__get_entities(sentence, pred_label_result)
+
         if len(entities) != 0:
             entities = self.__combine_label(entities, label=self.ner_entities['ADDR'])
             entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
@@ -206,7 +218,7 @@ class SemanticSearch(object):
             self.__combine_com_add(entities)
             entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
 
-        for (word, label) in entities:
+        for word, label in entities:
             result["new_input"] = result["new_input"].replace(word, label)
             result["labels"].setdefault(label, []).append(word)
 

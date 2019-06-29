@@ -12,8 +12,8 @@ class ServerRequest:
         self.annotators = config['server_type']['depparse']
 
     # 发送请求到服务器
-    def get_dependency(self,data):
-        url = 'http://'+self.server_ip+':'+self.server_port+'/?properties={"annotators":"'+self.annotators+'","outputFormat":"json"}'
+    def get_dependency(self, data):
+        url = 'http://' + self.server_ip + ':' + self.server_port + '/?properties={"annotators":"' + self.annotators + '","outputFormat":"json"}&pipelineLanguage=zh'
 
         # 请求的数据必须编码为UTF-8
         response_json = requests.post(url, data=data.encode('utf-8'))
@@ -24,8 +24,9 @@ class ServerRequest:
 
         return dependency_tree, tokens
 
+
 if __name__ == '__main__':
-    dependency_tree,tokens = ServerRequest().get_dependency('张三的老婆是谁')
+    dependency_tree, tokens = ServerRequest().get_dependency('张三的老婆是谁')
 
     print(dependency_tree)
     print('--------------')

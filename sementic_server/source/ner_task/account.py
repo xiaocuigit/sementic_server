@@ -10,6 +10,7 @@
 
 import re
 
+from pprint import pprint
 from collections import defaultdict
 
 PUNCTUATION = [',', '，', '~', '!', '！', '。', '.', '?', '？']
@@ -324,6 +325,68 @@ def get_candidate_label(raw_input, account, qq_group=False):
     return None
 
 
+def get_account_labels_info(raw_input):
+    """
+    找出所有可能是账户的字符串，如果该字符串符合账户的正则，或者有对应的账户标识符，则给该字符串对应的账户标签
+    否则给该字符串一个 UNLABEL 标签，需要跟用户交互具体账户类型
+    :param raw_input:
+    :return:
+    """
+    pattern_account = r"([a-zA-Z0-9@_\-\.]*)"
+    account_list = []
+    sentence = raw_input
+
+    for match in re.finditer(pattern_account, raw_input):
+        begin = match.start()
+        end = match.end()
+        result = raw_input[begin: end]
+        if len(result) >= 3:
+            if is_email(result):
+                label = get_candidate_label(raw_input, result)
+                if label:
+                    label_name = label
+                    sentence = sentence.replace(result, label)
+                else:
+                    label_name = EMAIL
+                    sentence = sentence.replace(result, EMAIL)
+            elif is_id_card(result):
+                label_name = ID
+                sentence = sentence.replace(result, ID)
+            elif is_wechat(result):
+                label_name = WECHAT
+                sentence = sentence.replace(result, WECHAT)
+            elif is_mobile_phone(result):
+                label = get_candidate_label(raw_input, result)
+                if label:
+                    label_name = label
+                    sentence = sentence.replace(result, label)
+                else:
+                    label_name = MPHONE
+                    sentence = sentence.replace(result, MPHONE)
+            elif is_phone(result):
+                label_name = PHONE
+                sentence = sentence.replace(result, PHONE)
+            elif is_qq(result):
+                label = get_candidate_label(raw_input, result, qq_group=True)
+                if label:
+                    label_name = label
+                    sentence = sentence.replace(result, label)
+                else:
+                    label_name = UNLABEL
+                    sentence = sentence.replace(result, UNLABEL)
+            else:
+                if result in ['QQ', 'qq']:
+                    continue
+                # 未识别账户标识为 UNLABEL 标签
+                label_name = UNLABEL
+                sentence = sentence.replace(result, UNLABEL)
+            account_list.append({"account_label": label_name, "account": result, "begin": begin, "end": end})
+
+    account_result = {'raw_input': raw_input, 'accounts': account_list, 'template': sentence}
+    pprint(account_list)
+    return account_result
+
+
 def get_account_sets(raw_input):
     """
     检测 raw_input 中所有可能的账户集合
@@ -381,6 +444,10 @@ def get_account_sets(raw_input):
 
 
 def test():
+    """
+    测试函数
+    :return:
+    """
     t1 = "15295668658住在哪里？34.54,2656353125"
     t2 = "xiaocui-kindle@163.com住在哪里？"
     t3 = "手机号是15295668650的人住在哪里？"
@@ -396,11 +463,13 @@ def test():
     t13 = "qq号是2656353125住在哪里？"
     test_list = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13]
     for index, raw_input in enumerate(test_list):
+        result = get_account_labels_info(raw_input)
+        print("\n==============================")
+        pprint(result)
+        print("==============================\n")
         result = get_account_sets(raw_input)
         print("\n==============================")
-        print(result['raw_input'])
-        print(result['new_input'])
-        print(result['labels'])
+        pprint(result)
         print("==============================\n")
 
 

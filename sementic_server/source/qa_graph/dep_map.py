@@ -47,6 +47,8 @@ class DepMap(object):
             elif f['type'] == 'relation' and t['type'] == 'entity':
                 temp_graph = self.from_rel_to_ent(f['value'], t['value'])
                 self.dep_graph_list.append(temp_graph)
+        if len(self.dep_graph_list) == 0:
+            return
         self.dep_graph = nx.disjoint_union_all(self.dep_graph_list)
         mapping = dict()
         for i, n in enumerate(self.dep_graph.nodes):

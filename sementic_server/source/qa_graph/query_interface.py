@@ -13,6 +13,7 @@ import logging
 from copy import deepcopy
 import networkx as nx
 from sementic_server.source.qa_graph.query_parser import QueryParser, RELATION_DATA
+from sementic_server.source.qa_graph.graph import Graph
 
 logger = logging.getLogger("server_log")
 
@@ -22,7 +23,9 @@ class QueryInterface(object):
     实现从问答图到查询接口的转化
     """
     def __init__(self, graph, query):
-        self.graph = graph
+        self.graph = nx.convert_node_labels_to_integers(graph)
+        self.graph = Graph(self.graph)
+
         self.query = query
 
         self.entities = dict()
@@ -34,19 +37,6 @@ class QueryInterface(object):
         self.init_intention()
         self.query_dict = dict()
         self.init_query_dict()
-
-    def is_none_node(self, node):
-        """
-        判断图中的一个节点是否是空节点
-        :param node: 节点标号
-        :return: 判断结果
-        """
-        neighbors = self.graph.neighbors(node)
-        for n in neighbors:
-            # 目前判断条件为出边没有字面值，认为是空节点
-            if self.graph.nodes[n]['label'] == 'literal':
-                return False
-        return True
 
     def literal_node_reduction(self):
         """
@@ -80,7 +70,7 @@ class QueryInterface(object):
                 continue
             if self.graph.nodes[node]['label'] == 'concept':
                 map_dict[node] = self.graph.nodes[node]['type'].lower() + '%d' % node
-            if self.graph.nodes[node].get('intent') and self.is_none_node(node):
+            if self.graph.nodes[node].get('intent') and self.graph.is_none_node(node):
                 map_dict[node] = self.graph.nodes[node]['type'].upper() + 'S'
         new_graph = nx.relabel_nodes(self.graph, mapping=map_dict)
         self.graph = new_graph

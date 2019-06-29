@@ -104,7 +104,7 @@ class QueryParser(object):
         self.query_graph = copy.deepcopy(self.component_graph)
         self.query_graph = Graph(self.query_graph)
         self.old_query_graph = copy.deepcopy(self.component_graph)
-
+        self.query_graph.show()
         self.node_type_dict = self.query_graph.node_type_statistic()
         self.component_assemble()
 
@@ -133,17 +133,18 @@ class QueryParser(object):
         d1 = Graph(components_set[1]).node_type_statistic()
         candidates = itertools.product(d0.keys(), d1.keys())
         candidates = list(candidates)
+        trick_index = -1
         for key, edge in DEFAULT_EDGE.items():
             for c in candidates:
                 if c[0] == edge['domain'] and c[1] == edge['range']:
-                    node_0 = d0[edge['domain']][0]
-                    node_1 = d1[edge['range']][0]
+                    node_0 = d0[edge['domain']][trick_index]
+                    node_1 = d1[edge['range']][trick_index]
                     self.query_graph.add_edge(node_0, node_1, key)
                     flag = True
                     return flag
                 elif c[1] == edge['domain'] and c[0] == edge['range']:
-                    node_0 = d1[edge['domain']][0]
-                    node_1 = d0[edge['range']][0]
+                    node_0 = d1[edge['domain']][trick_index]
+                    node_1 = d0[edge['range']][trick_index]
                     self.query_graph.add_edge(node_0, node_1, key)
                     flag = True
                     return flag
@@ -190,24 +191,26 @@ class QueryParser(object):
         if len(candidates_list) == 0:
             print('intention recognizer module produce wrong intention!')
             logger.info('intention recognizer module produce wrong intention!')
-            intention_candidates = self.query_graph.nodes
+            intention_candidates = self.query_graph.get_concept_nodes()
         else:
             intention_candidates = [x for x in self.query_graph.nodes if x in candidates_list]
 
         none_nodes = self.query_graph.get_none_nodes(self.intent)
         if len(none_nodes) > 0:
             intention_candidates = [x for x in intention_candidates if x in none_nodes]
+        person_nodes = self.get_person_nodes(intention_candidates)
+        if len(person_nodes) > 0:
+            return person_nodes
         return intention_candidates
 
     def determine_intention(self):
         """
         确定意图：
         1. 意图识别模块通过关键词，获取意图类型；
-        2. 根据依存分析模块，将句法依存树根节点附近的实体节点中作为候选意图节点，
-            若上一步得到了意图类型，删去候选意图中的与意图类型冲突的节点；
+        2. 根据依存分析模块，将句法依存树根节点附近的实体节点中作为候选意图节点，若上一步得到了意图类型，删去候选意图中的与意图类型冲突的节点；
         3. 在所有候选节点中，若有空节点（即没有字面值描述的节点），则将候选节点集合中的所有空节点作为新的候选节点集合；
-        4. 在候选节点集合中，按照候选意图节点的入度与出度之差，对候选节点进行排序，选出入度与出度之差最大的节点；
-        5. 若上一步选出的节点有多个，则优先选择Person类型的节点。
+        4. 若上一步选出的节点有多个，则优先选择Person类型的节点。
+        5. 在候选节点集合中，按照候选意图节点的入度与出度之差，对候选节点进行排序，选出入度与出度之差最大的节点；
         :return:
         """
         intention_candidates = self.get_intention_candidate()
@@ -217,26 +220,29 @@ class QueryParser(object):
         criterion_dict = dict()
         for node in intention_candidates:
             criterion_dict[node] = in_degree_centrality[node]/(1+out_degree_centrality[node])
+
         m = max(criterion_dict.values())
         # 考虑到多个节点上都有最大值
         intention_nodes = [k for k, v in criterion_dict.items() if v == m]
         intention_node = None
         if len(intention_nodes) > 1:
-            intention_node = self.get_person_node(intention_nodes)
+            intention_node = self.get_person_nodes(intention_nodes)
         if intention_node:
             self.add_intention_on_node(intention_node)
         else:
             self.add_intention_on_node(intention_nodes[0])
 
-    def get_person_node(self, candidates):
+    def get_person_nodes(self, candidates):
         """
         从候选节点中选出任务person的节点
         :param candidates:
         :return:
         """
+        node_list = list()
         for node in candidates:
             if self.query_graph.nodes[node].get('type') == 'Person':
-                return node
+                node_list.append(node)
+        return node_list
 
     def component_assemble(self):
         # 之后根据依存分析来完善
@@ -280,7 +286,7 @@ if __name__ == '__main__':
     with open(p, 'r') as fr:
         data = json.load(fr)
     # print(data)
-    d = data['dependency']
+    dp = data['dependency']
     # print('dependency', d)
 
     qg = QueryParser(data, data['dependency'])

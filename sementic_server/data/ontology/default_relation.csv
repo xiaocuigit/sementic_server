@@ -1,4 +1,4 @@
 relation,domain,range
 Kindred,Person,Person
 PhasAddr,Person,Addr
-WORK,Person,COMPANY
+WorkFor,Person,Company

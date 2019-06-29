@@ -56,6 +56,21 @@ class Graph(nx.MultiDiGraph):
                 none_node_list.append(node)
         return none_node_list
 
+    def get_concept_nodes(self):
+        # 获取概念
+        node_list = list()
+        for node in self.nodes:
+            if self.nodes[node].get('label') == 'concept':
+                node_list.append(node)
+        return node_list
+
+    def get_in_degree(self, node):
+        pass
+        #
+        # nx.MultiDiGraph(self).in
+        # t = {n: d for n, d in self.in_degree_iter()}
+        # print(t)
+
     def node_type_statistic(self):
         """
         统计每种类型的节点的个数
@@ -114,4 +129,6 @@ if __name__ == '__main__':
     test_graph = nx.complete_graph(5)
     g = Graph(test_graph)
     g.show()
-    g.export('text')
+    # g.export('text')
+
+

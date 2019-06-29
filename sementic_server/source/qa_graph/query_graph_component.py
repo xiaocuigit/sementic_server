@@ -31,7 +31,7 @@ class QueryGraphComponent(Graph):
 
         self.ner_entities_dics = {'NAME': 'NAME', 'COMPANY': 'CPNY_NAME', 'ADDR': 'ADDR_VALUE', 'DATE': 'DATE'}
 
-        self.p_has_account_list = ['QQ', 'MobileNumber', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
+        self.p_has_account_list = ['QQ', 'MobileNum', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
                                    'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL']
         if entity['type'] in self.account:
             self.init_account_component()
@@ -78,7 +78,7 @@ class QueryGraphComponent(Graph):
         index = self.account.index(t)
         edge_type = self.p_has_account_list[index]
 
-        self.add_edge('p', 'account', 'phas%s' % edge_type)
+        self.add_edge('p', 'account', 'Phas%s' % edge_type)
         self.add_edge('account', 'account_num', t)
 
         self.nodes['p']['label'] = 'concept'

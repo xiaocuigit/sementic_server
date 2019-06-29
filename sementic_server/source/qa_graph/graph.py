@@ -14,6 +14,9 @@ logger = logging.getLogger("server_log")
 
 
 class Graph(nx.MultiDiGraph):
+    """
+    图基类实现
+    """
     def __init__(self, graph=None, file_path=None):
         if file_path:
             try:
@@ -32,11 +35,46 @@ class Graph(nx.MultiDiGraph):
             component_list.append(component)
         return component_list
 
+    def is_none_node(self, node):
+        if self.nodes[node]['label'] != 'concept':
+            return False
+        neighbors = self.neighbors(node)
+        for n in neighbors:
+            # 目前判断条件为出边没有字面值，认为是空节点
+            # 考虑拓扑排序的终点
+            if self.nodes[n]['label'] == 'literal':
+                return False
+        return True
 
-    """
-    统计每种类型的节点的个数
-    """
+    def get_none_nodes(self, node_type=None):
+        # 获取指定节点类型下的空节点
+        none_node_list = list()
+        for node in self.nodes:
+            if self.is_none_node(node):
+                if node_type and self.nodes[node].get('type') != node_type:
+                    continue
+                none_node_list.append(node)
+        return none_node_list
+
+    def get_concept_nodes(self):
+        # 获取概念
+        node_list = list()
+        for node in self.nodes:
+            if self.nodes[node].get('label') == 'concept':
+                node_list.append(node)
+        return node_list
+
+    def get_in_degree(self, node):
+        pass
+        #
+        # nx.MultiDiGraph(self).in
+        # t = {n: d for n, d in self.in_degree_iter()}
+        # print(t)
+
     def node_type_statistic(self):
+        """
+        统计每种类型的节点的个数
+        """
         node_type_dict = dict()
         for n in self.nodes:
             if self.nodes[n]['label'] == 'concept':
@@ -91,4 +129,6 @@ if __name__ == '__main__':
     test_graph = nx.complete_graph(5)
     g = Graph(test_graph)
     g.show()
-    g.export('text')
+    # g.export('text')
+
+

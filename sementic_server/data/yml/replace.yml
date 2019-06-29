@@ -23,3 +23,16 @@ pinyin:
     - "l"
   l:
     - "n"
+  zh:
+    - "z"
+  z:
+    - "zh"
+  sh:
+    - "s"
+  s:
+    - "sh"
+  c:
+    - "ch"
+  ch:
+    - "c"
+

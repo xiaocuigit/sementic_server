@@ -49,6 +49,62 @@ def build_actree(dict_info, pkl_path):
     return reg
 
 
+def _resolve_list_confilct(raw_list, ban_list):
+    """
+    消解raw_list和ban_list的冲突
+    :param raw_list: 需要被消解冲突的部分
+    :param ban_list: 禁止出现的位置索引
+    :return:
+    """
+    if ban_list == list():
+        return raw_list
+
+    res_list = []
+    index_ban = set()
+    for ban in ban_list:
+        if type(ban) in {list, tuple}:
+            index_ban.update(list(range(ban[0], ban[1])))
+        else:
+            index_ban.update(list(range(ban["begin"], ban["end"])))
+
+    for item in raw_list:
+        if type(item) in {list, tuple}:
+            item_range = list(range(item[0], item[1]))
+        else:
+            item_range = list(range(item["begin"], item["end"]))
+        if index_ban.intersection(item_range) == set():
+            res_list.append(item)
+    return res_list
+
+
+def replace_items_in_sentence(sentence, items):
+    """
+    替换句子在item中出现的元素
+    :param sentence: 原始句子
+    :param items: 需要替换的item
+    :return:
+    """
+    size = len(items)
+    if size < 1:
+        return sentence
+
+    sentence_after_replace = ""
+    index = 0
+    range_cursor = (items[index][0], items[index][1])  # 指针指向index指向的begin, end
+    for position, char in enumerate(sentence):
+        if range_cursor[0] < position < range_cursor[1] - 1:
+            ...
+        elif position is range_cursor[0]:      # 如果这个位置是items中某个item的开始位置，则加上这个item的值
+            sentence_after_replace += items[index][2]
+        elif position is range_cursor[1] - 1:
+            index += 1
+            range_cursor = (items[index][0], items[index][1]) if index <= size - 1 else (-1, -1)
+        else:
+            sentence_after_replace += char
+
+    return sentence_after_replace
+
+
 class ItemMatcher(object):
     """
     @description: 匹配接口类
@@ -111,45 +167,6 @@ class ItemMatcher(object):
         del self.wrong_word
         del si
 
-    def correct(self, query: str):
-        """
-        纠错函数
-        :param query:   原始查询
-        :return:    纠错列表
-        """
-        start_time = time()
-        res_corr = {"correct_query": query, "correct": []}
-        record = []
-        # change the query to the lower.
-        for item in self.corr.query4type(query.lower()):
-            item["value"] = query[item["begin"]: item["end"]]
-            res_corr["correct"].append(item)
-            record.append((item['begin'], item['end'], item['type']))
-
-        cq = ""
-        sz = len(record)
-        if sz > 0:
-            p = 0
-            cursor = (record[p][0], record[p][1])   # 指针指向第一个begin, end
-            for i, c in enumerate(query):
-                if cursor[0] < i < cursor[1] - 1:
-                    ...
-                elif i == cursor[0]:
-                    cq += record[p][2]
-                elif i == cursor[1] - 1:    # 更新游标指向
-                    if p == sz - 1:         # 如果没有纠错项目
-                        cursor = (-1, -1)
-                    else:
-                        p += 1
-                        cursor = (record[p][0], record[p][1])
-                else:
-                    cq += c  # 加上原句中的字符
-            res_corr['correct_query'] = cq
-
-        self.correct_logger.info(f"{construt_log(raw_query=query, correct_info=res_corr, using_time=time()-start_time)}")
-        server_logger.info(f"Correcting the query time used: {time()-start_time}")
-        return res_corr
-
     def main_match(self, query: str, need_correct=True):
         """
 
@@ -184,7 +201,7 @@ class ItemMatcher(object):
 
         return res
 
-    def correct_with_filter(self, query, ban_list):
+    def correct(self, query, ban_list=None):
         """
         纠错函数，能够过滤账号识别的中的账号
         :param query:   原始查询
@@ -192,19 +209,25 @@ class ItemMatcher(object):
         :return:    纠错列表
         """
         start_time = time()
-        res_corr = {"correct_query": query, "correct": []}
+        res_correction = {"correct_query": query, "correct": []}
+
+        query4type = self.corr.query4type(query.lower())
+        if ban_list is not None:
+            query4type = _resolve_list_confilct(query4type, ban_list)
+
         record = []
         # change the query to the lower.
-        for item in self.corr.query4type(query.lower()):
+        for item in query4type:
             item["value"] = query[item["begin"]: item["end"]]
-            res_corr["correct"].append(item)
+            res_correction["correct"].append(item)
             record.append((item['begin'], item['end'], item['type']))
 
+        res_correction["correct_query"] = replace_items_in_sentence(query, record)
 
-
-        self.correct_logger.info(f"{construt_log(raw_query=query, correct_info=res_corr, using_time=time()-start_time)}")
+        self.correct_logger.info(
+            f"{construt_log(raw_query=query, correct_info=res_correction, using_time=time()-start_time)}")
         server_logger.info(f"Correcting the query time used: {time()-start_time}")
-        return res_corr
+        return res_correction
 
     def match(self, query: str, need_correct=True):
         """
@@ -217,8 +240,6 @@ class ItemMatcher(object):
         """
         # 找出所有账号
         accounts_info = get_account_labels_info(query)
-
-
         res = {
             "relation": [],
             "intent": None,
@@ -231,18 +252,13 @@ class ItemMatcher(object):
 
         if need_correct:
             # 记录unlabel标签
-            labelled_list = []
-            for account in accounts_info["accounts"]:
-                if account['account_label'] is not UNLABEL:
-                    labelled_list.append((account['begin'], account['end']))
-
-            self.correct_with_filter(query, labelled_list)
-
-
-
-
-            res["correct_info"] = self.correct(query)
+            labelled_list = [(account['begin'], account['end']) for account in accounts_info["accounts"]
+                             if account['account_label'] is not UNLABEL]
+            correct_info = self.correct(query, labelled_list)   # 纠错
+            res["correct_info"] = correct_info  # 赋值
             res["query"] = res["correct_info"]["correct_query"]
+
+            accounts_info["accounts"] = _resolve_list_confilct(accounts_info["accounts"], res["correct_info"]["correct"])
 
         for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词
             if item["type"] in self.relations.keys():
@@ -258,13 +274,8 @@ class ItemMatcher(object):
 
 
 if __name__ == '__main__':
-    i = "张三的奶奶是lailai"
     from pprint import pprint
-    im = ItemMatcher(new_actree=True, is_test=True)
+    i = "wxid_lainai的lailai是谁"
+    im = ItemMatcher(new_actree=False, is_test=True)
+    pprint(im.match(i))
 
-    # r = im.match(i)
-    # pprint(r)
-    # while 1:
-    #     i = input()
-    #     pprint(im.match(i))
-    #     get_account_labels_info(i)

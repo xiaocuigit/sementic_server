@@ -10,14 +10,16 @@ import yaml
 import os
 
 
-class EntityCode:
+class EntityCode(object):
+    """实体名称及编码类"""
+
     def __init__(self):
 
         self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',
                         'WX_GROUP_NUM', 'ALIPAY_VALU', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
                         'UNLABEL']
 
-        self.ner_entities_dics = {'NAME': 'NAME', 'COMPANY': 'CPNY_NAME', 'ADDR': 'ADDR_ID', 'DATE': 'DATE'}
+        self.ner_entities_dics = {'NAME': 'NAME', 'COMPANY': 'CPNY_NAME', 'ADDR': 'ADDR_VALUE', 'DATE': 'DATE'}
         rootpath = str(os.getcwd()).replace("\\", "/")
         if 'source' in rootpath.split('/'):
             f_r = open(os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'yml', 'node_code.yml'),

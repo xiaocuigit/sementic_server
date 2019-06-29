@@ -9,7 +9,7 @@
 
 import os
 from pprint import pprint
-
+import json
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.ner_task.account import get_account_sets
@@ -18,8 +18,8 @@ from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 if __name__ == '__main__':
-    semantic = SemanticSearch(test_mode=False)
-    item_matcher = ItemMatcher(True, is_test=False)
+    semantic = SemanticSearch(test_mode=True)
+    item_matcher = ItemMatcher(True, is_test=True)
     while True:
         sentence = input("please input:")
         intent = item_matcher.match(sentence)
@@ -39,8 +39,14 @@ if __name__ == '__main__':
         print(dep)
         try:
             query_graph_result = dict()
+            t = dict(data=data, dep=dep)
+            p = os.path.join(os.getcwd(), 'test_case.json')
+            json.dump(t, open(p, 'w'))
             qg = QueryParser(data, dep)
             query_graph = qg.query_graph.get_data()
+            if not query_graph:
+                qg = QueryParser(data)
+                query_graph = qg.query_graph.get_data()
             qi = QueryInterface(qg.query_graph, intent["query"])
             query_interface = qi.get_query_data()
             query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}

@@ -248,15 +248,16 @@ class QueryParser:
 
 
 if __name__ == '__main__':
-    case_num = 2
+    q = '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆'
+    case_num = 6
     path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
     path = os.path.abspath(path)
 
     with open(path, 'r') as fr:
         data = json.load(fr)
     print(data)
-    dep = data.get('dependency')
-    print('dep', dep)
+    dependency = data['dependency']
+    print('dependency', dependency)
 
     qg = QueryParser(data, data['dependency'])
     qg.query_graph.show()

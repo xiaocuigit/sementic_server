@@ -22,6 +22,7 @@ PhasAddr,Person,Addr,True
 PersonHasNplace,Person,Addr
 PersonHasHplace,Person,Addr
 ParentToChild,Person,Person
+Kindred,Person,Person
 HusbandToWife,Person,Person
 BrotherOrSister,Person,Person
 MotherSiblingToChild,Person,Person

@@ -78,14 +78,14 @@ class QueryGraphComponent(Graph):
         index = self.account.index(t)
         edge_type = self.p_has_account_list[index]
 
-        self.add_edge('p', 'account', edge_type)
+        self.add_edge('p', 'account', 'phas%s' % edge_type)
         self.add_edge('account', 'account_num', t)
 
         self.nodes['p']['label'] = 'concept'
         self.nodes['p']['type'] = 'Person'
 
         self.nodes['account']['label'] = 'concept'
-        self.nodes['account']['type'] = self.entity['type']
+        self.nodes['account']['type'] = edge_type
 
         self.nodes['account_num']['label'] = 'literal'
         self.nodes['account_num']['type'] = 'string'

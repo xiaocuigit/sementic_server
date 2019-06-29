@@ -98,6 +98,7 @@ class QueryParser(object):
                 else:
                     logger.info('dependency wrong!')
                     print('dependency wrong!')
+
         # 得到子图组件构成的集合，用图表示
         self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
         self.query_graph = copy.deepcopy(self.component_graph)
@@ -121,6 +122,7 @@ class QueryParser(object):
                 logger.info('default edge missing!')
                 # 未添加上说明缺少默认边
                 break
+
         # 经过上面两个循环，得到连通的图，下面确定意图
         self.determine_intention()
 
@@ -173,53 +175,68 @@ class QueryParser(object):
         node = node_list[0]
         self.query_graph.nodes[node]['intent'] = True
 
-    def is_none_node(self, node):
-        current_graph = self.query_graph
-        if current_graph.nodes[node]['label'] != 'concept':
-            return False
-        neighbors = current_graph.neighbors(node)
-        for n in neighbors:
-            # 目前判断条件为出边没有字面值，认为是空节点
-            # 考虑拓扑排序的终点
-            if current_graph.nodes[n]['label'] == 'literal':
-                return False
-        return True
+    def get_intention_candidate(self):
+        """
+        获取候选意图节点id
+        :return:候选意图节点id
+        """
+        candidates_list = list()
+        if self.intent:
+            # 意图识别提供了意图类型
+            print(self.intent)
+            for n in self.query_graph.nodes:
+                if self.query_graph.nodes[n].get('type') == self.intent:
+                    candidates_list.append(n)
+        if len(candidates_list) == 0:
+            print('intention recognizer module produce wrong intention!')
+            logger.info('intention recognizer module produce wrong intention!')
+            intention_candidates = self.query_graph.nodes
+        else:
+            intention_candidates = [x for x in self.query_graph.nodes if x in candidates_list]
 
-    def get_none_nodes(self):
-        none_node_list = list()
-        current_graph = self.query_graph
-        for node in current_graph.nodes:
-            if self.is_none_node(node):
-                none_node_list.append(node)
-        return none_node_list
+        none_nodes = self.query_graph.get_none_nodes(self.intent)
+        if len(none_nodes) > 0:
+            intention_candidates = [x for x in intention_candidates if x in none_nodes]
+        return intention_candidates
 
     def determine_intention(self):
         """
         确定意图：
-        1、识别出意图类型的，
-        1.1、通过添加依存分析信息来确定意图
-        1.2、没有依存分析的情况下，默认第一个该类型的实体为查询意图
-        2、未识别出意图类型的，将图中的空节点（概念）认为是查询意图
-        2.1、若有多个空节点，默认第一个person空节点
-        2.2、没有空节点，默认第一个person概念节点
-        2.3、若没有person，默认第一个概念节点
+        1. 意图识别模块通过关键词，获取意图类型；
+        2. 根据依存分析模块，将句法依存树根节点附近的实体节点中作为候选意图节点，
+            若上一步得到了意图类型，删去候选意图中的与意图类型冲突的节点；
+        3. 在所有候选节点中，若有空节点（即没有字面值描述的节点），则将候选节点集合中的所有空节点作为新的候选节点集合；
+        4. 在候选节点集合中，按照候选意图节点的入度与出度之差，对候选节点进行排序，选出入度与出度之差最大的节点；
+        5. 若上一步选出的节点有多个，则优先选择Person类型的节点。
         :return:
         """
-        if self.intent:
-            # 意图不为空
-            self.determine_intention_by_type()
+        intention_candidates = self.get_intention_candidate()
+        in_degree_centrality = nx.in_degree_centrality(self.query_graph)
+        out_degree_centrality = nx.out_degree_centrality(self.query_graph)
+
+        criterion_dict = dict()
+        for node in intention_candidates:
+            criterion_dict[node] = in_degree_centrality[node]/(1+out_degree_centrality[node])
+        m = max(criterion_dict.values())
+        # 考虑到多个节点上都有最大值
+        intention_nodes = [k for k, v in criterion_dict.items() if v == m]
+        intention_node = None
+        if len(intention_nodes) > 1:
+            intention_node = self.get_person_node(intention_nodes)
+        if intention_node:
+            self.add_intention_on_node(intention_node)
         else:
-            # 意图为空，添加意图，对应上文注释2
-            none_nodes = self.get_none_nodes()
-            if len(none_nodes) > 0:
-                # 有空节点
-                self.add_intention_on_nodes(none_nodes)
-            else:
-                # 没有空节点
-                temp_node_list = list()
-                for n in self.query_graph.nodes:
-                    temp_node_list.append(n)
-                self.add_intention_on_nodes(temp_node_list)
+            self.add_intention_on_node(intention_nodes[0])
+
+    def get_person_node(self, candidates):
+        """
+        从候选节点中选出任务person的节点
+        :param candidates:
+        :return:
+        """
+        for node in candidates:
+            if self.query_graph.nodes[node].get('type') == 'Person':
+                return node
 
     def component_assemble(self):
         # 之后根据依存分析来完善
@@ -257,14 +274,14 @@ class QueryParser(object):
 if __name__ == '__main__':
     q = '在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆'
     case_num = 6
-    path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
-    path = os.path.abspath(path)
+    p = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
+    p = os.path.abspath(p)
 
-    with open(path, 'r') as fr:
+    with open(p, 'r') as fr:
         data = json.load(fr)
-    print(data)
+    # print(data)
     d = data['dependency']
-    print('dependency', d)
+    # print('dependency', d)
 
     qg = QueryParser(data, data['dependency'])
     qg.query_graph.show()

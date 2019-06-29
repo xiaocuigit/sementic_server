@@ -393,7 +393,7 @@ def get_account_labels_info(raw_input):
             account_list.append({"account_label": label_name, "account": result, "begin": begin, "end": end})
 
     account_result = {'raw_input': raw_input, 'accounts': account_list, 'template': sentence}
-    # pprint(account_list)
+    pprint(account_list)
     return account_result
 
 

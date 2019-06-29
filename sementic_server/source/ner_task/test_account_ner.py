@@ -16,6 +16,5 @@ if __name__ == '__main__':
     while True:
         sentence = input("please input:")
         result = item_matcher.match(sentence)
-        result_ner = semantic.sentence_ner_entities(result["query"])
+        result_ner = semantic.sentence_ner_entities(result)
         pprint(result_ner)
-        pprint(result)

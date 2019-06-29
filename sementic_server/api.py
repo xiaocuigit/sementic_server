@@ -17,6 +17,7 @@ from sementic_server.source.dependency_parser.dependency_parser import Dependenc
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
 item_matcher = ItemMatcher(new_actree=True)
+dependency_parser = DependencyParser()
 
 logger = logging.getLogger("server_log")
 
@@ -53,37 +54,40 @@ def get_result(request):
 
     logger.info("Error Correction model...")
     t_error = timeit.default_timer()
+    # 账户识别、纠错、意图识别模块
     result_intent = item_matcher.match(sentence)
     logger.info(result_intent)
     logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_error))
 
     logger.info("NER model...")
     t_ner = timeit.default_timer()
-    result_ner = semantic.sentence_ner_entities(result_intent["query"])
-    logger.info(result_ner)
+    # 实体识别模块
+    result = semantic.sentence_ner_entities(result_intent)
+    if result is None:
+        return JsonResponse({"query": sentence, "error": "实体识别模块返回空值"},
+                            json_dumps_params={'ensure_ascii': False})
+    logger.info(result)
     logger.info("NER model done. Time consume: {0}".format(timeit.default_timer() - t_ner))
 
-    logger.info("Query Graph model...")
+    logger.info("Dependency Parser model...")
     t_dependence = timeit.default_timer()
     # 依存分析模块
+    entity = result.get('entity') + result.get('account')
+    relation = result.get('relation')
+    intention = result.get('intent')
+    data = dict(entity=entity, relation=relation, intent=intention)
+    dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
+        dependency_parser.get_denpendency_tree(sentence, entity, relation)
 
-    logger.info("Query Graph model done. Time consume: {0}".format(timeit.default_timer() - t_dependence))
+    logger.info("Dependency Parser model done. Time consume: {0}".format(timeit.default_timer() - t_dependence))
 
     logger.info("Query Graph model...")
     t_another = timeit.default_timer()
-    # 添加其他模块调用
-    entity = dict(result_ner).get('entity')
-    relation = result_intent.get('relation')
-    intention = result_intent.get('intent')
-    data = dict(entity=entity, relation=relation, intent=intention)
-
-    dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
-        DependencyParser().get_denpendency_tree(sentence, entity, relation)
+    # 问答图模块
     dep = dependency_graph
-
     query_graph_result = dict()
+    qg = QueryParser(data, dep)
     try:
-        qg = QueryParser(data, dep)
         query_graph = qg.query_graph.get_data()
         if not query_graph:
             qg = QueryParser(data)

@@ -129,25 +129,6 @@ class SemanticSearch(object):
                 template_sen = template_sen.replace(label, self.labels_list_split[i])
         return template_sen
 
-    def __convert_output_data_format(self, data_param):
-        """
-        将 data_param 数据转换成问答图模块需要的数据格式
-        :param data_param:
-        :return:
-        """
-        output = defaultdict()
-        output["query"] = data_param["query"]
-        output["template"] = data_param["template"]
-        entity = []
-        for key, values in data_param["labels"].items():
-            for v in values:
-                begin = data_param["query"].find(v)
-                entity.append(
-                    {"type": key, "value": v, "code": self.code[key], "begin": begin,
-                     "end": begin + len(v) + 1 if begin != -1 else -1})
-        output["entity"] = entity
-        return output
-
     def __get_entities(self, sentence, pred_label_result):
         """
         根据BIO标签从识别结果中找出所有的实体
@@ -192,24 +173,20 @@ class SemanticSearch(object):
 
         return entities
 
-    def sentence_ner_entities(self, query_sentence):
+    def sentence_ner_entities(self, result_intent):
         """
         使用 BERT 模型对句子进行实体识别，返回标记实体的句子
-        :param query_sentence: 已经纠错后的查询句
+        :param result_intent: 意图识别模块的输出
         :return:
             entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
             result: account_label 模块返回的结果
         """
-        sentence = query_sentence
+        sentence = result_intent["query"]
 
         sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
 
-        if sentence is None:
-            logger.error("查询句为空")
-            return None
-
         if pred_label_result is None:
-            logger.error("识别结果为空")
+            logger.error("句子: {0}\t实体识别结果为空".format(result_intent["query"]))
             return None
 
         entities = self.__get_entities(sentence, pred_label_result)
@@ -222,10 +199,12 @@ class SemanticSearch(object):
             self.__combine_com_add(entities)
             entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
 
-        result = {"query": query_sentence, "template": query_sentence, "labels": defaultdict(list)}
+        entity = []
         for word, label in entities:
-            result["template"] = result["template"].replace(word, label)
-            result["labels"].setdefault(label, []).append(word)
+            begin = result_intent["query"].find(word)
+            entity.append(
+                {"type": label, "value": word, "code": self.code[label], "begin": begin,
+                 "end": begin + len(word) + 1 if begin != -1 else -1})
+        result_intent["entity"] = entity
 
-        result = self.__convert_output_data_format(result)
-        return result
+        return result_intent

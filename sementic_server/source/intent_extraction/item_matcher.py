@@ -112,10 +112,10 @@ def _update_account_in_sentence(accounts: list, sentence: str):
     :return:
     """
     for index, info in enumerate(accounts):
-        begin = sentence.find(info["account"])
+        begin = sentence.find(info["value"])
         if begin is not info["begin"]:
             accounts[index]["begin"] = begin
-            accounts[index]["end"] = begin + len(info["account"])
+            accounts[index]["end"] = begin + len(info["value"])
 
 
 class ItemMatcher(object):
@@ -264,8 +264,8 @@ class ItemMatcher(object):
 
         if need_correct:
             # 记录unlabel标签
-            labelled_list = [(account['begin'], account['end']) for account in accounts_info["accounts"]
-                             if account['account_label'] is not UNLABEL]
+            labelled_list = [(account['begin'], account['end']) for account in accounts_info["value"]
+                             if account['type'] is not UNLABEL]
             correct_info = self.correct(query, labelled_list)   # 纠错
             res["correct_info"] = correct_info  # 赋值
             res["query"] = res["correct_info"]["correct_query"]

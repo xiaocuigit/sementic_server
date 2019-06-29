@@ -136,12 +136,12 @@ class SemanticSearch(object):
         :return:
         """
         output = defaultdict()
-        output["query"] = data_param["raw_input"]
-        output["template"] = data_param["new_input"]
+        output["query"] = data_param["query"]
+        output["template"] = data_param["template"]
         entity = []
         for key, values in data_param["labels"].items():
             for v in values:
-                begin = data_param["raw_input"].find(v)
+                begin = data_param["query"].find(v)
                 entity.append(
                     {"type": key, "value": v, "code": self.code[key], "begin": begin,
                      "end": begin + len(v) + 1 if begin != -1 else -1})
@@ -192,21 +192,25 @@ class SemanticSearch(object):
 
         return entities
 
-    def sentence_ner_entities(self, result):
+    def sentence_ner_entities(self, query_sentence):
         """
         使用 BERT 模型对句子进行实体识别，返回标记实体的句子
-        :param result: account_label 模块返回的结果
+        :param query_sentence: 已经纠错后的查询句
         :return:
             entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
             result: account_label 模块返回的结果
         """
-        sentence = result["new_input"]
+        sentence = query_sentence
 
         sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
 
-        if sentence is None or pred_label_result is None:
-            entities = []
-            return entities, result
+        if sentence is None:
+            logger.error("查询句为空")
+            return None
+
+        if pred_label_result is None:
+            logger.error("识别结果为空")
+            return None
 
         entities = self.__get_entities(sentence, pred_label_result)
 
@@ -218,8 +222,9 @@ class SemanticSearch(object):
             self.__combine_com_add(entities)
             entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
 
+        result = {"query": query_sentence, "template": query_sentence, "labels": defaultdict(list)}
         for word, label in entities:
-            result["new_input"] = result["new_input"].replace(word, label)
+            result["template"] = result["template"].replace(word, label)
             result["labels"].setdefault(label, []).append(word)
 
         result = self.__convert_output_data_format(result)

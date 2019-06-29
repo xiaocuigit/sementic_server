@@ -57,10 +57,9 @@ def get_result(request):
     logger.info(result_intent)
     logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_error))
 
-    logger.info("Account and NER model...")
+    logger.info("NER model...")
     t_ner = timeit.default_timer()
-    result_account = get_account_sets(result_intent["query"])
-    result_ner = semantic.sentence_ner_entities(result_account)
+    result_ner = semantic.sentence_ner_entities(result_intent["query"])
     logger.info(result_ner)
     logger.info("NER model done. Time consume: {0}".format(timeit.default_timer() - t_ner))
 

@@ -7,7 +7,6 @@
 """
 
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
-from sementic_server.source.ner_task.account import get_account_sets
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from pprint import pprint
 
@@ -17,7 +16,6 @@ if __name__ == '__main__':
     while True:
         sentence = input("please input:")
         result = item_matcher.match(sentence)
-        result_account = get_account_sets(result["query"])
-        result_ner = semantic.sentence_ner_entities(result_account)
+        result_ner = semantic.sentence_ner_entities(result["query"])
         pprint(result_ner)
         pprint(result)

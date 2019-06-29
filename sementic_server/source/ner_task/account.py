@@ -151,7 +151,7 @@ def is_mobile_phone(candidate):
     return False
 
 
-def is_wechat(candidate):
+def is_wechat(raw_input, candidate):
     """
     判断candidate是否为合法的微信号码
     :param candidate:
@@ -160,7 +160,17 @@ def is_wechat(candidate):
     pattern_wechat = r"^([a-zA-Z]([-_a-zA-Z0-9]{5,19})+)$"
     result = re.match(pattern_wechat, candidate)
     if result is not None:
-        return True
+        pattern_wxid = r"^(wxid_([-_a-zA-Z0-9]{5,15})+)$"
+        result_wxid = re.match(pattern_wxid, candidate)
+        if result_wxid is not None:
+            return True
+        else:
+            wx_labels = ['微信', '微信号', '微信账户', '微信账户']
+            index = raw_input.find(candidate)
+            if index != -1:
+                for label in wx_labels:
+                    if label in raw_input[:index]:
+                        return True
     return False
 
 
@@ -352,7 +362,7 @@ def get_account_labels_info(raw_input):
             elif is_id_card(result):
                 label_name = ID
                 sentence = sentence.replace(result, ID)
-            elif is_wechat(result):
+            elif is_wechat(raw_input, result):
                 label_name = WECHAT
                 sentence = sentence.replace(result, WECHAT)
             elif is_mobile_phone(result):
@@ -410,7 +420,7 @@ def get_account_sets(raw_input):
             elif is_id_card(result):
                 account_list[ID].append(result)
                 sentence = sentence.replace(result, ID)
-            elif is_wechat(result):
+            elif is_wechat(raw_input, result):
                 account_list[WECHAT].append(result)
                 sentence = sentence.replace(result, WECHAT)
             elif is_mobile_phone(result):
@@ -461,7 +471,10 @@ def test():
     t11 = "15295668658住在哪里？34.54,QQ群2656353125"
     t12 = "京东账户15295668658住在哪里？"
     t13 = "qq号是2656353125住在哪里？"
-    test_list = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13]
+    t14 = "账户是wxid_3xu6v29giqqv12的人住在哪里？"
+    t15 = "微信号是crlabner的人住在哪里？"
+    t16 = "账户是crlabner的人住在哪里？"
+    test_list = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16]
     for index, raw_input in enumerate(test_list):
         result = get_account_labels_info(raw_input)
         print("\n==============================")

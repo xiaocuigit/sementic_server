@@ -1,3 +1,12 @@
+"""
+@description: 依存分析测试
+@author: Xu Zhongkai
+@email: 1399350807@qq.com
+@time: 2019-06-21
+@version: 0.0.1
+"""
+
+
 import os
 import json
 from sementic_server.source.qa_graph.query_parser import QueryParser

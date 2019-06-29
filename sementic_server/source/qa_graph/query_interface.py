@@ -1,5 +1,5 @@
 """
-@description: 问答图生成过程
+@description: 实现从问答图到查询接口的转化
 @author: Xu Zhongkai
 @email: 1399350807@qq.com
 @time: 2019-06-02
@@ -18,6 +18,9 @@ logger = logging.getLogger("server_log")
 
 
 class QueryInterface(object):
+    """
+    实现从问答图到查询接口的转化
+    """
     def __init__(self, graph, query):
         self.graph = graph
         self.query = query

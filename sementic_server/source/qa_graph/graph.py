@@ -14,6 +14,9 @@ logger = logging.getLogger("server_log")
 
 
 class Graph(nx.MultiDiGraph):
+    """
+    图基类实现
+    """
     def __init__(self, graph=None, file_path=None):
         if file_path:
             try:

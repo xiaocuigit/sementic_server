@@ -259,7 +259,7 @@ class ItemMatcher(object):
             "query": query,             # 如果有纠错之后的查询，则为纠错之后的查询，否则为原句
             "is_corr": need_correct,
             "correct_info": None,
-            "account": accounts_info
+            "accounts": accounts_info["accounts"]
         }
 
         if need_correct:
@@ -270,9 +270,9 @@ class ItemMatcher(object):
             res["correct_info"] = correct_info  # 赋值
             res["query"] = res["correct_info"]["correct_query"]
 
-            accounts_info["accounts"] = \
-                _resolve_list_confilct(accounts_info["accounts"], res["correct_info"]["correct"])
-            _update_account_in_sentence(accounts_info["accounts"], res["query"])
+            res["accounts"] = \
+                _resolve_list_confilct(res["accounts"], res["correct_info"]["correct"])
+            _update_account_in_sentence(res["accounts"], res["query"])
 
         for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词
             if item["type"] in self.relations.keys():

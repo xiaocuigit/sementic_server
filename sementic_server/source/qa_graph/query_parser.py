@@ -25,6 +25,10 @@ logger = logging.getLogger("server_log")
 
 
 def init_default_edge():
+    """
+    初始化默认边列表
+    :return:
+    """
     if os.path.basename(os.getcwd()) == 'qa_graph':
         path = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'ontology', 'default_relation.csv')
     else:
@@ -63,7 +67,10 @@ init_default_edge()
 init_relation_data()
 
 
-class QueryParser:
+class QueryParser(object):
+    """
+    动态问答图语义解析模块
+    """
     def __init__(self, query_data, dependency=None):
         logger.info('Query Graph Parsing...')
         print('Query Graph Parsing...')
@@ -256,8 +263,8 @@ if __name__ == '__main__':
     with open(path, 'r') as fr:
         data = json.load(fr)
     print(data)
-    dependency = data['dependency']
-    print('dependency', dependency)
+    d = data['dependency']
+    print('dependency', d)
 
     qg = QueryParser(data, data['dependency'])
     qg.query_graph.show()

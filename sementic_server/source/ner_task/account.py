@@ -12,6 +12,7 @@ import re
 
 from pprint import pprint
 from collections import defaultdict
+from sementic_server.source.ner_task.entity_code import EntityCode
 
 PUNCTUATION = [',', '，', '~', '!', '！', '。', '.', '?', '？']
 EMAIL = 'EMAIL_VALUE'
@@ -28,6 +29,8 @@ DOUYIN = 'DOUYIN_VALUE'
 TAOBAO = 'TAOBAO_VALUE'
 JD = 'JD_VALUE'
 UNLABEL = 'UNLABEL'
+
+ENTITY_CODE = EntityCode().get_entity_code()
 
 
 def is_legal_id_card(candidate):
@@ -390,66 +393,10 @@ def get_account_labels_info(raw_input):
                 # 未识别账户标识为 UNLABEL 标签
                 label_name = UNLABEL
                 sentence = sentence.replace(result, UNLABEL)
-            account_list.append({"account_label": label_name, "account": result, "begin": begin, "end": end})
+            account_list.append(
+                {"value": result, "type": label_name, "begin": begin, "end": end, "code": ENTITY_CODE[label_name]})
 
     account_result = {'raw_input': raw_input, 'accounts': account_list}
-    pprint(account_list)
-    return account_result
-
-
-def get_account_sets(raw_input):
-    """
-    检测 raw_input 中所有可能的账户集合
-    :param raw_input: 用户输入的问句，问句内中不能包含空格
-    :return:
-    """
-    # 识别出所有可能的账户
-    pattern_account = r"([a-zA-Z0-9@_\-\.]*)"
-    account_list = defaultdict(list)
-    sentence = raw_input
-    for result in re.findall(pattern_account, raw_input):
-        if len(result) >= 3:
-            if is_email(result):
-                label = get_candidate_label(raw_input, result)
-                if label:
-                    account_list[label].append(result)
-                    sentence = sentence.replace(result, label)
-                else:
-                    account_list[EMAIL].append(result)
-                    sentence = sentence.replace(result, EMAIL)
-            elif is_id_card(result):
-                account_list[ID].append(result)
-                sentence = sentence.replace(result, ID)
-            elif is_wechat(raw_input, result):
-                account_list[WECHAT].append(result)
-                sentence = sentence.replace(result, WECHAT)
-            elif is_mobile_phone(result):
-                label = get_candidate_label(raw_input, result)
-                if label:
-                    account_list[label].append(result)
-                    sentence = sentence.replace(result, label)
-                else:
-                    account_list[MPHONE].append(result)
-                    sentence = sentence.replace(result, MPHONE)
-            elif is_phone(result):
-                account_list[PHONE].append(result)
-                sentence = sentence.replace(result, PHONE)
-            elif is_qq(result):
-                label = get_candidate_label(raw_input, result, qq_group=True)
-                if label:
-                    account_list[label].append(result)
-                    sentence = sentence.replace(result, label)
-                else:
-                    account_list[UNLABEL].append(result)
-                    sentence = sentence.replace(result, UNLABEL)
-            else:
-                if result in ['QQ', 'qq']:
-                    continue
-                # 未识别账户标识为 UNLABEL 标签
-                account_list[UNLABEL].append(result)
-                sentence = sentence.replace(result, UNLABEL)
-
-    account_result = {'raw_input': raw_input, 'labels': account_list, 'new_input': sentence}
     return account_result
 
 
@@ -477,10 +424,6 @@ def test():
     test_list = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16]
     for index, raw_input in enumerate(test_list):
         result = get_account_labels_info(raw_input)
-        print("\n==============================")
-        pprint(result)
-        print("==============================\n")
-        result = get_account_sets(raw_input)
         print("\n==============================")
         pprint(result)
         print("==============================\n")

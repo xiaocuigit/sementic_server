@@ -291,7 +291,7 @@ class ItemMatcher(object):
 if __name__ == '__main__':
     from pprint import pprint
     i = "lailai的wxid_lainai是谁"
-    im = ItemMatcher(new_actree=True, is_test=True)
+    im = ItemMatcher(new_actree=False, is_test=True)
     pprint(im.match(i))
     while True:
         i = input()

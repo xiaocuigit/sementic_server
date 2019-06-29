@@ -12,7 +12,8 @@ from os import mkdir
 import pickle
 import yaml
 import logging
-
+from time import time
+from sementic_server.source.ner_task.account import get_account_labels_info, UNLABEL
 from sementic_server.source.intent_extraction.recognizer import Recognizer
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 from sementic_server.source.intent_extraction.logger import construt_log, get_logger
@@ -158,7 +159,15 @@ class ItemMatcher(object):
 
         语义解析模块只需要关注'query'字段的结果。
         """
-        res = {"relation": [], "intent": None, "raw_query": query, "query": query, "is_corr": need_correct, "correct_info": None}
+        res = {
+            "relation": [],
+            "intent": None,
+            "raw_query": query,
+            "query": query,             # 如果有纠错之后的查询，则为纠错之后的查询，否则为原句
+            "is_corr": need_correct,
+            "correct_info": None
+        }
+
         if need_correct:
             res["correct_info"] = self.correct(query)
             res["query"] = res["correct_info"]["correct_query"]
@@ -175,6 +184,28 @@ class ItemMatcher(object):
 
         return res
 
+    def correct_with_filter(self, query, ban_list):
+        """
+        纠错函数，能够过滤账号识别的中的账号
+        :param query:   原始查询
+        :param ban_list: 应当屏蔽的位置
+        :return:    纠错列表
+        """
+        start_time = time()
+        res_corr = {"correct_query": query, "correct": []}
+        record = []
+        # change the query to the lower.
+        for item in self.corr.query4type(query.lower()):
+            item["value"] = query[item["begin"]: item["end"]]
+            res_corr["correct"].append(item)
+            record.append((item['begin'], item['end'], item['type']))
+
+
+
+        self.correct_logger.info(f"{construt_log(raw_query=query, correct_info=res_corr, using_time=time()-start_time)}")
+        server_logger.info(f"Correcting the query time used: {time()-start_time}")
+        return res_corr
+
     def match(self, query: str, need_correct=True):
         """
 
@@ -184,8 +215,32 @@ class ItemMatcher(object):
 
         语义解析模块只需要关注'query'字段的结果。
         """
-        res = {"relation": [], "intent": None, "raw_query": query, "query": query, "is_corr": need_correct, "correct_info": None}
+        # 找出所有账号
+        accounts_info = get_account_labels_info(query)
+
+
+        res = {
+            "relation": [],
+            "intent": None,
+            "raw_query": query,
+            "query": query,             # 如果有纠错之后的查询，则为纠错之后的查询，否则为原句
+            "is_corr": need_correct,
+            "correct_info": None,
+            "account": accounts_info
+        }
+
         if need_correct:
+            # 记录unlabel标签
+            labelled_list = []
+            for account in accounts_info["accounts"]:
+                if account['account_label'] is not UNLABEL:
+                    labelled_list.append((account['begin'], account['end']))
+
+            self.correct_with_filter(query, labelled_list)
+
+
+
+
             res["correct_info"] = self.correct(query)
             res["query"] = res["correct_info"]["correct_query"]
 
@@ -203,13 +258,13 @@ class ItemMatcher(object):
 
 
 if __name__ == '__main__':
+    i = "张三的奶奶是lailai"
     from pprint import pprint
-    from time import time
     im = ItemMatcher(new_actree=True, is_test=True)
-    r = im.match("张三的爸爸祖父的lailai的微信号是wx_lailai")
-    pprint(r)
-    while 1:
-        i = input()
-        s = time()
-        pprint(im.match(i))
-        print(time() - s)
+
+    # r = im.match(i)
+    # pprint(r)
+    # while 1:
+    #     i = input()
+    #     pprint(im.match(i))
+    #     get_account_labels_info(i)

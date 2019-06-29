@@ -71,6 +71,12 @@ def id2word(id2c: dict, ids: list):
 
 
 def cmp(x, y):
+    """
+    比较函数
+    :param x:数1
+    :param y:数2
+    :return:
+    """
     if x[1] < y[1]:
         return -1
     elif x[1] > y[1]:
@@ -80,6 +86,14 @@ def cmp(x, y):
     else:
         return 1
 
+
+def _find_word_range_in_sentence(word, query, words_info):
+    index = 0
+    while index != -1:
+        index = query.find(word, index)
+        if index != -1:
+            words_info.append((index, index + len(word) - 1, word))
+            index += 1
 
 class Recognizer:
     """
@@ -125,12 +139,7 @@ class Recognizer:
 
         # find positions of words
         for word in words:
-            index = 0
-            while index != -1:
-                index = query.find(word, index)
-                if index != -1:
-                    words_info.append((index, index + len(word) - 1, word))
-                    index += 1
+            _find_word_range_in_sentence(word, query, words_info)
 
         words_info = sorted(words_info, key=cmp_to_key(cmp))
 

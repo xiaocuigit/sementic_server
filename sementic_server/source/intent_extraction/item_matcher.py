@@ -6,7 +6,6 @@
 @version: 0.0.1
 """
 
-
 from os.path import join, exists
 from os import mkdir
 import pickle
@@ -81,28 +80,42 @@ def replace_items_in_sentence(sentence, items):
     """
     替换句子在item中出现的元素
     :param sentence: 原始句子
-    :param items: 需要替换的item
+    :param items: 需要替换的item ((begin, end, value),())
     :return:
     """
     size = len(items)
     if size < 1:
         return sentence
-
     sentence_after_replace = ""
     index = 0
     range_cursor = (items[index][0], items[index][1])  # 指针指向index指向的begin, end
     for position, char in enumerate(sentence):
-        if range_cursor[0] < position < range_cursor[1] - 1:
-            ...
+        if range_cursor[0] < position <= range_cursor[1] - 1:
+            continue
         elif position is range_cursor[0]:      # 如果这个位置是items中某个item的开始位置，则加上这个item的值
             sentence_after_replace += items[index][2]
-        elif position is range_cursor[1] - 1:
-            index += 1
-            range_cursor = (items[index][0], items[index][1]) if index <= size - 1 else (-1, -1)
         else:
             sentence_after_replace += char
 
+        if position is range_cursor[1] - 1:
+            index += 1
+            range_cursor = (items[index][0], items[index][1]) if index <= size - 1 else (-1, -1)
+
     return sentence_after_replace
+
+
+def _update_account_in_sentence(accounts: list, sentence: str):
+    """
+    更新账号在句子中的位置
+    :param accounts:
+    :param sentence:
+    :return:
+    """
+    for index, info in enumerate(accounts):
+        begin = sentence.find(info["account"])
+        if begin is not info["begin"]:
+            accounts[index]["begin"] = begin
+            accounts[index]["end"] = begin + len(info["account"])
 
 
 class ItemMatcher(object):
@@ -231,7 +244,6 @@ class ItemMatcher(object):
 
     def match(self, query: str, need_correct=True):
         """
-
         :param query:   用户的原始查询
         :param need_correct:    是否需要纠错
         :return:    纠错、关系识别的结果
@@ -258,7 +270,9 @@ class ItemMatcher(object):
             res["correct_info"] = correct_info  # 赋值
             res["query"] = res["correct_info"]["correct_query"]
 
-            accounts_info["accounts"] = _resolve_list_confilct(accounts_info["accounts"], res["correct_info"]["correct"])
+            accounts_info["accounts"] = \
+                _resolve_list_confilct(accounts_info["accounts"], res["correct_info"]["correct"])
+            _update_account_in_sentence(accounts_info["accounts"], res["query"])
 
         for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词
             if item["type"] in self.relations.keys():
@@ -275,7 +289,9 @@ class ItemMatcher(object):
 
 if __name__ == '__main__':
     from pprint import pprint
-    i = "wxid_lainai的lailai是谁"
-    im = ItemMatcher(new_actree=False, is_test=True)
+    i = "lailai的wxid_lainai是谁"
+    im = ItemMatcher(new_actree=True, is_test=True)
     pprint(im.match(i))
-
+    while True:
+        i = input()
+        pprint(im.match(i))

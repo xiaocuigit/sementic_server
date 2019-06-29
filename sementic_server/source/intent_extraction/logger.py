@@ -1,9 +1,22 @@
+"""
+@description: 日志文件
+@author: Wu Jiang-Heng
+@email: jiangh_wu@163.com
+@time: 2019-06-29
+@version: 0.0.1
+"""
+
 import logging
 from logging.handlers import TimedRotatingFileHandler
-from os.path import join
 
 
 def get_logger(name, path):
+    """
+    定义日志文件
+    :param name:日志名
+    :param path:日志路径
+    :return:
+    """
     # 定义日志文件
     logger = logging.getLogger(name)  # 不加名称设置root logger
     logger.setLevel(logging.INFO)
@@ -19,7 +32,6 @@ def get_logger(name, path):
     sh.setLevel(logging.FATAL)
     logger.addHandler(fh)
     logger.addHandler(sh)
-    # logger.propagate = False
     return logger
 
 

@@ -90,26 +90,33 @@ class DataProcessor(object):
 
 
 class NerProcessor(DataProcessor):
+    """NER任务的数据处理类"""
+
     def get_train_examples(self, data_dir):
+        """读取训练集语料"""
         return self._create_example(
             self._read_data(os.path.join(data_dir, "train.txt")), "train"
         )
 
     def get_dev_examples(self, data_dir):
+        """读取验证集语料"""
         return self._create_example(
             self._read_data(os.path.join(data_dir, "dev.txt")), "dev"
         )
 
     def get_test_examples(self, data_dir):
+        """读取测试集语料"""
         return self._create_example(
             self._read_data(os.path.join(data_dir, "test.txt")), "test")
 
     def get_labels(self):
-        return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X", "[CLS]", "[SEP]"]
+        """NER任务的标签类别"""
+        return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "B-DATE", "I-DATE", "X", "[CLS]", "[SEP]"]
 
     def _create_example(self, lines, set_type):
+        """创建一个类实例"""
         examples = []
-        for (i, line) in enumerate(lines):
+        for i, line in enumerate(lines):
             guid = "%s-%s" % (set_type, i)
             text = tokenization.convert_to_unicode(line[1])
             label = tokenization.convert_to_unicode(line[0])
@@ -132,7 +139,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     """
     label_map = {}
     # 1表示从1开始对label进行index化
-    for (i, label) in enumerate(label_list, 1):
+    for i, label in enumerate(label_list, 1):
         label_map[label] = i
     # 保存label->index 的map
     if not os.path.exists(os.path.join(output_dir, 'label2id.pkl')):
@@ -228,13 +235,14 @@ def filed_based_convert_examples_to_features(
     """
     writer = tf.python_io.TFRecordWriter(output_file)
     # 遍历训练数据
-    for (ex_index, example) in enumerate(examples):
+    for ex_index, example in enumerate(examples):
         if ex_index % 5000 == 0:
             tf.logging.info("Writing example %d of %d" % (ex_index, len(examples)))
         # 对于每一个训练样本,
         feature = convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer, mode, output_dir)
 
         def create_int_feature(values):
+            """内部函数，通过values来实例化一个Feature类"""
             f = tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
             return f
 
@@ -250,6 +258,14 @@ def filed_based_convert_examples_to_features(
 
 
 def file_based_input_fn_builder(input_file, seq_length, is_training, drop_remainder):
+    """
+    从文件里面读取TFRecord格式的数据
+    :param input_file:  数据集文件
+    :param seq_length:  每条语料的最大长度
+    :param is_training: 数据是否为训练集
+    :param drop_remainder: 是否使用Dropout
+    :return:
+    """
     name_to_features = {
         "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
         "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
@@ -258,6 +274,7 @@ def file_based_input_fn_builder(input_file, seq_length, is_training, drop_remain
     }
 
     def _decode_record(record, name_to_features):
+        """将TFRecord的数据进行解码"""
         example = tf.parse_single_example(record, name_to_features)
         for name in list(example.keys()):
             t = example[name]
@@ -267,6 +284,7 @@ def file_based_input_fn_builder(input_file, seq_length, is_training, drop_remain
         return example
 
     def input_fn(params):
+        """读取数据并返回"""
         batch_size = params["batch_size"]
         d = tf.data.TFRecordDataset(input_file)
         if is_training:
@@ -300,6 +318,11 @@ def write_tokens(output_dir, tokens, mode):
 
 
 def load_file(file_path):
+    """
+    加载文件
+    :param file_path: 文件名称
+    :return:
+    """
     if not os.path.exists(file_path):
         print("{0} not exists.".format(file_path))
         exit(1)
@@ -309,6 +332,11 @@ def load_file(file_path):
 
 
 def _cut(sentence):
+    """
+    对句子进行切分
+    :param sentence: 要切分的句子
+    :return:
+    """
     new_sentence = []
     sen = []
     for i in sentence:
@@ -334,9 +362,9 @@ def _cut(sentence):
 def cut_sentence(file, max_seq_length):
     """
     句子截断
-    :param file: 
-    :param max_seq_length: 
-    :return: 
+    :param file:
+    :param max_seq_length:
+    :return:
     """
     context = []
     sentence = []

@@ -64,7 +64,8 @@ class SemanticSearch(object):
         for label in entities:
             jieba.add_word(label)
 
-    def __combine_label(self, entities, label=None):
+    @staticmethod
+    def __combine_label(entities, label=None):
         """
         合并实体列表中相连且相同的label
         :param entities:
@@ -128,44 +129,16 @@ class SemanticSearch(object):
                 template_sen = template_sen.replace(label, self.labels_list_split[i])
         return template_sen
 
-    def __convert_output_data_format(self, data_param):
+    def __get_entities(self, sentence, pred_label_result):
         """
-        将 data_param 数据转换成问答图模块需要的数据格式
-        :param data_param:
-        :return:
+        根据BIO标签从识别结果中找出所有的实体
+        :param sentence: 待识别的句子
+        :param pred_label_result: 对该句子预测的标签
+        :return: 返回识别的实体
         """
-        output = defaultdict()
-        output["query"] = data_param["raw_input"]
-        output["template"] = data_param["new_input"]
-        entity = []
-        for key, values in data_param["labels"].items():
-            for v in values:
-                begin = data_param["raw_input"].find(v)
-                entity.append(
-                    {"type": key, "value": v, "code": self.code[key], "begin": begin,
-                     "end": begin + len(v) + 1 if begin != -1 else -1})
-        output["entity"] = entity
-        return output
-
-    def sentence_ner_entities(self, result):
-        """
-        使用 BERT 模型对句子进行实体识别，返回标记实体的句子
-        :param result: account_label 模块返回的结果
-        :return:
-            entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
-            result: account_label 模块返回的结果
-        """
-        sentence = result["new_input"]
-
-        sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
-
         word = ""
         label = ""
         entities = []
-
-        if sentence is None or pred_label_result is None:
-            return entities, result
-
         for i in range(len(sentence)):
             temp_label = pred_label_result[i]
             if temp_label[0] == 'B':
@@ -198,6 +171,26 @@ class SemanticSearch(object):
                 word = word.replace('##', '')
             entities.append([word, label])
 
+        return entities
+
+    def sentence_ner_entities(self, result_intent):
+        """
+        使用 BERT 模型对句子进行实体识别，返回标记实体的句子
+        :param result_intent: 意图识别模块的输出
+        :return:
+            entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
+            result: account_label 模块返回的结果
+        """
+        sentence = result_intent["query"]
+
+        sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
+
+        if pred_label_result is None:
+            logger.error("句子: {0}\t实体识别结果为空".format(result_intent["query"]))
+            return None
+
+        entities = self.__get_entities(sentence, pred_label_result)
+
         if len(entities) != 0:
             entities = self.__combine_label(entities, label=self.ner_entities['ADDR'])
             entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
@@ -206,9 +199,12 @@ class SemanticSearch(object):
             self.__combine_com_add(entities)
             entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
 
-        for (word, label) in entities:
-            result["new_input"] = result["new_input"].replace(word, label)
-            result["labels"].setdefault(label, []).append(word)
+        entity = []
+        for word, label in entities:
+            begin = result_intent["query"].find(word)
+            entity.append(
+                {"type": label, "value": word, "code": self.code[label], "begin": begin,
+                 "end": begin + len(word) + 1 if begin != -1 else -1})
+        result_intent["entity"] = entity
 
-        result = self.__convert_output_data_format(result)
-        return result
+        return result_intent

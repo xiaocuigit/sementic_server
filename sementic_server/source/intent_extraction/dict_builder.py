@@ -12,11 +12,12 @@ from pypinyin import lazy_pinyin
 from collections import Counter
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 from sementic_server.source.intent_extraction.recognizer import cmp, cmp_to_key
+from sementic_server.source.intent_extraction.item_matcher import replace_items_in_sentence
 import logging
 logger = logging.getLogger("server_log")
 
 
-def power_set(l: int):
+def power_set(l: list):
     """
     生成 0~l的幂集
     :param l:  某个词的长度
@@ -32,12 +33,34 @@ def power_set(l: int):
     return res
 
 
+def _replace_position_with_another_by_combination(word, another, combination):
+    w = ""
+    for i in range(len(word)):
+        if i in combination:
+            w += another[i]
+        else:
+            w += word[i]
+
+    return w
+
+
+def _find_the_key_and_add_to_candidate(word, key, value, pos_list: list):
+    if key not in word:
+        return
+    i, b, e = word.find(key), 0, len(word)
+
+    while i > -1:
+        pos_list.extend([(i, i + len(key), v) for v in value])
+        # find the key word
+        i = word.find(key, i + 1, e)
+
+
 # 规则库
-def transformer(word:str, repl):
+def transformer(word: str, replace: dict):
     """
     纠错词库生成规则
     :param word:  某个词
-    :param repl:  替换规则
+    :param replace:  替换规则
 
     """
     res = list()
@@ -50,60 +73,29 @@ def transformer(word:str, repl):
         return res
 
     n = len(word)
+    range_n = list(range(n))
     # 拼音替换
-    pset = power_set(list(range(n)))[1:]
+    combinations = power_set(range_n)[1:]
     word_py = lazy_pinyin(word)
 
-    for l in pset:
+    for combination in combinations:
         # for each combination
-        # pinyin
-        w = ""
-        for i in range(len(word)):
-            if i in l:
-                try:
-                    w += word_py[i]
-                except IndexError as e:
-                    logger.error(f"dict_builder , {e}")
-            else:
-                w += word[i]
-        res.append(w)
+        # 拼音
+        word_change = _replace_position_with_another_by_combination(word, word_py, combination)
+        res.append(word_change)
 
         # other wrong
         pos_list = []
-        for kre, vre in repl["pinyin"].items():
-            if kre in w:
-                for v in vre:
-                    i, b, e = w.find(kre), 0, len(w)
+        for key, value in replace["pinyin"].items():
+            _find_the_key_and_add_to_candidate(word_change, key, value, pos_list)
 
-                    while i > -1:
-                        pos_list.append((v, i, i+len(kre)))
-                        # find the key word
-                        i = w.find(kre, i + 1, e)
 
         pos_list = sorted(pos_list, key=cmp_to_key(cmp))
         pos_list = power_set(pos_list)[1:]
 
-        for pl in pos_list:
-            sz = len(pl)
-            ix, b, e = 0, pl[0][1], pl[0][2]
-
-            w_mod = ""
-            for p, c in enumerate(w):
-                if p not in range(b, e):
-                    w_mod += w[p]
-                else:
-                    if p == b:
-                        w_mod += pl[ix][0]
-
-                    if p == e - 1:
-                        # update
-                        ix = ix + 1
-                        if ix == sz:
-                            b = e = -1
-                        else:
-                            b, e = pl[ix][1], pl[ix][2]
-
-            res.append(w_mod)
+        for pos_item in pos_list:
+            word_change_ex = replace_items_in_sentence(word_change, pos_item)
+            res.append(word_change_ex)
     return res
 
 
@@ -147,3 +139,6 @@ def build_wrong_table(is_test=False):
 
 if __name__ == '__main__':
     build_wrong_table(is_test=True)
+    si = SystemInfo(True)
+    dir_yml = join(si.base_path, "data", "yml")
+    rep = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)

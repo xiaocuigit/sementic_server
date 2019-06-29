@@ -14,7 +14,7 @@ if __name__ == '__main__':
     """
     sen = "在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆"
 
-    model_serving = ModelServing('NER', is_test=False)
+    model_serving = ModelServing('NER', is_test=True)
 
     ner_result = model_serving.test_send_grpc_request_ner(sen)
 

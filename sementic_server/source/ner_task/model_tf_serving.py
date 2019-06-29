@@ -1,9 +1,9 @@
 """
-通过SavedModel类将模型保存起来，使用TensorFlow Serving的形式提供预测服务
-
-@Author: Cui Ruilong
-@Time: 2019-04-08
-@Version: 0.1.0
+@description: 通过SavedModel类将模型保存起来，使用TensorFlow Serving的形式提供预测服务
+@author: Cui Rui long
+@email: xiaocuikindle@163.com
+@time: 2019-06-29
+@version: 0.0.1
 """
 import os
 import grpc
@@ -54,7 +54,7 @@ class ModelServing(object):
                 self.id2label = {value: key for key, value in self.label2id.items()}
 
             self.label_map = {}
-            for (i, label) in enumerate(self.label_list, 1):
+            for i, label in enumerate(self.label_list, 1):
                 self.label_map[label] = i
             self.tokenizer = tokenization.FullTokenizer(vocab_file='../../chinese_L-12_H-768_A-12/vocab.txt',
                                                         do_lower_case=self.config["do_lower_case"])
@@ -78,7 +78,7 @@ class ModelServing(object):
 
             self.label_map = {}
             # 1表示从1开始对label进行index化
-            for (i, label) in enumerate(self.label_list, 1):
+            for i, label in enumerate(self.label_list, 1):
                 self.label_map[label] = i
 
             self.tokenizer = tokenization.FullTokenizer(vocab_file=os.getcwd() + self.config["vocab_file"],

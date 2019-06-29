@@ -10,7 +10,9 @@ import yaml
 import os
 
 
-class EntityCode:
+class EntityCode(object):
+    """实体名称及编码类"""
+
     def __init__(self):
 
         self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',

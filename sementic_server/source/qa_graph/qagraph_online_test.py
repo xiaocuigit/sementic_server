@@ -11,9 +11,7 @@ import os
 from pprint import pprint
 import json
 from sementic_server.source.qa_graph.query_parser import QueryParser
-from sementic_server.source.qa_graph.graph import Graph
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
-from sementic_server.source.ner_task.account import get_account_sets
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
@@ -24,38 +22,33 @@ if __name__ == '__main__':
     while True:
         sentence = input("please input:")
         intent = item_matcher.match(sentence)
-        result_account = get_account_sets(intent["query"])
-        result = semantic.sentence_ner_entities(result_account)
-        print(dict(result))
-        print(intent)
-        entity = dict(result).get('entity')
-        relation = intent.get('relation')
-        intention = intent.get('intent')
+        result = semantic.sentence_ner_entities(intent)
+        pprint(result)
+        entity = result.get('entity') + result.get('accounts')
+        relation = result.get('relation')
+        intention = result.get('intent')
         dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations =\
-            DependencyParser().get_denpendency_tree(intent["query"], entity, relation)
-        print(dependency_graph)
+            DependencyParser().get_denpendency_tree(result["query"], entity, relation)
+
         dep = dependency_graph
-        data = dict(entity=entity, relation=relation, intent=intention)
-        print('dep')
-        print(dep)
+        data = dict(query=sentence, entity=entity, relation=relation, intent=intention, dependency=dependency_graph)
+        pprint('dep')
+        pprint(dep)
 
         query_graph_result = dict()
-        t = dict(query=sentence, entity=data['entity'], intent=data['intent'], relation=data['relation'], dependency=dep)
+        t = dict(data=data, dep=dep)
         p = os.path.join(os.getcwd(), 'test_case.json')
         json.dump(t, open(p, 'w'))
-        qg = QueryParser(data, dep)
+        qg = QueryParser(data, None)
         query_graph = qg.query_graph.get_data()
         if not query_graph:
             qg = QueryParser(data)
             query_graph = qg.query_graph.get_data()
+        qg.query_graph.show()
         qi = QueryInterface(qg.query_graph, intent["query"])
         query_interface = qi.get_query_data()
         query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
-
-        Graph(qg.query_graph).show()
-
         pprint(query_graph_result)
-
 
 
 

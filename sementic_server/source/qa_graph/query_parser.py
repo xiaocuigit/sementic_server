@@ -73,7 +73,7 @@ class QueryParser(object):
     """
     def __init__(self, query_data, dependency=None):
         logger.info('Query Graph Parsing...')
-        print('Query Graph Parsing...')
+        # print('Query Graph Parsing...')
         self.relation = query_data.setdefault('relation', list())
         self.entity = query_data.setdefault('entity', list())
         self.intent = query_data['intent']
@@ -87,17 +87,17 @@ class QueryParser(object):
         # 若有依存分析，根据依存分析来获取组件图
         if self.dependency and len(self.dependency) > 0:
             logger.info('dependency exist.')
-            print('dependency exist.')
+            # print('dependency exist.')
             dm = DepMap(self.dependency, self.relation_component_list, self.entity_component_list)
             if dm.check_dep():
                 # 使用依存分析，获取self.component_graph
-                if nx.algorithms.is_weakly_connected(dm.dep_graph):
+                if dm.dep_graph and nx.algorithms.is_weakly_connected(dm.dep_graph):
                     self.query_graph = dm.dep_graph
                     self.determine_intention()
                     return
                 else:
                     logger.info('dependency wrong!')
-                    print('dependency wrong!')
+                    # print('dependency wrong!')
 
         # 得到子图组件构成的集合，用图表示
         self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
@@ -184,12 +184,12 @@ class QueryParser(object):
         candidates_list = list()
         if self.intent:
             # 意图识别提供了意图类型
-            print(self.intent)
+            # print(self.intent)
             for n in self.query_graph.nodes:
                 if self.query_graph.nodes[n].get('type') == self.intent:
                     candidates_list.append(n)
         if len(candidates_list) == 0:
-            print('intention recognizer module produce wrong intention!')
+            # print('intention recognizer module produce wrong intention!')
             logger.info('intention recognizer module produce wrong intention!')
             intention_candidates = self.query_graph.get_concept_nodes()
         else:

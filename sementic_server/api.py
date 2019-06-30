@@ -61,11 +61,10 @@ def query_graph_model(data, dependency_graph, sentence):
     logger.info("Query Graph model...")
     t_another = timeit.default_timer()
     # 问答图模块
-    dep = dependency_graph
     query_graph_result = dict()
     try:
         query_graph_result = dict()
-        qg = QueryParser(data, None)
+        qg = QueryParser(data, dependency_graph)
         query_graph = qg.query_graph.get_data()
         if not query_graph:
             qg = QueryParser(data)
@@ -114,7 +113,7 @@ def get_result(request):
         return JsonResponse({"query": sentence, "error": "实体识别模块返回空值"},
                             json_dumps_params={'ensure_ascii': False})
     data, dependency_graph = dependency_parser_model(result, sentence)
-    query_graph_result = query_graph_model(data, dependency_graph, sentence)
+    query_graph_result = query_graph_model(data, None, sentence)
     end_time = timeit.default_timer()
 
     logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
@@ -131,7 +130,6 @@ def correct(request):
         return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
     request_data = request.POST
     print(request)
-    # request_data = json.loads(request.body)
     sentence = request_data['sentence']
     need_correct = request_data.get('need_correct', True)
 

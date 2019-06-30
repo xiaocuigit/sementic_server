@@ -122,7 +122,7 @@ class Graph(nx.MultiDiGraph):
             else:
                 data = self.get_edge_data(e[0], e[1])
             print(str(e).ljust(30), '\t', str(data).ljust(30))
-            logger.info(str(e).ljust(30), '\t', str(data).ljust(30))
+            logger.info('{0}\t{1}'.format(e, data))
 
 
 if __name__ == '__main__':

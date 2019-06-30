@@ -1,19 +1,30 @@
+"""
+依存分析连接器
+
+@Author: Xu Ze
+@Time: 2019-06-29
+@Version: 0.1.0
+"""
+
 import requests
-import urllib
 import json
-from sementic_server.source.dependency_parser.server_config import config
+from sementic_server.source.ner_task.system_info import SystemInfo
 
 
-class ServerRequest:
+class ServerRequest(object):
+    """依存分析连接器"""
+
     # 初始化服务器参数
     def __init__(self):
-        self.server_ip = config['server_ip']
-        self.server_port = config['server_port']
-        self.annotators = config['server_type']['depparse']
+        self.config = SystemInfo().get_config()
+        self.server_ip = self.config['server_ip']
+        self.server_port = self.config['server_port']
+        self.annotators = self.config['server_type']['depparse']
 
     # 发送请求到服务器
     def get_dependency(self, data):
-        url = 'http://' + self.server_ip + ':' + self.server_port + '/?properties={"annotators":"' + self.annotators + '","outputFormat":"json"}&pipelineLanguage=zh'
+        url = 'http://' + self.server_ip + ':' + self.server_port + '/?properties={"annotators":"' + \
+              self.annotators + '","outputFormat":"json"}&pipelineLanguage=zh'
 
         # 请求的数据必须编码为UTF-8
         response_json = requests.post(url, data=data.encode('utf-8'))

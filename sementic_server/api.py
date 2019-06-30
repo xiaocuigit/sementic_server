@@ -72,7 +72,7 @@ def get_result(request):
     logger.info("Dependency Parser model...")
     t_dependence = timeit.default_timer()
     # 依存分析模块
-    entity = result.get('entity') + result.get('account')
+    entity = result.get('entity') + result.get('accounts')
     relation = result.get('relation')
     intention = result.get('intent')
     data = dict(entity=entity, relation=relation, intent=intention)
@@ -88,11 +88,13 @@ def get_result(request):
     query_graph_result = dict()
     qg = QueryParser(data, dep)
     try:
+        query_graph_result = dict()
+        qg = QueryParser(data, dep)
         query_graph = qg.query_graph.get_data()
         if not query_graph:
             qg = QueryParser(data)
             query_graph = qg.query_graph.get_data()
-        qi = QueryInterface(qg.query_graph, sentence)
+        qi = QueryInterface(qg.query_graph, result["query"])
         query_interface = qi.get_query_data()
         query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
     except Exception as e:

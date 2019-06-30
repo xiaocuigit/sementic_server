@@ -264,7 +264,8 @@ class ItemMatcher(object):
 
         if need_correct:
             # 记录unlabel标签
-            labelled_list = [(account['begin'], account['end']) for account in accounts_info["value"]
+
+            labelled_list = [(account['begin'], account['end']) for account in accounts_info["accounts"]
                              if account['type'] is not UNLABEL]
             correct_info = self.correct(query, labelled_list)   # 纠错
             res["correct_info"] = correct_info  # 赋值
@@ -290,7 +291,7 @@ class ItemMatcher(object):
 if __name__ == '__main__':
     from pprint import pprint
     i = "lailai的wxid_lainai是谁"
-    im = ItemMatcher(new_actree=True, is_test=True)
+    im = ItemMatcher(new_actree=False, is_test=True)
     pprint(im.match(i))
     while True:
         i = input()

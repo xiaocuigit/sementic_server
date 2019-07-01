@@ -22,17 +22,18 @@ class SemanticSearch(object):
     通过调用 sentence_ner_entities 函数实现对：人名、组织结构名、地名和日期 的识别
     """
 
-    def __init__(self, test_mode=False):
+    def __init__(self):
 
-        self.system_info = SystemInfo(is_test=test_mode)
+        self.system_info = SystemInfo()
 
-        self.client = ModelServing(self.system_info.MODE_NER, is_test=test_mode)
+        self.client = ModelServing(self.system_info.MODE_NER)
 
         self.config = self.system_info.get_config()
 
         self.entity_code = EntityCode()
         self.ner_entities = self.entity_code.get_ner_entities()
         self.code = self.entity_code.get_entity_code()
+        self.entity_map_dic = {"ORG": "CPNY_NAME", "PER": "NAME", "DATE": "DATE", "LOC": "ADDR_VALUE"}
 
         self.labels_list = []
         self.labels_list_split = []
@@ -148,14 +149,7 @@ class SemanticSearch(object):
                     entities.append([word, label])
                     word = ""
 
-                if temp_label[2:] == 'ORG':
-                    label = self.ner_entities['COMPANY']
-                elif temp_label[2:] == 'PER':
-                    label = self.ner_entities['NAME']
-                elif temp_label[2:] == 'DATE':
-                    label = self.ner_entities['DATE']
-                else:
-                    label = self.ner_entities['ADDR']
+                label = self.entity_map_dic[temp_label[2:]]
 
                 word += sentence[i]
             elif temp_label[0] == 'I' and word != "":

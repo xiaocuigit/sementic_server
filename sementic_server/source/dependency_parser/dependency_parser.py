@@ -40,19 +40,6 @@ class DependencyParser(object):
         self.rever_ner_entities_dics = {v: k for k, v in self.ner_entities_dics.items()}
         self.replace_words = yaml.load(replace_words_dir, Loader=yaml.SafeLoader)
 
-    def load_config(self, config_dir):
-        """
-        根据 model 值加载对应模型的配置文件
-        :return: config dictionaries
-        """
-
-        config_file = os.path.join(config_dir, 'model.config')
-
-        assert os.path.isfile(config_file), "please change parm path to file"
-
-        with open(config_file, encoding='utf-8') as f:
-            return json.load(f)
-
     def get_denpendency_tree(self, sentence, entities, relations):
         """
         :param:sentence,输入的句子

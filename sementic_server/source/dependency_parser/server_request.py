@@ -12,7 +12,7 @@ from sementic_server.source.ner_task.system_info import SystemInfo
 
 
 class ServerRequest(object):
-    """依存分析连接器"""
+    """本类用于获得依存分析的请求连接"""
 
     # 初始化服务器参数
     def __init__(self):

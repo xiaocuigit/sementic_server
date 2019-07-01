@@ -1,5 +1,5 @@
 """
-@description: 通过SavedModel类将模型保存起来，使用TensorFlow Serving的形式提供预测服务
+@description: 通过 grpc 的方式请求部署在Docker上的TensorFlow Serving服务。
 @author: Cui Rui long
 @email: xiaocuikindle@163.com
 @time: 2019-06-29
@@ -24,23 +24,19 @@ from sementic_server.source.ner_task.utils import load_config
 logger = logging.getLogger("server_log")
 
 MODEL_NAME_NER = 'ner_model'
-MODEL_NAME_SEN = 'sen_model'
 
 MODEL_SIGNATURE_NER = 'prediction_labels'
-MODEL_SIGNATURE_SEN = 'compute_sen_vector'
 
 
 class ModelServing(object):
-    """
-    通过 grpc 的方式请求部署在Docker上的TensorFlow Serving服务。
-    提供了两种服务：NER 和 SEN 服务
-    NER：识别句子中的实体
-    SEN：将句子表示成向量形式
-    """
-
-    def __init__(self, mode, is_test=False):
+    def __init__(self, mode):
+        """
+        提供了服务：NER 服务
+        NER：识别句子中的实体
+        """
         self.system_info = SystemInfo()
-        if is_test:
+        rootpath = str(os.getcwd()).replace("\\", "/")
+        if 'source' in rootpath.split('/'):
             # 测试模式下加载配置文件
             self.config = load_config('../../config/')
             self.time_out = self.config["grpc_request_timeout"]

@@ -17,8 +17,8 @@ class ServerRequest(object):
     # 初始化服务器参数
     def __init__(self):
         self.config = SystemInfo().get_config()
-        self.server_ip = self.config['server_ip']
-        self.server_port = self.config['server_port']
+        self.server_ip = self.config['dependence_parser_ip']
+        self.server_port = self.config['dependence_parser_port']
         self.annotators = self.config['server_type']['depparse']
 
     # 发送请求到服务器

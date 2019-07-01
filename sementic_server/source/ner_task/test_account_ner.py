@@ -11,8 +11,8 @@ from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from pprint import pprint
 
 if __name__ == '__main__':
-    semantic = SemanticSearch(test_mode=True)
-    item_matcher = ItemMatcher(True, is_test=True)
+    semantic = SemanticSearch(test_mode=False)
+    item_matcher = ItemMatcher(True, is_test=False)
     while True:
         sentence = input("please input:")
         result = item_matcher.match(sentence)

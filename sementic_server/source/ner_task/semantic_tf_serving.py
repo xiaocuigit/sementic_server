@@ -206,5 +206,10 @@ class SemanticSearch(object):
                 {"type": label, "value": word, "code": self.code[label], "begin": begin,
                  "end": begin + len(word) + 1 if begin != -1 else -1})
         result_intent["entity"] = entity
+        for index, rel in enumerate(result_intent["relation"]):
+            for word, _ in entities:
+                if word.find(rel["value"]) != -1:
+                    temp = result_intent["relation"].pop(index)
+                    print(temp)
 
         return result_intent

@@ -6,7 +6,6 @@
 @version: 0.0.1
 """
 
-
 import os
 from pprint import pprint
 import json
@@ -17,8 +16,9 @@ from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 if __name__ == '__main__':
-    semantic = SemanticSearch(test_mode=True)
-    item_matcher = ItemMatcher(True, is_test=True)
+    semantic = SemanticSearch(test_mode=False)
+    item_matcher = ItemMatcher(new_actree=True, is_test=False)
+    dependency_parser = DependencyParser()
     while True:
         sentence = input("please input:")
         intent = item_matcher.match(sentence)
@@ -27,8 +27,8 @@ if __name__ == '__main__':
         entity = result.get('entity') + result.get('accounts')
         relation = result.get('relation')
         intention = result.get('intent')
-        dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations =\
-            DependencyParser().get_denpendency_tree(result["query"], entity, relation)
+        dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
+            dependency_parser.get_denpendency_tree(result["query"], entity, relation)
         pprint(dependency_graph)
         dep = dependency_graph
         data = dict(entity=entity, relation=relation, intent=intention)
@@ -50,7 +50,3 @@ if __name__ == '__main__':
             pprint(query_graph_result)
         except Exception as e:
             pprint(e)
-
-
-
-

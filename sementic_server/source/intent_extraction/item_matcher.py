@@ -126,10 +126,10 @@ class ItemMatcher(object):
     @time: 2019-05-29
     @version: 0.0.1
     """
-    def __init__(self, new_actree=False, is_test=False):
+    def __init__(self, new_actree=False):
         self.reg = None     # 识别AC
         self.corr = None    # 纠错AC
-        si = SystemInfo(is_test)
+        si = SystemInfo()
         self.correct_logger = get_logger("correction", si.log_path_corr)
 
         # 获得根目录的地址
@@ -179,40 +179,6 @@ class ItemMatcher(object):
 
         del self.wrong_word
         del si
-
-    def main_match(self, query: str, need_correct=True):
-        """
-
-        :param query:   用户的原始查询
-        :param need_correct:    是否需要纠错
-        :return:    纠错、关系识别的结果
-
-        语义解析模块只需要关注'query'字段的结果。
-        """
-        res = {
-            "relation": [],
-            "intent": None,
-            "raw_query": query,
-            "query": query,             # 如果有纠错之后的查询，则为纠错之后的查询，否则为原句
-            "is_corr": need_correct,
-            "correct_info": None
-        }
-
-        if need_correct:
-            res["correct_info"] = self.correct(query)
-            res["query"] = res["correct_info"]["correct_query"]
-
-        for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词
-            if item["type"] in self.relations.keys():
-                item["code"] = self.relation_code[item["type"]]
-                res["relation"].append(item)
-            elif item["type"] in self.ques_word:
-                if res["intent"] is not None and res["intent"] != item["type"]:
-                    res["intent"] = 'conflict'  # 冲突
-                else:
-                    res["intent"] = item["type"]
-
-        return res
 
     def correct(self, query, ban_list=None):
         """
@@ -290,8 +256,8 @@ class ItemMatcher(object):
 
 if __name__ == '__main__':
     from pprint import pprint
-    i = "百度当模特儿的刘德华的父母亲是谁？"
-    im = ItemMatcher(new_actree=True, is_test=True)
+    i = "百度当模特儿的刘德华的baba是谁？"
+    im = ItemMatcher(new_actree=True)
     pprint(im.match(i))
     while True:
         i = input()

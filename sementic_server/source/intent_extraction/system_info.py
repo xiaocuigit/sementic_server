@@ -6,7 +6,7 @@
 @version: 0.0.1
 """
 from os import getcwd, makedirs
-from os.path import abspath, join, exists
+from os.path import abspath, join, exists, pardir
 
 
 class SystemInfo(object):
@@ -16,14 +16,15 @@ class SystemInfo(object):
 
     _instance = None  # 单例模式-用来存放实例
 
-    def __init__(self, is_test=False):
+    def __init__(self):
         """
-        :param is_test:是否为测试状态
+        初始化
         """
-        if is_test:
-            self.base_path = join(abspath(getcwd()), "..", "..")
+        rootpath = str(getcwd()).replace("\\", "/")
+        if 'source' in rootpath.split('/'):
+            self.base_path = join(pardir, pardir)
         else:
-            self.base_path = join(abspath(getcwd()), "sementic_server")
+            self.base_path = join(getcwd(), 'sementic_server')
 
         self.base_log_path_corr = join(self.base_path, "output", "correction_record")
         if not exists(self.base_log_path_corr):

@@ -27,7 +27,6 @@ def build_vocab(vo_dict: dict):
                 for vii in vi:
                     char_pool.add(vii)
 
-
     char_pool = list(char_pool)
     char2id = {c: i+1 for i, c in enumerate(char_pool)}
     id2char = {i+1: c for i, c in enumerate(char_pool)}
@@ -88,6 +87,13 @@ def cmp(x, y):
 
 
 def _find_word_range_in_sentence(word, query, words_info):
+    """
+    在query查找word的位置信息
+    :param word:
+    :param query:
+    :param words_info:
+    :return:
+    """
     index = 0
     while index != -1:
         index = query.find(word, index)
@@ -96,7 +102,7 @@ def _find_word_range_in_sentence(word, query, words_info):
             index += 1
 
 
-class Recognizer:
+class Recognizer(object):
     """
     @description: 实现关系、疑问词的识别
     @author: Wu Jiang-Heng

@@ -95,6 +95,7 @@ def _find_word_range_in_sentence(word, query, words_info):
             words_info.append((index, index + len(word) - 1, word))
             index += 1
 
+
 class Recognizer:
     """
     @description: 实现关系、疑问词的识别

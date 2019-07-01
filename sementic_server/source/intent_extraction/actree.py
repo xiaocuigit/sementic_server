@@ -9,7 +9,67 @@
 from queue import Queue
 
 
-class State:
+def _build(q, st):
+    """
+    利用当全
+    :param q:队列
+    :param st:状态树
+    :return:
+    """
+    u = q.get()
+    for i, x in st[u].next.items():  # 为当前结点的孩子结点x构建fail指针
+        if x <= 0:
+            continue
+        if u == 0:
+            """
+                根节点的孩子结点的fail都为根节点
+            """
+            st[st[u].next[i]].fail = 0
+            continue
+        """
+            取出当前结点的fail指针指向结点v，如果v存在边上为i的孩子结点，那么fail指向v
+            否则 v = v.fail
+        """
+        v = st[u].fail
+        while v > -1:
+            if st[v].next.get(i, 0) > 0:
+                st[st[u].next[i]].fail = st[v].next[i]
+                break
+            v = st[v].fail
+
+        if v == -1:
+            st[st[u].next[i]].fail = 0
+        q.put(st[u].next[i])
+
+
+def _match(i, now, s, st, res_set):
+    """
+    just for sonar
+    :param i:
+    :param now:
+    :param s:
+    :param st:
+    :param res_set:
+    :return:
+    """
+    if s[i] in st[now].next and st[now].next[s[i]] > 0:
+        now = st[now].next[s[i]]
+    else:
+        f = st[now].fail
+        while f != -1 and (s[i] not in st[f].next or st[f].next[s[i]] == 0):
+            f = st[f].fail
+        if f == -1:
+            now = 0
+        else:
+            now = st[f].next[s[i]]
+    if st[now].cnt:
+        # 将树上的结束结点加入到结果集合中
+        res_set.add(now)
+
+    return now
+
+
+class State(object):
     """
         @description: AC自动机的结点类
         @author: Wu Jiang-Heng
@@ -25,7 +85,7 @@ class State:
         self.cnt = 0        # 是否有词在此结点结束
 
 
-class Aho:
+class Aho(object):
     """
         @description: Ac自动机
         @author: Wu Jiang-Heng
@@ -70,30 +130,7 @@ class Aho:
         q.put(0)
 
         while not q.empty():
-            u = q.get()
-            for i, x in st[u].next.items():     # 为当前结点的孩子结点x构建fail指针
-                if x <= 0:
-                    continue
-                if u == 0:
-                    """
-                        根节点的孩子结点的fail都为根节点
-                    """
-                    st[st[u].next[i]].fail = 0
-                else:
-                    """
-                        取出当前结点的fail指针指向结点v，如果v存在边上为i的孩子结点，那么fail指向v
-                        否则 v = v.fail
-                    """
-                    v = st[u].fail
-                    while v > -1:
-                        if st[v].next.get(i, 0) > 0:
-                            st[st[u].next[i]].fail = st[v].next[i]
-                            break
-                        v = st[v].fail
-
-                    if v == -1:
-                        st[st[u].next[i]].fail = 0
-                q.put(st[u].next[i])
+            _build(q, st)
 
     def match(self, s: list):
         """
@@ -106,19 +143,7 @@ class Aho:
 
         # 对目标串遍历
         for i in range(n):
-            if s[i] in st[now].next and st[now].next[s[i]] > 0:
-                now = st[now].next[s[i]]
-            else:
-                f = st[now].fail
-                while f != -1 and (s[i] not in st[f].next or st[f].next[s[i]] == 0):
-                    f = st[f].fail
-                if f == -1:
-                    now = 0
-                else:
-                    now = st[f].next[s[i]]
-            if st[now].cnt:
-                # 将树上的结束结点加入到结果集合中
-                res_set.add(now)
+            now = _match(i, now, s, st, res_set)
         return res_set
 
     def parse(self, res_set: set):
@@ -134,6 +159,6 @@ class Aho:
                 list_id.append(st[r].s_pre)
                 r = st[r].pre
             list_id.reverse()
-            res_ids.append(list_id)                
+            res_ids.append(list_id)
         return res_ids
 

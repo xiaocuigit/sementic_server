@@ -33,6 +33,69 @@ UNLABEL = 'UNLABEL'
 ENTITY_CODE = EntityCode().get_entity_code()
 
 
+def is_legal_15_id_card(candidate):
+    """
+    检测是否为合法的15位身份证号码
+    :param candidate:
+    :return:
+    """
+    if ((int(candidate[6:8]) + 1900) % 4 == 0 or (
+            (int(candidate[6:8]) + 1900) % 100 == 0 and (int(candidate[6:8]) + 1900) % 4 == 0)):
+        ereg = re.compile(
+            r"[1-9][0-9]{5}[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|"
+            r"[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}$")  # //测试出生日期的合法性
+    else:
+        ereg = re.compile(
+            r"[1-9][0-9]{5}[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|"
+            r"[1-2][0-9]|30)|02(0[1-9]|1[0-9]|2[0-8]))[0-9]{3}$")  # //测试出生日期的合法性
+    if re.match(ereg, candidate):
+        return True
+    else:
+        return False
+
+
+def is_legal_18_id_card(candidate, candidate_list):
+    """
+    检测是否为合法的18位身份证号码
+    :param candidate:
+    :param candidate_list:
+    :return:
+    """
+    # 出生日期的合法性检查
+    # 闰年月日:((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))
+    # 平年月日:((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|1[0-9]|2[0-8]))
+    if int(candidate[6:10]) % 4 == 0 or (int(candidate[6:10]) % 100 == 0 and int(candidate[6:10]) % 4 == 0):
+        # 闰年出生日期的合法性正则表达式
+        ereg = re.compile(
+            r"[1-9][0-9]{5}(19[0-9]{2}|20[0-9]{2})((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|"
+            r"(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}[0-9Xx]$")
+    else:
+        # 平年出生日期的合法性正则表达式
+        ereg = re.compile(
+            r"[1-9][0-9]{5}(19[0-9]{2}|20[0-9]{2})((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|"
+            r"(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|1[0-9]|2[0-8]))[0-9]{3}[0-9Xx]$")
+        # 测试出生日期的合法性
+    if re.match(ereg, candidate):
+        # 计算校验位
+        S = (int(candidate_list[0]) + int(candidate_list[10])) * 7 + (
+                int(candidate_list[1]) + int(candidate_list[11])) * 9 + (
+                    int(candidate_list[2]) + int(candidate_list[12])) * 10 + (
+                    int(candidate_list[3]) + int(candidate_list[13])) * 5 + (
+                    int(candidate_list[4]) + int(candidate_list[14])) * 8 + (
+                    int(candidate_list[5]) + int(candidate_list[15])) * 4 + (
+                    int(candidate_list[6]) + int(candidate_list[16])) * 2 + int(candidate_list[7]) * 1 + int(
+            candidate_list[8]) * 6 + int(candidate_list[9]) * 3
+        Y = S % 11
+        JYM = "10X98765432"
+        M = JYM[Y]  # 判断校验位
+        if M == candidate_list[17]:  # 检测ID的校验位
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 def is_legal_id_card(candidate):
     """
     判断身份证号码是否合法，包含15位和18位身份证号码两种情况
@@ -50,53 +113,9 @@ def is_legal_id_card(candidate):
     if not area[candidate[0:2]]:
         return False
     if len(candidate) == 15:
-        if ((int(candidate[6:8]) + 1900) % 4 == 0 or (
-                (int(candidate[6:8]) + 1900) % 100 == 0 and (int(candidate[6:8]) + 1900) % 4 == 0)):
-            ereg = re.compile(
-                r"[1-9][0-9]{5}[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|"
-                r"[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}$")  # //测试出生日期的合法性
-        else:
-            ereg = re.compile(
-                r"[1-9][0-9]{5}[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|"
-                r"[1-2][0-9]|30)|02(0[1-9]|1[0-9]|2[0-8]))[0-9]{3}$")  # //测试出生日期的合法性
-        if re.match(ereg, candidate):
-            return True
-        else:
-            return False
+        return is_legal_15_id_card(candidate)
     elif len(candidate) == 18:
-        # 出生日期的合法性检查
-        # 闰年月日:((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))
-        # 平年月日:((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|1[0-9]|2[0-8]))
-        if int(candidate[6:10]) % 4 == 0 or (int(candidate[6:10]) % 100 == 0 and int(candidate[6:10]) % 4 == 0):
-            # 闰年出生日期的合法性正则表达式
-            ereg = re.compile(
-                r"[1-9][0-9]{5}(19[0-9]{2}|20[0-9]{2})((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|"
-                r"(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}[0-9Xx]$")
-        else:
-            # 平年出生日期的合法性正则表达式
-            ereg = re.compile(
-                r"[1-9][0-9]{5}(19[0-9]{2}|20[0-9]{2})((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|3[0-1])|"
-                r"(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|1[0-9]|2[0-8]))[0-9]{3}[0-9Xx]$")
-            # 测试出生日期的合法性
-        if re.match(ereg, candidate):
-            # 计算校验位
-            S = (int(candidate_list[0]) + int(candidate_list[10])) * 7 + (
-                    int(candidate_list[1]) + int(candidate_list[11])) * 9 + (
-                        int(candidate_list[2]) + int(candidate_list[12])) * 10 + (
-                        int(candidate_list[3]) + int(candidate_list[13])) * 5 + (
-                        int(candidate_list[4]) + int(candidate_list[14])) * 8 + (
-                        int(candidate_list[5]) + int(candidate_list[15])) * 4 + (
-                        int(candidate_list[6]) + int(candidate_list[16])) * 2 + int(candidate_list[7]) * 1 + int(
-                candidate_list[8]) * 6 + int(candidate_list[9]) * 3
-            Y = S % 11
-            JYM = "10X98765432"
-            M = JYM[Y]  # 判断校验位
-            if M == candidate_list[17]:  # 检测ID的校验位
-                return True
-            else:
-                return False
-        else:
-            return False
+        return is_legal_18_id_card(candidate, candidate_list)
     return True
 
 
@@ -154,6 +173,22 @@ def is_mobile_phone(candidate):
     return False
 
 
+def is_wechat_label(raw_input, candidate):
+    """
+    如果问句里面包含微信标识符，则判断该账户为微信账户
+    :param raw_input:
+    :param candidate:
+    :return:
+    """
+    wx_labels = ['微信', '微信号', '微信账户', '微信账户']
+    index = raw_input.find(candidate)
+    if index != -1:
+        for label in wx_labels:
+            if label in raw_input[:index]:
+                return True
+    return False
+
+
 def is_wechat(raw_input, candidate):
     """
     判断candidate是否为合法的微信号码
@@ -168,12 +203,8 @@ def is_wechat(raw_input, candidate):
         if result_wxid is not None:
             return True
         else:
-            wx_labels = ['微信', '微信号', '微信账户', '微信账户']
-            index = raw_input.find(candidate)
-            if index != -1:
-                for label in wx_labels:
-                    if label in raw_input[:index]:
-                        return True
+            return is_wechat_label(raw_input, candidate)
+
     return False
 
 
@@ -408,7 +439,7 @@ def test():
     t1 = "15295668658住在哪里？34.54,2656353125"
     t2 = "xiaocui-kindle@163.com住在哪里？"
     t3 = "手机号是15295668650的人住在哪里？"
-    t4 = "手机号是15295668650，身份证号是610525199705165219的人住在哪里？"
+    t4 = "手机号是15295668650，身份证号是61052519970516521的人住在哪里？"
     t5 = "张三的手机号是不是15295668765"
     t6 = "张三的手机15295678908和微信号是不是15295668658和xiaozhang_test？"
     t7 = "张三的手机好和微信号是不是15295668658、xiaozhang_test？"

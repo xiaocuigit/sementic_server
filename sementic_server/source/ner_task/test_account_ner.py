@@ -11,10 +11,15 @@ from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from pprint import pprint
 
 if __name__ == '__main__':
-    semantic = SemanticSearch(test_mode=True)
-    item_matcher = ItemMatcher(True, is_test=True)
+    semantic = SemanticSearch()
+    item_matcher = ItemMatcher(True)
     while True:
         sentence = input("please input:")
         result = item_matcher.match(sentence)
         result_ner = semantic.sentence_ner_entities(result)
         pprint(result_ner)
+        entity = result.get('entity') + result.get('accounts')
+        relation = result.get('relation')
+        intention = result.get('intent')
+        data = dict(entity=entity, relation=relation, intent=intention)
+        pprint(data)

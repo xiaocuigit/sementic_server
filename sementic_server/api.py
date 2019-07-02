@@ -1,5 +1,10 @@
-# -*- coding: utf-8 -*-
-import os
+"""
+@description: Django 服务入口文件，提供 get_result 接口返回查询图
+@author: Cui Rui long
+@email: xiaocuikindle@163.com
+@time: 2019-07-02
+@version: 0.0.1
+"""
 import timeit
 import json
 import logging
@@ -22,6 +27,11 @@ logger = logging.getLogger("server_log")
 
 
 def error_correction_model(sentence):
+    """
+    包括：纠错模块、账户识别模块、意图识别模块
+    :param sentence:
+    :return:
+    """
     logger.info("Error Correction model...")
     t_error = timeit.default_timer()
     # 账户识别、纠错、意图识别模块
@@ -32,6 +42,11 @@ def error_correction_model(sentence):
 
 
 def ner_model(result_intent):
+    """
+    NER模块
+    :param result_intent:
+    :return:
+    """
     logger.info("NER model...")
     t_ner = timeit.default_timer()
     # 实体识别模块
@@ -43,6 +58,12 @@ def ner_model(result_intent):
 
 
 def dependency_parser_model(result, sentence):
+    """
+    依存分析模块
+    :param result:
+    :param sentence:
+    :return:
+    """
     logger.info("Dependency Parser model...")
     t_dependence = timeit.default_timer()
     # 依存分析模块
@@ -58,6 +79,13 @@ def dependency_parser_model(result, sentence):
 
 
 def query_graph_model(data, dependency_graph, sentence):
+    """
+    查询图模块
+    :param data:
+    :param dependency_graph:
+    :param sentence:
+    :return:
+    """
     logger.info("Query Graph model...")
     t_another = timeit.default_timer()
     # 问答图模块
@@ -82,8 +110,7 @@ def query_graph_model(data, dependency_graph, sentence):
 def get_result(request):
     """
     input: 接收客户端发送的POST请求：{"sentence": "raw_sentence"}
-    output: 服务器返回JSON格式的数据，返回的数据格式如下：
-
+    output: 服务器返回JSON格式的数据
 
     :param request: 用户输入的查询句子
     :return
@@ -123,6 +150,11 @@ def get_result(request):
 
 @csrf_exempt
 def correct(request):
+    """
+    纠错模块单独测试接口
+    :param request:
+    :return:
+    """
     print(request.method)
 
     if request.method != 'POST':

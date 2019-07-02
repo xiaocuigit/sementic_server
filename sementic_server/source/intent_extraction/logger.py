@@ -36,6 +36,13 @@ def get_logger(name, path):
 
 
 def construt_log(raw_query, correct_info, using_time):
+    """
+    构建日志文件结构化输出
+    :param raw_query: 原始查询
+    :param correct_info: 纠错信息
+    :param using_time: 纠错模块使用时间
+    :return:
+    """
     return {
         "raw_query": raw_query,
         "correct_info": correct_info,

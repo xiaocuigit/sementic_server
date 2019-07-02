@@ -34,6 +34,13 @@ def power_set(l: list):
 
 
 def _replace_position_with_another_by_combination(word, another, combination):
+    """
+    根据组合更改位置上的值
+    :param word:目标词
+    :param another:更改的词
+    :param combination:位置组合
+    :return:替换后的新词
+    """
     w = ""
     for i in range(len(word)):
         if i in combination:
@@ -45,6 +52,14 @@ def _replace_position_with_another_by_combination(word, another, combination):
 
 
 def _find_the_key_and_add_to_candidate(word, key, value, pos_list: list):
+    """
+    在word中查找key的位置并加入到pos_list中
+    :param word:
+    :param key:
+    :param value:
+    :param pos_list:
+    :return:无
+    """
     if key not in word:
         return
     i, b, e = word.find(key), 0, len(word)
@@ -99,12 +114,11 @@ def transformer(word: str, replace: dict):
     return res
 
 
-def build_wrong_table(is_test=False):
+def build_wrong_table():
     """
     构建纠错词库
-    :param is_test:  是否测试模式
     """
-    si = SystemInfo(is_test)
+    si = SystemInfo()
     dir_yml = join(si.base_path, "data", "yml")
     _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     _rel = yaml.load(open(join(dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
@@ -138,7 +152,4 @@ def build_wrong_table(is_test=False):
 
 
 if __name__ == '__main__':
-    build_wrong_table(is_test=True)
-    si = SystemInfo(True)
-    dir_yml = join(si.base_path, "data", "yml")
-    rep = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+    build_wrong_table()

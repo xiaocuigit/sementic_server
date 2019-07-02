@@ -1,5 +1,5 @@
 """
-@description: 通过 grpc 的方式请求部署在Docker上的TensorFlow Serving服务。
+@description: 使用 grpc 的方式请求部署在Docker上的 NER 服务
 @author: Cui Rui long
 @email: xiaocuikindle@163.com
 @time: 2019-06-29
@@ -29,11 +29,9 @@ MODEL_SIGNATURE_NER = 'prediction_labels'
 
 
 class ModelServing(object):
+    """提供 NER 服务"""
+
     def __init__(self, mode):
-        """
-        提供了服务：NER 服务
-        NER：识别句子中的实体
-        """
         self.system_info = SystemInfo()
         rootpath = str(os.getcwd()).replace("\\", "/")
         if 'source' in rootpath.split('/'):

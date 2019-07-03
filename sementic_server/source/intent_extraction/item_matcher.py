@@ -88,18 +88,15 @@ def replace_items_in_sentence(sentence, items):
         return sentence
     sentence_after_replace = ""
     index = 0
-    range_cursor = (items[index][0], items[index][1])  # 指针指向index指向的begin, end
     for position, char in enumerate(sentence):
-        if range_cursor[0] < position <= range_cursor[1] - 1:
-            continue
-        elif position is range_cursor[0]:      # 如果这个位置是items中某个item的开始位置，则加上这个item的值
+        if position is items[index][0]:
             sentence_after_replace += items[index][2]
-        else:
+            print(items[index][2], index, position)
+        elif position not in range(items[index][0] + 1, items[index][1]):
             sentence_after_replace += char
 
-        if position is range_cursor[1] - 1:
+        if position is items[index][1] - 1 and index < size-1:
             index += 1
-            range_cursor = (items[index][0], items[index][1]) if index <= size - 1 else (-1, -1)
 
     return sentence_after_replace
 
@@ -256,9 +253,10 @@ class ItemMatcher(object):
 
 if __name__ == '__main__':
     from pprint import pprint
-    i = "百度当模特儿的刘德华的baba是谁？"
+    i = "wxid_wodemama的mama是shei？"
     im = ItemMatcher(new_actree=True)
     pprint(im.match(i))
+    # pprint(im.correct(i))
     while True:
         i = input()
         pprint(im.match(i))

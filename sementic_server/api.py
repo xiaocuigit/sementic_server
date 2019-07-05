@@ -1,230 +1,196 @@
 """
-@description: 使用 grpc 的方式请求部署在Docker上的 NER 服务
+@description: Django 服务入口文件，提供 get_result 接口返回查询图
 @author: Cui Rui long
 @email: xiaocuikindle@163.com
-@time: 2019-06-29
+@time: 2019-07-02
 @version: 0.0.1
 """
-import os
-import grpc
+import timeit
+import json
 import logging
-import pickle
-import numpy as np
-import tensorflow as tf
 
-from tensorflow_serving.apis import predict_pb2
-from tensorflow_serving.apis import prediction_service_pb2_grpc
-
-from sementic_server.source.ner_task.bert import tokenization
-from sementic_server.source.ner_task.data_process import InputFeatures
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
+from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.ner_task.system_info import SystemInfo
-from sementic_server.source.ner_task.utils import convert_id_to_label
-from sementic_server.source.ner_task.utils import load_config
+from sementic_server.source.qa_graph.query_parser import QueryParser
+from sementic_server.source.qa_graph.query_interface import QueryInterface
+from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
+from sementic_server.source.ner_task.account import get_account_labels_info
+
+# 在这里定义在整个程序都会用到的类的实例
+semantic = SemanticSearch()
+item_matcher = ItemMatcher(new_actree=True)
+dependency_parser = DependencyParser()
 
 logger = logging.getLogger("server_log")
 
-MODEL_NAME_NER = 'ner_model'
 
-MODEL_SIGNATURE_NER = 'prediction_labels'
+def account_recognition(sentence):
+    """
+    账号识别模块调用
+    :param sentence:
+    :return:
+    """
+    logger.info("Account Recognition model...")
+    t_account = timeit.default_timer()
+    accounts_info = get_account_labels_info(sentence)
+    logger.info(accounts_info)
+    logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_account))
+    return accounts_info
 
 
-class ModelServing(object):
-    """提供 NER 服务"""
+def error_correction_model(sentence, accounts_info):
+    """
+    包括：纠错模块、账户识别模块、意图识别模块
+    :param sentence:
+    :return:
+    """
+    logger.info("Error Correction model...")
+    t_error = timeit.default_timer()
+    # 账户识别、纠错、意图识别模块
+    result_intent = item_matcher.match(sentence, accounts_info=accounts_info)
+    logger.info(result_intent)
+    logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_error))
+    return result_intent
 
-    def __init__(self, mode):
-        self.system_info = SystemInfo()
-        rootpath = str(os.getcwd()).replace("\\", "/")
-        if 'source' in rootpath.split('/'):
-            # 测试模式下加载配置文件
-            self.config = load_config('../../config/')
-            self.time_out = self.config["grpc_request_timeout"]
-            self.batch_size = self.config["pred_batch_size"]
-            self.hidden_size = self.config["hidden_size"]
 
-            with open('../../data/labels/label_list.pkl', 'rb') as rf:
-                self.label_list = pickle.load(rf)
-            with open('../../data/labels/label2id.pkl', 'rb') as rf:
-                self.label2id = pickle.load(rf)
-                self.id2label = {value: key for key, value in self.label2id.items()}
+def ner_model(result_intent):
+    """
+    NER模块
+    :param result_intent:
+    :return:
+    """
+    logger.info("NER model...")
+    t_ner = timeit.default_timer()
+    # 实体识别模块
+    result = semantic.sentence_ner_entities(result_intent)
 
-            self.label_map = {}
-            for i, label in enumerate(self.label_list, 1):
-                self.label_map[label] = i
-            self.tokenizer = tokenization.FullTokenizer(vocab_file='../../chinese_L-12_H-768_A-12/vocab.txt',
-                                                        do_lower_case=self.config["do_lower_case"])
-            channel = grpc.insecure_channel(self.config["model_ner_address"])
-            self.stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
-        else:
-            self.config = self.system_info.get_config()
-            self.time_out = self.config["grpc_request_timeout"]
-            self.batch_size = self.config["pred_batch_size"]
-            self.hidden_size = self.config["hidden_size"]
-            self.max_seq_length = self.config["max_seq_length"]
+    logger.info(result)
+    logger.info("NER model done. Time consume: {0}".format(timeit.default_timer() - t_ner))
+    return result
 
-            label_path = self.system_info.get_labels_path()
 
-            with open(os.path.join(label_path, 'label_list.pkl'), 'rb') as rf:
-                self.label_list = pickle.load(rf)
+def dependency_parser_model(result, sentence):
+    """
+    依存分析模块
+    :param result:
+    :param sentence:
+    :return:
+    """
+    logger.info("Dependency Parser model...")
+    t_dependence = timeit.default_timer()
+    # 依存分析模块
+    entity = result.get('entity') + result.get('accounts')
+    relation = result.get('relation')
+    intention = result.get('intent')
+    data = dict(entity=entity, relation=relation, intent=intention)
+    dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
+        dependency_parser.get_denpendency_tree(sentence, entity, relation)
 
-            with open(os.path.join(label_path, 'label2id.pkl'), 'rb') as rf:
-                self.label2id = pickle.load(rf)
-                self.id2label = {value: key for key, value in self.label2id.items()}
+    logger.info("Dependency Parser model done. Time consume: {0}".format(timeit.default_timer() - t_dependence))
+    return data, dependency_graph
 
-            self.label_map = {}
-            # 1表示从1开始对label进行index化
-            for i, label in enumerate(self.label_list, 1):
-                self.label_map[label] = i
 
-            self.tokenizer = tokenization.FullTokenizer(vocab_file=os.getcwd() + self.config["vocab_file"],
-                                                        do_lower_case=self.config["do_lower_case"])
+def query_graph_model(data, dependency_graph, sentence):
+    """
+    查询图模块
+    :param data:
+    :param dependency_graph:
+    :param sentence:
+    :return:
+    """
+    logger.info("Query Graph model...")
+    t_another = timeit.default_timer()
+    # 问答图模块
+    query_graph_result = dict()
+    try:
+        query_graph_result = dict()
+        qg = QueryParser(data, dependency_graph)
+        query_graph = qg.query_graph.get_data()
+        if not query_graph:
+            qg = QueryParser(data)
+            query_graph = qg.query_graph.get_data()
+        qi = QueryInterface(qg.query_graph, sentence)
+        query_interface = qi.get_query_data()
+        query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
+    except Exception as e:
+        logger.info(e)
+    logger.info("Query Graph model done. Time consume: {0}".format(timeit.default_timer() - t_another))
+    return query_graph_result
 
-            if mode == self.system_info.MODE_NER:
-                channel = grpc.insecure_channel(self.config["model_ner_address"])
-                self.stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
-            else:
-                logger.error('Please config ip address and port first.')
 
-    def convert_single_example(self, ex_index, example, max_seq_length, tokenizer, mode):
-        """
-        将一个样本进行分析，然后将字转化为id, 标签转化为id,然后结构化到InputFeatures对象中
-        :param ex_index: index
-        :param example: 一个样本
-        :param max_seq_length:
-        :param tokenizer:
-        :param mode:
-        :return:
-        """
+@csrf_exempt
+def get_result(request):
+    """
+    input: 接收客户端发送的POST请求：{"sentence": "raw_sentence"}
+    output: 服务器返回JSON格式的数据，返回的数据格式如下：
 
-        tokens = example
-        # 序列截断
-        if len(tokens) >= max_seq_length - 1:
-            tokens = tokens[0:(max_seq_length - 2)]  # -2 的原因是因为序列需要加一个句首和句尾标志
-        ntokens = []
-        segment_ids = []
-        label_ids = []
-        ntokens.append("[CLS]")  # 句子开始设置CLS 标志
-        segment_ids.append(0)
-        label_ids.append(self.label_map["[CLS]"])  # O OR CLS 没有任何影响，不过我觉得O 会减少标签个数,不过拒收和句尾使用不同的标志来标注，使用LCS 也没毛病
-        for i, token in enumerate(tokens):
-            ntokens.append(token)
-            segment_ids.append(0)
-            label_ids.append(0)
-        ntokens.append("[SEP]")  # 句尾添加[SEP] 标志
-        segment_ids.append(0)
-        label_ids.append(self.label_map["[SEP]"])
-        input_ids = tokenizer.convert_tokens_to_ids(ntokens)  # 将序列中的字(ntokens)转化为ID形式
-        input_mask = [1] * len(input_ids)
 
-        # padding, 使用
-        while len(input_ids) < max_seq_length:
-            input_ids.append(0)
-            input_mask.append(0)
-            segment_ids.append(0)
-            label_ids.append(0)
-            ntokens.append("**NULL**")
-        assert len(input_ids) == max_seq_length
-        assert len(input_mask) == max_seq_length
-        assert len(segment_ids) == max_seq_length
-        assert len(label_ids) == max_seq_length
+    :param request: 用户输入的查询句子
+    :return
+    """
 
-        # 结构化为一个类
-        feature = InputFeatures(
-            input_ids=input_ids,
-            input_mask=input_mask,
-            segment_ids=segment_ids,
-            label_ids=label_ids,
-        )
-        return feature
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
 
-    def convert(self, line, seq_length=128):
-        feature = self.convert_single_example(0, line, seq_length, self.tokenizer, 'p')
+    request_data = json.loads(request.body)
+    sentence = request_data['sentence']
 
-        input_ids = np.reshape([feature.input_ids], (self.batch_size, seq_length)).tolist()
-        input_mask = np.reshape([feature.input_mask], (self.batch_size, seq_length)).tolist()
-        segment_ids = np.reshape([feature.segment_ids], (self.batch_size, seq_length)).tolist()
-        label_ids = np.reshape([feature.label_ids], (self.batch_size, seq_length)).tolist()
-        return input_ids, input_mask, segment_ids, label_ids
+    if len(sentence) < SystemInfo.MIN_SENTENCE_LEN:
+        logger.error("输入的句子长度太短")
+        return JsonResponse({"query": sentence, "status": SystemInfo.MIN_SENTENCE_LEN},
+                            json_dumps_params={'ensure_ascii': False})
 
-    def send_grpc_request_ner(self, raw_sen):
-        """
-        发送grpc请求到服务器，获取对句子实体识别的结果
-        :param raw_sen: 待识别的句子
-        :return:
-        """
-        sentence = self.tokenizer.tokenize(raw_sen)
+    if len(sentence) > SystemInfo.MAX_SENTENCE_LEN:
+        logger.error("输入的句子长度太长")
+        return JsonResponse({"query": sentence, "status": SystemInfo.MAX_SENTENCE_LEN},
+                            json_dumps_params={'ensure_ascii': False})
 
-        input_ids, input_mask, segment_ids, label_ids = self.convert(sentence, self.config["max_seq_length"])
+    start_time = timeit.default_time
+    accounts_info = account_recognition(sentence)
+    result_intent = error_correction_model(sentence, accounts_info=accounts_info)
+    result = ner_model(result_intent)
 
-        # create the request object and set the name and signature_name params
-        request = predict_pb2.PredictRequest()
-        request.model_spec.name = MODEL_NAME_NER
-        request.model_spec.signature_name = MODEL_SIGNATURE_NER
+    # if result is None:
+    if len(result.get("entity") + result.get("accounts")) == 0:
+        return JsonResponse({"query": sentence, "error": "实体识别模块返回空值"},
+                            json_dumps_params={'ensure_ascii': False})
+    data, dependency_graph = dependency_parser_model(result, sentence)
+    query_graph_result = query_graph_model(data, None, sentence)
+    end_time = timeit.default_timer()
 
-        # fill in the request object with the necessary data
-        request.inputs['input_ids'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(input_ids)
-        )
-        request.inputs['input_mask'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(input_mask)
-        )
-        request.inputs['segment_ids'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(segment_ids)
-        )
-        request.inputs['label_ids'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(label_ids)
-        )
+    logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
+    # 返回JSON格式数据，将 result_ner 替换成需要返回的JSON数据
+    return JsonResponse(query_graph_result, json_dumps_params={'ensure_ascii': False})
 
-        result_future = self.stub.Predict.future(request, self.time_out)
-        exception = result_future.exception()
 
-        if exception:
-            logger.error('process sentence: {0}, raise exception: {1}'.format(raw_sen, exception))
-            return None, None
-        else:
-            pred_ids_result = np.array(result_future.result().outputs['pred_ids'].int_val)
-            pred_label_result = convert_id_to_label(pred_ids_result, self.id2label)
+@csrf_exempt
+def correct(request):
+    """
+    纠错模块单独测试接口
+    :param request:
+    :return:
+    """
+    print(request.method)
 
-            return sentence, pred_label_result
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
+    request_data = request.POST
+    print(request)
+    sentence = request_data['sentence']
+    account = get_account_labels_info(sentence)
+    need_correct = request_data.get('need_correct', True)
 
-    def test_send_grpc_request_ner(self, raw_sen):
-        """
-        测试 ner 服务是否可以正常使用
-        :param raw_sen:
-        :return:
-        """
-        sentence = self.tokenizer.tokenize(raw_sen)
-
-        input_ids, input_mask, segment_ids, label_ids = self.convert(sentence, self.config["max_seq_length"])
-
-        # create the request object and set the name and signature_name params
-        request = predict_pb2.PredictRequest()
-        request.model_spec.name = MODEL_NAME_NER
-        request.model_spec.signature_name = MODEL_SIGNATURE_NER
-
-        # fill in the request object with the necessary data
-        request.inputs['input_ids'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(input_ids)
-        )
-        request.inputs['input_mask'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(input_mask)
-        )
-        request.inputs['segment_ids'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(segment_ids)
-        )
-        request.inputs['label_ids'].CopyFrom(
-            tf.contrib.util.make_tensor_proto(label_ids)
-        )
-
-        result_future = self.stub.Predict.future(request, self.time_out)
-        exception = result_future.exception()
-
-        if exception:
-            print('process sentence: {0}, raise exception: {1}'.format(raw_sen, exception))
-            return False
-        else:
-            pred_ids_result = np.array(result_future.result().outputs['pred_ids'].int_val)
-            pred_label_result = convert_id_to_label(pred_ids_result, self.id2label)
-
-            print(sentence)
-            print(pred_label_result)
-            return True
+    start_time = timeit.default_timer()
+    result = dict()
+    try:
+        result = item_matcher.match(sentence, need_correct, account)
+        end_time = timeit.default_timer()
+        logger.info("intent_extraction - time consume: {0} S.\n".format(end_time - start_time))
+    except Exception as e:
+        logger.error(f"intent_extraction - {e}")
+    return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

@@ -19,7 +19,6 @@ from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
-
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
 item_matcher = ItemMatcher(new_actree=True)
@@ -194,4 +193,68 @@ def correct(request):
         logger.info("intent_extraction - time consume: {0} S.\n".format(end_time - start_time))
     except Exception as e:
         logger.error(f"intent_extraction - {e}")
+    return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
+
+
+@csrf_exempt
+def account(request):
+    """
+    账户识别模块单独测试接口
+    :param request:
+    :return: JSON个数数据，示例如下：
+    {
+        "raw_input": "15295668654的朋友？",
+        "entities": [
+            {"value": "15295668654", "type": "MOB_VALUE", "begin": 0, "end": 12, "code": "220"}
+        ]
+    }
+    """
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
+    request_data = json.loads(request.body)
+    sentence = request_data['sentence']
+    accounts_info = dict()
+    try:
+        logger.info("Account Recognition Model Test...")
+        t_account = timeit.default_timer()
+        accounts_info = get_account_labels_info(sentence)
+
+        logger.info(accounts_info)
+        logger.info("Account Recognition Model Test Done. Time consume: {0}".format(timeit.default_timer() - t_account))
+    except Exception as e:
+        logger.error(f"Account Recognition Test - {e}")
+    return JsonResponse(accounts_info, json_dumps_params={'ensure_ascii': False})
+
+
+@csrf_exempt
+def ner(request):
+    """
+    NER模块单独测试接口
+    :param request:
+    :return: JSON个数数据，示例如下：
+    {
+        "raw_input": "北京天气怎么样？",
+        "entities": [
+            {"type": "ADDR_VALUE", "value": 北京, "code": "201", "begin": 0,
+                 "end": 2}
+        ]
+    }
+    """
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
+    request_data = json.loads(request.body)
+    sentence = request_data['sentence']
+    result = dict()
+    try:
+        logger.info("NER Model Test...")
+        t_ner = timeit.default_timer()
+        result_ner = semantic.get_ner_result(sentence)
+        result = {"raw_input": sentence, "entities": result_ner}
+
+        logger.info(result)
+        logger.info("NER Model Test Done. Time consume: {0}".format(timeit.default_timer() - t_ner))
+    except Exception as e:
+        logger.error(f"NER Model Test - {e}")
     return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

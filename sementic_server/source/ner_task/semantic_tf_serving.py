@@ -165,20 +165,16 @@ class SemanticSearch(object):
 
         return entities
 
-    def sentence_ner_entities(self, result_intent):
+    def get_ner_result(self, query):
         """
-        使用 BERT 模型对句子进行实体识别，返回标记实体的句子
-        :param result_intent: 意图识别模块的输出
+        发送 gRPC 请求到 Docker 服务，对 query 进行命名实体识别
+        :param query: 问句
         :return:
-            entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
-            result: account_label 模块返回的结果
         """
-        sentence = result_intent["query"]
-
-        sentence, pred_label_result = self.client.send_grpc_request_ner(sentence)
+        sentence, pred_label_result = self.client.send_grpc_request_ner(query)
 
         if pred_label_result is None:
-            logger.error("句子: {0}\t实体识别结果为空".format(result_intent["query"]))
+            logger.error("句子: {0}\t实体识别结果为空".format(query))
             return None
 
         entities = self.__get_entities(sentence, pred_label_result)
@@ -193,11 +189,26 @@ class SemanticSearch(object):
 
         entity = []
         for word, label in entities:
-            begin = result_intent["query"].find(word)
+            begin = query.find(word)
             entity.append(
                 {"type": label, "value": word, "code": self.code[label], "begin": begin,
                  "end": begin + len(word) + 1 if begin != -1 else -1})
+        return entity, entities
+
+    def sentence_ner_entities(self, result_intent):
+        """
+        使用 BERT 模型对句子进行实体识别，返回标记实体的句子
+        :param result_intent: 意图识别模块的输出
+        :return:
+            entities: 列表，存储的是 BERT 识别出来的实体信息:(word, label)
+            result: account_label 模块返回的结果
+        """
+        sentence = result_intent["query"]
+
+        entity, entities = self.get_ner_result(sentence)
+
         result_intent["entity"] = entity
+        # 如果一个词被标识为命名实体，而该词又被检测为关系，那么从关系中将该词去除
         for index, rel in enumerate(result_intent["relation"]):
             for word, _ in entities:
                 if word.find(rel["value"]) != -1:

@@ -111,6 +111,7 @@ def get_result(request):
     """
     input: 接收客户端发送的POST请求：{"sentence": "raw_sentence"}
     output: 服务器返回JSON格式的数据
+
     :param request: 用户输入的查询句子
     :return
     """

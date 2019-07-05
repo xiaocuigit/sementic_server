@@ -56,6 +56,7 @@ class SystemInfo(object):
         self.config = None
 
         self.label_path = os.path.join(self.base_path, 'data', 'labels')
+        self.account_label_path = os.path.join(self.base_path, 'data', 'yml', 'account_label.yml')
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -75,3 +76,6 @@ class SystemInfo(object):
 
     def get_labels_path(self):
         return self.label_path
+
+    def get_account_label_path(self):
+        return self.account_label_path

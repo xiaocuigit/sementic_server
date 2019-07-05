@@ -5,8 +5,6 @@
 @time: 2019-02-27
 @version: 0.0.1
 """
-from collections import defaultdict
-
 import jieba
 import logging
 

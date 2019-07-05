@@ -7,12 +7,13 @@
 @time: 2019-05-27
 @version: 0.0.1
 """
-
+import os
 import re
+import yaml
 
 from pprint import pprint
-from collections import defaultdict
 from sementic_server.source.ner_task.entity_code import EntityCode
+from sementic_server.source.ner_task.system_info import SystemInfo
 
 PUNCTUATION = [',', '，', '~', '!', '！', '。', '.', '?', '？']
 EMAIL = 'EMAIL_VALUE'
@@ -31,6 +32,12 @@ JD = 'JD_VALUE'
 UNLABEL = 'UNLABEL'
 
 ENTITY_CODE = EntityCode().get_entity_code()
+system_info = SystemInfo()
+account_label_path = system_info.get_account_label_path()
+if not os.path.isfile(account_label_path):
+    raise ValueError('There are no account label file exist.')
+
+ACCOUNT_LABEL = yaml.load(open(account_label_path, encoding='utf-8'), Loader=yaml.SafeLoader)
 
 
 def is_legal_15_id_card(candidate):
@@ -180,10 +187,9 @@ def is_wechat_label(raw_input, candidate):
     :param candidate:
     :return:
     """
-    wx_labels = ['微信', '微信号', '微信账户', '微信账户']
     index = raw_input.find(candidate)
     if index != -1:
-        for label in wx_labels:
+        for label in ACCOUNT_LABEL['WECHAT']:
             if label in raw_input[:index]:
                 return True
     return False
@@ -228,10 +234,9 @@ def is_ali_pay(raw_input, account):
     :param account:
     :return:
     """
-    ali_labels = ['支付宝', '支付宝账户', '支付宝账号']
     index = raw_input.find(account)
     if index != -1:
-        for label in ali_labels:
+        for label in ACCOUNT_LABEL['ALIPAY']:
             if label in raw_input[:index]:
                 return ALIPAY
     return None
@@ -244,10 +249,9 @@ def is_jing_dong(raw_input, account):
     :param account:
     :return:
     """
-    jd_labels = ['京东', '京东账户', '京东账号']
     index = raw_input.find(account)
     if index != -1:
-        for label in jd_labels:
+        for label in ACCOUNT_LABEL['JD']:
             if label in raw_input[:index]:
                 return JD
     return None
@@ -260,10 +264,9 @@ def is_tao_bao(raw_input, account):
     :param account:
     :return:
     """
-    tb_labels = ['淘宝', '淘宝账户', '淘宝账号']
     index = raw_input.find(account)
     if index != -1:
-        for label in tb_labels:
+        for label in ACCOUNT_LABEL['TAOBAO']:
             if label in raw_input[:index]:
                 return TAOBAO
     return None
@@ -276,10 +279,9 @@ def is_wei_bo(raw_input, account):
     :param account:
     :return:
     """
-    wb_labels = ['微博', '微博账户', '微博账号']
     index = raw_input.find(account)
     if index != -1:
-        for label in wb_labels:
+        for label in ACCOUNT_LABEL['MBLOG']:
             if label in raw_input[:index]:
                 return MBLOG
     return None
@@ -292,10 +294,9 @@ def is_dou_yin(raw_input, account):
     :param account:
     :return:
     """
-    dy_labels = ['抖音', '抖音账户', '抖音账号']
     index = raw_input.find(account)
     if index != -1:
-        for label in dy_labels:
+        for label in ACCOUNT_LABEL['DOUYIN']:
             if label in raw_input[:index]:
                 return DOUYIN
     return None
@@ -308,16 +309,14 @@ def is_qq_or_qq_group(raw_input, account):
     :param account:
     :return:
     """
-    qq_group = ['QQ群', 'qq群']
-    qq_label = ['QQ', 'qq']
     index = raw_input.find(account)
     if index != -1:
         # 检测是否为QQ群
-        for label in qq_group:
+        for label in ACCOUNT_LABEL['QQ_GROUP']:
             if label in raw_input[:index]:
                 return QQ_GROUP
         # 检测是否为QQ
-        for label in qq_label:
+        for label in ACCOUNT_LABEL['QQ']:
             if label in raw_input[:index]:
                 return QQ
     return None
@@ -330,10 +329,9 @@ def is_wx_group(raw_input, account):
     :param account:
     :return:
     """
-    wx_group = ['微信群', 'wx群']
     index = raw_input.find(account)
     if index != -1:
-        for label in wx_group:
+        for label in ACCOUNT_LABEL['WX_GROUP']:
             if label in raw_input[:index]:
                 return WX_GROUP
     return None
@@ -419,7 +417,7 @@ def get_account_labels_info(raw_input):
                     label_name = UNLABEL
                     sentence = sentence.replace(result, UNLABEL)
             else:
-                if result in ['QQ', 'qq']:
+                if result in ACCOUNT_LABEL['QQ']:
                     continue
                 # 未识别账户标识为 UNLABEL 标签
                 label_name = UNLABEL

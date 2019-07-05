@@ -11,6 +11,7 @@ from pprint import pprint
 import json
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
+from sementic_server.source.ner_task.account import get_account_labels_info
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
@@ -21,7 +22,8 @@ if __name__ == '__main__':
     dependency_parser = DependencyParser()
     while True:
         sentence = input("please input:")
-        intent = item_matcher.match(sentence)
+        accounts_info = get_account_labels_info(sentence)
+        intent = item_matcher.match(sentence, accounts_info=accounts_info)
         result = semantic.sentence_ner_entities(intent)
         pprint(result)
         entity = result.get('entity') + result.get('accounts')
@@ -29,11 +31,10 @@ if __name__ == '__main__':
         intention = result.get('intent')
         dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
             dependency_parser.get_denpendency_tree(result["query"], entity, relation)
-        pprint(dependency_graph)
+        # pprint(dependency_graph)
         dep = dependency_graph
         data = dict(entity=entity, relation=relation, intent=intention)
-        pprint('dep')
-        pprint(dep)
+        # pprint(dep)
         try:
             query_graph_result = dict()
             t = dict(data=data, dep=dep)

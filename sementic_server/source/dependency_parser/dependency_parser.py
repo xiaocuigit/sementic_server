@@ -65,16 +65,16 @@ class DependencyParser(object):
         sentence_replaced, entities_replaced, relations_updated = self.replace_entities_relations_2(sentence, entities,
                                                                                                     relations)
 
-        pprint.pprint(entities_replaced)
-        pprint.pprint(relations_updated)
+        # pprint.pprint(entities_replaced)
+        # pprint.pprint(relations_updated)
 
         # 调用nlp工具获得依存关系
         dependency_tree, tokens = ServerRequest().get_dependency(sentence_replaced)
         # 还原依存关系树中的实体和关系
         dependency_tree_recovered, tokens_recovered = self.recover_tokens(dependency_tree, tokens, entities_replaced)
 
-        pprint.pprint(dependency_tree_recovered)
-        pprint.pprint(tokens_recovered)
+        # pprint.pprint(dependency_tree_recovered)
+        # pprint.pprint(tokens_recovered)
 
         # 找到所有关系并返回
         dependency_graph = self.find_dependency_graph(dependency_tree_recovered, tokens, entities, relations)

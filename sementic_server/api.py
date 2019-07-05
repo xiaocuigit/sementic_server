@@ -17,7 +17,6 @@ from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
-from sementic_server.source.ner_task.account import get_account_labels_info
 
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
@@ -27,21 +26,7 @@ dependency_parser = DependencyParser()
 logger = logging.getLogger("server_log")
 
 
-def account_recognition(sentence):
-    """
-    账号识别模块调用
-    :param sentence:
-    :return:
-    """
-    logger.info("Account Recognition model...")
-    t_account = timeit.default_timer()
-    accounts_info = get_account_labels_info(sentence)
-    logger.info(accounts_info)
-    logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_account))
-    return accounts_info
-
-
-def error_correction_model(sentence, accounts_info):
+def error_correction_model(sentence):
     """
     包括：纠错模块、账户识别模块、意图识别模块
     :param sentence:
@@ -50,7 +35,7 @@ def error_correction_model(sentence, accounts_info):
     logger.info("Error Correction model...")
     t_error = timeit.default_timer()
     # 账户识别、纠错、意图识别模块
-    result_intent = item_matcher.match(sentence, accounts_info=accounts_info)
+    result_intent = item_matcher.match(sentence)
     logger.info(result_intent)
     logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_error))
     return result_intent
@@ -125,9 +110,7 @@ def query_graph_model(data, dependency_graph, sentence):
 def get_result(request):
     """
     input: 接收客户端发送的POST请求：{"sentence": "raw_sentence"}
-    output: 服务器返回JSON格式的数据，返回的数据格式如下：
-
-
+    output: 服务器返回JSON格式的数据
     :param request: 用户输入的查询句子
     :return
     """
@@ -149,13 +132,10 @@ def get_result(request):
         return JsonResponse({"query": sentence, "status": SystemInfo.MAX_SENTENCE_LEN},
                             json_dumps_params={'ensure_ascii': False})
 
-    start_time = timeit.default_time
-    accounts_info = account_recognition(sentence)
-    result_intent = error_correction_model(sentence, accounts_info=accounts_info)
+    start_time = timeit.default_timer()
+    result_intent = error_correction_model(sentence)
     result = ner_model(result_intent)
-
-    # if result is None:
-    if len(result.get("entity") + result.get("accounts")) == 0:
+    if result is None:
         return JsonResponse({"query": sentence, "error": "实体识别模块返回空值"},
                             json_dumps_params={'ensure_ascii': False})
     data, dependency_graph = dependency_parser_model(result, sentence)
@@ -182,13 +162,12 @@ def correct(request):
     request_data = request.POST
     print(request)
     sentence = request_data['sentence']
-    account = get_account_labels_info(sentence)
     need_correct = request_data.get('need_correct', True)
 
     start_time = timeit.default_timer()
     result = dict()
     try:
-        result = item_matcher.match(sentence, need_correct, account)
+        result = item_matcher.match(sentence, need_correct)
         end_time = timeit.default_timer()
         logger.info("intent_extraction - time consume: {0} S.\n".format(end_time - start_time))
     except Exception as e:

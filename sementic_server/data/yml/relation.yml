@@ -32,6 +32,7 @@ ChasAddr:
 ChasQQ:
 - 拥有
 - 拥有QQ号
+- QQ号
 Colleague:
 - 同仁
 - 共事
@@ -531,3 +532,19 @@ WeChatFriend:
 - 微信好友
 WeChatJoinWeChatGroup:
 - null
+PhasMobileNum:
+- 手机号
+PhasEmail:
+- 邮箱
+PhasWeChat:
+  - 微信
+PhasDouYin:
+  - 抖音
+PhasJD:
+- 京东
+PhasAlipay:
+  - 支付宝
+PhasTaoBao:
+  - 淘宝
+PhasMicroBlog:
+  - 微博

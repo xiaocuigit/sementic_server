@@ -12,6 +12,7 @@ from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
+from sementic_server.source.ner_task.account import get_account_labels_info
 
 # 在这里定义在整个程序都会用到的类的实例
 semantic = SemanticSearch()
@@ -21,11 +22,25 @@ dependency_parser = DependencyParser()
 logger = logging.getLogger("server_log")
 
 
-def error_correction_model(sentence):
+def account_recognition(sentence):
+    """
+    账号识别模块调用
+    :param sentence:
+    :return:
+    """
+    logger.info("Account Recognition model...")
+    t_account = timeit.default_timer()
+    accounts_info = get_account_labels_info(sentence)
+    logger.info(accounts_info)
+    logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_account))
+    return accounts_info
+
+
+def error_correction_model(sentence, accounts_info):
     logger.info("Error Correction model...")
     t_error = timeit.default_timer()
     # 账户识别、纠错、意图识别模块
-    result_intent = item_matcher.match(sentence)
+    result_intent = item_matcher.match(sentence, accounts_info=accounts_info)
     logger.info(result_intent)
     logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_error))
     return result_intent
@@ -107,7 +122,8 @@ def get_result(request):
                             json_dumps_params={'ensure_ascii': False})
 
     start_time = timeit.default_timer()
-    result_intent = error_correction_model(sentence)
+    accounts_info = account_recognition(sentence)
+    result_intent = error_correction_model(sentence, accounts_info=accounts_info)
     result = ner_model(result_intent)
     if result is None:
         return JsonResponse({"query": sentence, "error": "实体识别模块返回空值"},
@@ -123,6 +139,11 @@ def get_result(request):
 
 @csrf_exempt
 def correct(request):
+    """
+    纠错模块单独测试接口
+    :param request:
+    :return:
+    """
     print(request.method)
 
     if request.method != 'POST':
@@ -131,12 +152,13 @@ def correct(request):
     request_data = request.POST
     print(request)
     sentence = request_data['sentence']
+    account = get_account_labels_info(sentence)
     need_correct = request_data.get('need_correct', True)
 
     start_time = timeit.default_timer()
     result = dict()
     try:
-        result = item_matcher.match(sentence, need_correct)
+        result = item_matcher.match(sentence, need_correct, account)
         end_time = timeit.default_timer()
         logger.info("intent_extraction - time consume: {0} S.\n".format(end_time - start_time))
     except Exception as e:

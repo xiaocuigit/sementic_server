@@ -12,7 +12,7 @@ import pickle
 import yaml
 import logging
 from time import time
-from sementic_server.source.ner_task.account import get_account_labels_info, UNLABEL
+from sementic_server.source.ner_task.account import UNLABEL
 from sementic_server.source.intent_extraction.recognizer import Recognizer
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 from sementic_server.source.intent_extraction.logger import construt_log, get_logger
@@ -91,7 +91,6 @@ def replace_items_in_sentence(sentence, items):
     for position, char in enumerate(sentence):
         if position is items[index][0]:
             sentence_after_replace += items[index][2]
-            print(items[index][2], index, position)
         elif position not in range(items[index][0] + 1, items[index][1]):
             sentence_after_replace += char
 
@@ -205,16 +204,18 @@ class ItemMatcher(object):
         server_logger.info(f"Correcting the query time used: {time()-start_time}")
         return res_correction
 
-    def match(self, query: str, need_correct=True):
+    def match(self, query: str, need_correct=True, accounts_info=None):
         """
         :param query:   用户的原始查询
         :param need_correct:    是否需要纠错
         :return:    纠错、关系识别的结果
+        :param accounts_info:
 
         语义解析模块只需要关注'query'字段的结果。
         """
         # 找出所有账号
-        accounts_info = get_account_labels_info(query)
+        accounts_info = accounts_info if accounts_info is not None else {}
+        accounts = accounts_info.get("accounts", [])
         res = {
             "relation": [],
             "intent": None,
@@ -222,13 +223,13 @@ class ItemMatcher(object):
             "query": query,             # 如果有纠错之后的查询，则为纠错之后的查询，否则为原句
             "is_corr": need_correct,
             "correct_info": None,
-            "accounts": accounts_info["accounts"]
+            "accounts": accounts
         }
 
         if need_correct:
             # 记录unlabel标签
 
-            labelled_list = [(account['begin'], account['end']) for account in accounts_info["accounts"]
+            labelled_list = [(account['begin'], account['end']) for account in accounts
                              if account['type'] is not UNLABEL]
             correct_info = self.correct(query, labelled_list)   # 纠错
             res["correct_info"] = correct_info  # 赋值
@@ -253,10 +254,11 @@ class ItemMatcher(object):
 
 if __name__ == '__main__':
     from pprint import pprint
-    i = "wxid_wodemama的mama是shei？"
+    i = "wxid_wodemama的mama的手机号？"
+    from sementic_server.source.ner_task.account import get_account_labels_info
+    account = get_account_labels_info(i)
     im = ItemMatcher(new_actree=True)
-    pprint(im.match(i))
-    # pprint(im.correct(i))
+    pprint(im.match(i, accounts_info=account))
     while True:
         i = input()
         pprint(im.match(i))

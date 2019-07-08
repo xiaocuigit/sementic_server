@@ -36,6 +36,8 @@ class QueryInterface(object):
         self.intentions = list()
         self.init_intention()
         self.query_dict = dict()
+
+        self.serial_process()
         self.init_query_dict()
 
     def literal_node_reduction(self):
@@ -193,6 +195,32 @@ class QueryInterface(object):
 
     def get_query_data(self):
         return self.query_dict
+
+    def serial_process(self):
+        """
+        对查询实体重新按顺序编号
+        :return:
+        """
+        for e_type in self.entities:
+            temp_type = e_type.lower()
+            for n, e in enumerate(self.entities[e_type]):
+                entity_id = e['id']
+                new_id = '%s%d' % (temp_type, n)
+                self.find_replace(entity_id, new_id)
+                e['id'] = new_id
+
+    def find_replace(self, entity_id, new_id):
+        """
+        在intention和rels查找entity_id替换为new_id
+        :param entity_id:
+        :param new_id:
+        :return:
+        """
+        intent_str = self.intentions[0]
+        intent_str = intent_str.replace(entity_id, new_id)
+        self.intentions[0] = intent_str
+        for relation in self.rels:
+            relation['rel'] = relation['rel'].replace(entity_id, new_id)
 
 
 if __name__ == '__main__':

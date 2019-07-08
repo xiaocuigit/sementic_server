@@ -17,8 +17,8 @@ from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 if __name__ == '__main__':
-    semantic = SemanticSearch(test_mode=True)
-    item_matcher = ItemMatcher(True, is_test=True)
+    semantic = SemanticSearch()
+    item_matcher = ItemMatcher(True)
     while True:
         sentence = input("please input:")
         intent = item_matcher.match(sentence)

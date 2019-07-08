@@ -43,6 +43,8 @@ class DepMap(object):
             t = item['to']
             if f['type'] == 'entity' and t['type'] == 'relation':
                 temp_graph = self.from_ent_to_rel(f['value'], t['value'])
+                if not temp_graph:
+                    return None
                 self.dep_graph_list.append(temp_graph)
             elif f['type'] == 'relation' and t['type'] == 'entity':
                 temp_graph = self.from_rel_to_ent(f['value'], t['value'])
@@ -84,8 +86,14 @@ class DepMap(object):
 
     def from_ent_to_rel(self, e, r):
         e_graph = self.get_entity_component(e)
+        if 'p' not in e_graph.nodes:
+            return None
         r_graph = self.get_rel_component(r)
         temp_graph = nx.union(e_graph, r_graph)
+        e_type = temp_graph.nodes['p'].get('type')
+        re_type = temp_graph.nodes['proc'].get('type')
+        if e_type != re_type:
+            return None
         mapping = {'proc': 'p'}
         nx.relabel_nodes(temp_graph, mapping, copy=False)
         return temp_graph

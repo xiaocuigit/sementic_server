@@ -12,13 +12,12 @@ import pickle
 import yaml
 import logging
 from time import time
-from sementic_server.source.ner_task.account import UNLABEL
 from sementic_server.source.intent_extraction.recognizer import Recognizer
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 from sementic_server.source.intent_extraction.logger import construt_log, get_logger
 
-
 server_logger = logging.getLogger("server_log")
+UNLABEL = 'UNLABEL'
 
 
 def load_actree(pkl_path):
@@ -94,7 +93,7 @@ def replace_items_in_sentence(sentence, items):
         elif position not in range(items[index][0] + 1, items[index][1]):
             sentence_after_replace += char
 
-        if position is items[index][1] - 1 and index < size-1:
+        if position is items[index][1] - 1 and index < size - 1:
             index += 1
 
     return sentence_after_replace
@@ -122,9 +121,10 @@ class ItemMatcher(object):
     @time: 2019-05-29
     @version: 0.0.1
     """
+
     def __init__(self, new_actree=False):
-        self.reg = None     # 识别AC
-        self.corr = None    # 纠错AC
+        self.reg = None  # 识别AC
+        self.corr = None  # 纠错AC
         si = SystemInfo()
         self.correct_logger = get_logger("correction", si.log_path_corr)
 
@@ -141,11 +141,11 @@ class ItemMatcher(object):
             self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"),
                                             encoding="utf-8"), Loader=yaml.SafeLoader)
             self.relation_code = yaml.load(open(join(self.dir_yml, "relation_code.yml"),
-                                            encoding="utf-8"), Loader=yaml.SafeLoader)
+                                                encoding="utf-8"), Loader=yaml.SafeLoader)
             self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"),
                                             encoding="utf-8"), Loader=yaml.SafeLoader)
             self.wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"),
-                                            encoding="utf-8"), Loader=yaml.SafeLoader)
+                                             encoding="utf-8"), Loader=yaml.SafeLoader)
 
         except FileNotFoundError as e:
             server_logger.error(f"Cannot find the file in {self.dir_yml}, {e}")
@@ -220,7 +220,7 @@ class ItemMatcher(object):
             "relation": [],
             "intent": None,
             "raw_query": query,
-            "query": query,             # 如果有纠错之后的查询，则为纠错之后的查询，否则为原句
+            "query": query,  # 如果有纠错之后的查询，则为纠错之后的查询，否则为原句
             "is_corr": need_correct,
             "correct_info": None,
             "accounts": accounts
@@ -231,7 +231,7 @@ class ItemMatcher(object):
 
             labelled_list = [(account['begin'], account['end']) for account in accounts
                              if account['type'] is not UNLABEL]
-            correct_info = self.correct(query, labelled_list)   # 纠错
+            correct_info = self.correct(query, labelled_list)  # 纠错
             res["correct_info"] = correct_info  # 赋值
             res["query"] = res["correct_info"]["correct_query"]
 
@@ -254,8 +254,10 @@ class ItemMatcher(object):
 
 if __name__ == '__main__':
     from pprint import pprint
+
     i = "wxid_wodemama的mama的手机号？"
     from sementic_server.source.ner_task.account import get_account_labels_info
+
     account = get_account_labels_info(i)
     im = ItemMatcher(new_actree=True)
     pprint(im.match(i, accounts_info=account))

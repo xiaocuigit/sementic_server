@@ -12,14 +12,15 @@ import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from sementic_server.source.ner_task.system_info import SystemInfo
+from sementic_server.source.ner_task.account import Account
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
-from sementic_server.source.ner_task.account import get_account_labels_info
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 # 在这里定义在整个程序都会用到的类的实例
+account = Account()
 semantic = SemanticSearch()
 item_matcher = ItemMatcher(new_actree=True)
 dependency_parser = DependencyParser()
@@ -35,7 +36,7 @@ def account_recognition(sentence):
     """
     logger.info("Account Recognition model...")
     t_account = timeit.default_timer()
-    accounts_info = get_account_labels_info(sentence)
+    accounts_info = account.get_account_labels_info(sentence)
     logger.info(accounts_info)
     logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_account))
     return accounts_info
@@ -182,13 +183,13 @@ def correct(request):
     request_data = request.POST
     print(request)
     sentence = request_data['sentence']
-    account = get_account_labels_info(sentence)
+    account_result = account.get_account_labels_info(sentence)
     need_correct = request_data.get('need_correct', True)
 
     start_time = timeit.default_timer()
     result = dict()
     try:
-        result = item_matcher.match(sentence, need_correct, account)
+        result = item_matcher.match(sentence, need_correct, account_result)
         end_time = timeit.default_timer()
         logger.info("intent_extraction - time consume: {0} S.\n".format(end_time - start_time))
     except Exception as e:
@@ -218,7 +219,7 @@ def account(request):
     try:
         logger.info("Account Recognition Model Test...")
         t_account = timeit.default_timer()
-        accounts_info = get_account_labels_info(sentence)
+        accounts_info = account.get_account_labels_info(sentence)
 
         logger.info(accounts_info)
         logger.info("Account Recognition Model Test Done. Time consume: {0}".format(timeit.default_timer() - t_account))

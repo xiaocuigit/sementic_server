@@ -29,6 +29,22 @@ class EntityCode(object):
 
         self.entities_code = yaml.load(f_r, Loader=yaml.SafeLoader)
 
+        self.account_label = {"EMAIL": "EMAIL_VALUE",
+                              "MPHONE": "MOB_NUM",
+                              "PHONE": "PHONE_NUM",
+                              "QQ": "QQ_NUM",
+                              "QQ_GROUP": "QQ_GROUP_NUM",
+                              "WX_GROUP": "WX_GROUP_NUM",
+                              "WECHAT": "WECHAT_VALUE",
+                              "ID": "IDCARD_VALUE",
+                              "MBLOG": "MICROBLOG_VALUE",
+                              "ALIPAY": "ALIPAY_VALU",
+                              "DOUYIN": "DOUYIN_VALUE",
+                              "TAOBAO": "TAOBAO_VALUE",
+                              "JD": "JD_VALUE",
+                              "UNLABEL": "UNLABEL"}
+        self.punctuation = [',', '，', '~', '!', '！', '。', '.', '?', '？']
+
     def get_account(self):
         return self.account
 
@@ -46,3 +62,6 @@ class EntityCode(object):
 
     def get_entity_code(self):
         return self.entities_code
+
+    def get_account_label(self):
+        return self.account_label

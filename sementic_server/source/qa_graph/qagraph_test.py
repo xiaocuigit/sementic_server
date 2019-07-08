@@ -11,18 +11,19 @@ from pprint import pprint
 import json
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
-from sementic_server.source.ner_task.account import get_account_labels_info
+from sementic_server.source.ner_task.account import Account
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 if __name__ == '__main__':
+    account = Account()
     semantic = SemanticSearch()
     item_matcher = ItemMatcher(new_actree=True)
     dependency_parser = DependencyParser()
     while True:
         sentence = input("please input:")
-        accounts_info = get_account_labels_info(sentence)
+        accounts_info = account.get_account_labels_info(sentence)
         intent = item_matcher.match(sentence, accounts_info=accounts_info)
         result = semantic.sentence_ner_entities(intent)
         pprint(result)

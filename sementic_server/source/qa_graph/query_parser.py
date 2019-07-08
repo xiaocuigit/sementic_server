@@ -93,12 +93,11 @@ class QueryParser(object):
                 # 使用依存分析，获取self.component_graph
                 if dm.dep_graph and nx.algorithms.is_weakly_connected(dm.dep_graph):
                     self.query_graph = dm.dep_graph
-                    self.determine_intention()
-                    return
                 else:
                     logger.info('dependency wrong!')
                     # print('dependency wrong!')
 
+        self.query_graph = None
         # 得到子图组件构成的集合，用图表示
         self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
         self.query_graph = copy.deepcopy(self.component_graph)

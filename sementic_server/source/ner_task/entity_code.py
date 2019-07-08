@@ -17,7 +17,7 @@ class EntityCode(object):
 
         self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',
                         'WX_GROUP_NUM', 'ALIPAY_VALU', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
-                        'UNLABEL']
+                        'VEHCARD_VALUE', 'UNLABEL']
 
         self.ner_entities_dics = {'NAME': 'NAME', 'COMPANY': 'CPNY_NAME', 'ADDR': 'ADDR_VALUE', 'DATE': 'DATE'}
         rootpath = str(os.getcwd()).replace("\\", "/")
@@ -42,6 +42,7 @@ class EntityCode(object):
                               "DOUYIN": "DOUYIN_VALUE",
                               "TAOBAO": "TAOBAO_VALUE",
                               "JD": "JD_VALUE",
+                              'IMEI': 'IMEI_VALUE',
                               "UNLABEL": "UNLABEL"}
         self.punctuation = [',', '，', '~', '!', '！', '。', '.', '?', '？']
 

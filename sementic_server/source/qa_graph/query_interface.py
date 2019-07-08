@@ -27,6 +27,8 @@ class QueryInterface(object):
         self.graph = Graph(self.graph)
 
         self.query = query
+        # 用于指出查询意图为某归属属性的情况
+        self.intention_tail = ''
 
         self.entities = dict()
         self.init_entities()
@@ -104,6 +106,11 @@ class QueryInterface(object):
                 # 将后一个节点的信息添加到前一个节点
                 # 删除后一个节点
                 n1, n2, k = edge
+                if n2.upper() == n2:
+                    # 说明后一个节点为查询意图，不再规约
+                    self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
+                    new_graph.remove_node(n2)
+                    continue
                 n2_dict = new_graph.nodes[n2]['data']
                 if 'data' not in new_graph.nodes[n1].keys():
                     new_graph.nodes[n1]['data'] = dict()
@@ -182,6 +189,7 @@ class QueryInterface(object):
                 for v in edge.values():
                     edge_id = v['edge_id']
                     intention_str += '.%s' % str(edge_id)
+        intention_str += self.intention_tail
         self.intentions.append(intention_str)
         # 未在最短路径上的点，处理
         self.isolated_node_process(shortest_path)

@@ -64,12 +64,33 @@ class Graph(nx.MultiDiGraph):
                 node_list.append(node)
         return node_list
 
+    def get_out_degree(self, node):
+        s = list(self.successors(node))
+        return len(s)
+
     def get_in_degree(self, node):
-        pass
-        #
-        # nx.MultiDiGraph(self).in
-        # t = {n: d for n, d in self.in_degree_iter()}
-        # print(t)
+        s = list(self.predecessors(node))
+        return len(s)
+
+    def get_out_index(self, node):
+        """
+        计算一个节点的出度与入度之差
+        :param node:
+        :return:
+        """
+        node_in = self.get_in_degree(node)
+        node_out = self.get_out_degree(node)
+        return node_out-node_in
+
+    def get_outdiff(self, node1_node2):
+        """
+        获取两个节点的out_index之差
+        :return:
+        """
+        node1, node2 = node1_node2
+        t1 = self.get_out_index(node1)
+        t2 = self.get_out_index(node2)
+        return t1-t2
 
     def node_type_statistic(self):
         """

@@ -333,14 +333,6 @@ class Account:
             elif self.is_id_card(result):
                 label_name = self.account_label['ID']
                 sentence = sentence.replace(result, self.account_label['ID'])
-            elif is_imei(result) or is_qq(result):
-                label = self.get_candidate_label(raw_input, result)
-                if label:
-                    label_name = label
-                    sentence = sentence.replace(result, label)
-                else:
-                    label_name = self.account_label['UNLABEL']
-                    sentence = sentence.replace(result, self.account_label['UNLABEL'])
             elif is_wechat_candidate(result):
                 label = self.get_candidate_label(raw_input, result)
                 if label:
@@ -360,6 +352,14 @@ class Account:
                 else:
                     label_name = self.account_label['MPHONE']
                     sentence = sentence.replace(result, self.account_label['MPHONE'])
+            elif is_imei(result) or is_qq(result):
+                label = self.get_candidate_label(raw_input, result)
+                if label:
+                    label_name = label
+                    sentence = sentence.replace(result, label)
+                else:
+                    label_name = self.account_label['UNLABEL']
+                    sentence = sentence.replace(result, self.account_label['UNLABEL'])
             elif is_phone(result):
                 label_name = self.account_label['PHONE']
                 sentence = sentence.replace(result, self.account_label['PHONE'])
@@ -427,3 +427,4 @@ def test_mac():
 
 if __name__ == '__main__':
     test()
+    test_while()

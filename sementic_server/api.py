@@ -151,16 +151,26 @@ def get_result(request):
                             json_dumps_params={'ensure_ascii': False})
 
     start_time = timeit.default_timer()
+
     accounts_info = account_recognition(sentence)
+
     result_intent = error_correction_model(sentence, accounts_info=accounts_info)
+
     result = ner_model(result_intent)
 
-    # if result is None:
     if len(result.get("entity") + result.get("accounts")) == 0:
         return JsonResponse({"query": sentence, "error": "实体识别模块返回空值"},
                             json_dumps_params={'ensure_ascii': False})
-    data, dependency_graph = dependency_parser_model(result, sentence)
+
+    # data, dependency_graph = dependency_parser_model(result, sentence)
+
+    entity = result.get('entity') + result.get('accounts')
+    relation = result.get('relation')
+    intention = result.get('intent')
+    data = dict(entity=entity, relation=relation, intent=intention)
+
     query_graph_result = query_graph_model(data, None, sentence)
+
     end_time = timeit.default_timer()
 
     logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
@@ -175,12 +185,11 @@ def correct(request):
     :param request:
     :return:
     """
-    print(request.method)
-
+    print("111{0}111".format(request.method))
     if request.method != 'POST':
         logger.error("仅支持post访问")
         return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
-    print(request.body)
+    print("222{0}222".format(request.body))
     try:
         request_data = json.loads(request.body)
     except Exception:

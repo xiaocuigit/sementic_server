@@ -13,18 +13,17 @@ from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 
 if __name__ == '__main__':
-    case_num = 6
+    case_num = 7
     p = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
     p = os.path.abspath(p)
 
     with open(p, 'r') as fr:
         data = json.load(fr)
     # print(data)
-    d = data['dependency']
-    print('dependency', d)
-
+    print(data['query'])
+    print(data['entity'])
+    print(data['relation'])
     qg = QueryParser(data, data['dependency'])
-    # qg = QueryParser(data, None)
     qg.query_graph.show()
 
     qi = QueryInterface(qg.query_graph, data['query'])

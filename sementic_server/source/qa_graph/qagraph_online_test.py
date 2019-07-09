@@ -17,8 +17,8 @@ from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 
 if __name__ == '__main__':
-    semantic = SemanticSearch(test_mode=True)
-    item_matcher = ItemMatcher(True, is_test=True)
+    semantic = SemanticSearch()
+    item_matcher = ItemMatcher(True)
     while True:
         sentence = input("please input:")
         intent = item_matcher.match(sentence)
@@ -32,13 +32,10 @@ if __name__ == '__main__':
 
         dep = dependency_graph
         data = dict(query=sentence, entity=entity, relation=relation, intent=intention, dependency=dependency_graph)
-        pprint('dep')
-        pprint(dep)
-
+        print(dep)
         query_graph_result = dict()
-        t = dict(data=data, dep=dep)
         p = os.path.join(os.getcwd(), 'test_case.json')
-        json.dump(t, open(p, 'w'))
+        json.dump(data, open(p, 'w'))
         qg = QueryParser(data, None)
         query_graph = qg.query_graph.get_data()
         if not query_graph:

@@ -27,6 +27,8 @@ class QueryInterface(object):
         self.graph = Graph(self.graph)
 
         self.query = query
+        # 用于指出查询意图为某归属属性的情况
+        self.intention_tail = ''
 
         self.entities = dict()
         self.init_entities()
@@ -36,6 +38,8 @@ class QueryInterface(object):
         self.intentions = list()
         self.init_intention()
         self.query_dict = dict()
+
+        self.serial_process()
         self.init_query_dict()
 
     def literal_node_reduction(self):
@@ -102,6 +106,11 @@ class QueryInterface(object):
                 # 将后一个节点的信息添加到前一个节点
                 # 删除后一个节点
                 n1, n2, k = edge
+                if n2.upper() == n2:
+                    # 说明后一个节点为查询意图，不再规约
+                    self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
+                    new_graph.remove_node(n2)
+                    continue
                 n2_dict = new_graph.nodes[n2]['data']
                 if 'data' not in new_graph.nodes[n1].keys():
                     new_graph.nodes[n1]['data'] = dict()
@@ -180,6 +189,7 @@ class QueryInterface(object):
                 for v in edge.values():
                     edge_id = v['edge_id']
                     intention_str += '.%s' % str(edge_id)
+        intention_str += self.intention_tail
         self.intentions.append(intention_str)
         # 未在最短路径上的点，处理
         self.isolated_node_process(shortest_path)
@@ -193,6 +203,32 @@ class QueryInterface(object):
 
     def get_query_data(self):
         return self.query_dict
+
+    def serial_process(self):
+        """
+        对查询实体重新按顺序编号
+        :return:
+        """
+        for e_type in self.entities:
+            temp_type = e_type.lower()
+            for n, e in enumerate(self.entities[e_type]):
+                entity_id = e['id']
+                new_id = '%s%d' % (temp_type, n)
+                self.find_replace(entity_id, new_id)
+                e['id'] = new_id
+
+    def find_replace(self, entity_id, new_id):
+        """
+        在intention和rels查找entity_id替换为new_id
+        :param entity_id:
+        :param new_id:
+        :return:
+        """
+        intent_str = self.intentions[0]
+        intent_str = intent_str.replace(entity_id, new_id)
+        self.intentions[0] = intent_str
+        for relation in self.rels:
+            relation['rel'] = relation['rel'].replace(entity_id, new_id)
 
 
 if __name__ == '__main__':

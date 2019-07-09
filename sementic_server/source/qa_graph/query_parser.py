@@ -93,18 +93,18 @@ class QueryParser(object):
                 # 使用依存分析，获取self.component_graph
                 if dm.dep_graph and nx.algorithms.is_weakly_connected(dm.dep_graph):
                     self.query_graph = dm.dep_graph
-                    self.determine_intention()
-                    return
                 else:
                     logger.info('dependency wrong!')
                     # print('dependency wrong!')
 
+        self.query_graph = None
         # 得到子图组件构成的集合，用图表示
-        self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
+        # self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
+        # self.component_graph的顺序决定了节点合并顺序，对最终构建的图有很大影响
+        self.component_graph = nx.disjoint_union_all(self.entity_component_list + self.relation_component_list)
         self.query_graph = copy.deepcopy(self.component_graph)
         self.query_graph = Graph(self.query_graph)
         self.old_query_graph = copy.deepcopy(self.component_graph)
-        self.query_graph.show()
         self.node_type_dict = self.query_graph.node_type_statistic()
         self.component_assemble()
 
@@ -133,7 +133,7 @@ class QueryParser(object):
         d1 = Graph(components_set[1]).node_type_statistic()
         candidates = itertools.product(d0.keys(), d1.keys())
         candidates = list(candidates)
-        trick_index = -1
+        trick_index = 0
         for key, edge in DEFAULT_EDGE.items():
             for c in candidates:
                 if c[0] == edge['domain'] and c[1] == edge['range']:
@@ -198,9 +198,6 @@ class QueryParser(object):
         none_nodes = self.query_graph.get_none_nodes(self.intent)
         if len(none_nodes) > 0:
             intention_candidates = [x for x in intention_candidates if x in none_nodes]
-        person_nodes = self.get_person_nodes(intention_candidates)
-        if len(person_nodes) > 0:
-            return person_nodes
         return intention_candidates
 
     def determine_intention(self):
@@ -214,14 +211,12 @@ class QueryParser(object):
         :return:
         """
         intention_candidates = self.get_intention_candidate()
-        in_degree_centrality = nx.in_degree_centrality(self.query_graph)
-        out_degree_centrality = nx.out_degree_centrality(self.query_graph)
 
         criterion_dict = dict()
         for node in intention_candidates:
-            criterion_dict[node] = in_degree_centrality[node]/(1+out_degree_centrality[node])
+            criterion_dict[node] = self.query_graph.get_out_index(node)
 
-        m = max(criterion_dict.values())
+        m = min(criterion_dict.values())
         # 考虑到多个节点上都有最大值
         intention_nodes = [k for k, v in criterion_dict.items() if v == m]
         intention_node = None
@@ -249,6 +244,7 @@ class QueryParser(object):
         for k, v in self.node_type_dict.items():
             if len(v) >= 2:
                 combinations = itertools.combinations(v, 2)
+                combinations = sorted(combinations, key=self.query_graph.get_outdiff)
                 for pair in combinations:
                     # 若两个节点之间连通，则跳过，不存在则合并
                     test_graph = nx.to_undirected(self.query_graph)

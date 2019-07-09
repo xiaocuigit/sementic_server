@@ -20,7 +20,7 @@ from sementic_server import api
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('get_result/', api.get_result, name='get_result'),
-    path('correct/', api.correct, name='correct'),
     path('account/', api.account, name='account'),
-    path('ner/', api.ner, name='ner')
+    path('ner/', api.ner, name='ner'),
+    path('correct/', api.correct, name='correct'),
 ]

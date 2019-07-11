@@ -90,7 +90,8 @@ class Graph(nx.MultiDiGraph):
         node1, node2 = node1_node2
         t1 = self.get_out_index(node1)
         t2 = self.get_out_index(node2)
-        return t1-t2
+        r = t1-t2
+        return r
 
     def node_type_statistic(self):
         """
@@ -103,6 +104,8 @@ class Graph(nx.MultiDiGraph):
                 if node_type not in node_type_dict.keys():
                     node_type_dict[node_type] = list()
                 node_type_dict[node_type].append(n)
+        for k, v in node_type_dict.items():
+            node_type_dict[k] = sorted(v)
         return node_type_dict
 
     def export(self, file_path):
@@ -168,6 +171,77 @@ class Graph(nx.MultiDiGraph):
             else:
                 data = self.get_edge_data(e[0], e[1])
             logger.info('{0}\t{1}'.format(e, data))
+
+
+def my_disjoint_union_all(graphs):
+    """Returns the disjoint union of all graphs.
+
+    This operation forces distinct integer node labels starting with 0
+    for the first graph in the list and numbering consecutively.
+
+    Parameters
+    ----------
+    graphs : list
+       List of NetworkX graphs
+
+    Returns
+    -------
+    U : A graph with the same type as the first graph in list
+
+    Raises
+    ------
+    ValueError
+       If `graphs` is an empty list.
+
+    Notes
+    -----
+    It is recommended that the graphs be either all directed or all undirected.
+
+    Graph, edge, and node attributes are propagated to the union graph.
+    If a graph attribute is present in multiple graphs, then the value
+    from the last graph in the list with that attribute is used.
+    """
+    if not graphs:
+        raise ValueError('cannot apply disjoint_union_all to an empty list')
+    graphs = iter(graphs)
+    u = next(graphs)
+    for h in graphs:
+        u = my_disjoint_union(u, h)
+    return u
+
+
+def my_disjoint_union(g, h):
+    """ Return the disjoint union of graphs G and H.
+
+    This algorithm forces distinct integer node labels.
+
+    Parameters
+    ----------
+    g,h : graph
+       A NetworkX graph
+
+    Returns
+    -------
+    U : A union graph with the same type as G.
+
+    Notes
+    -----
+    A new graph is created, of the same class as G.  It is recommended
+    that G and H be either both directed or both undirected.
+
+    The nodes of G are relabeled 0 to len(G)-1, and the nodes of H are
+    relabeled len(G) to len(G)+len(H)-1.
+
+    Graph, edge, and node attributes are propagated from G and H
+    to the union graph.  If a graph attribute is present in both
+    G and H the value from H is used.
+    """
+    r1 = nx.convert_node_labels_to_integers(g, ordering='increasing degree')
+    r2 = nx.convert_node_labels_to_integers(h, first_label=len(r1), ordering='increasing degree')
+    r = nx.union(r1, r2)
+    r.graph.update(g.graph)
+    r.graph.update(h.graph)
+    return r
 
 
 if __name__ == '__main__':

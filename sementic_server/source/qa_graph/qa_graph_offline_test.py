@@ -9,11 +9,12 @@
 
 import os
 import json
+from pprint import pprint
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 
 if __name__ == '__main__':
-    case_num = 5
+    case_num = 4
     p = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
     p = os.path.abspath(p)
 
@@ -26,10 +27,15 @@ if __name__ == '__main__':
     qg = QueryParser(data, data['dependency'])
     qg.query_graph.show()
 
+    # try:
     qi = QueryInterface(qg.query_graph, data['query'])
-    data = qi.get_query_data()
-    print(data)
-    query_graph = qg.query_graph.get_data()
-    query_interface = data
-    query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
+    interface_data = qi.get_query_data()
+    # except Exception as e:
+    #     print(e)
+    #     print('查询接口转化失败！')
 
+    print(interface_data)
+    query_graph = qg.query_graph.get_data()
+    query_interface = interface_data
+    query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
+    pprint(query_graph_result)

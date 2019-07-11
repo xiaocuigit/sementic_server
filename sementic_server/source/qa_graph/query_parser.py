@@ -189,7 +189,6 @@ class QueryParser(object):
         获取候选意图节点id
         :return:候选意图节点id
         """
-        candidates_list = list()
         logger.info('all concept node as intention candidates')
         intention_candidates = self.query_graph.get_concept_nodes()
         logger.info('intention candidates is %s' % str(intention_candidates))
@@ -202,7 +201,7 @@ class QueryParser(object):
             intention_candidates = new_intention_candidates
             logger.info('intention candidates is %s' % str(intention_candidates))
 
-        if len(candidates_list) == 0:
+        if len(intention_candidates) == 0:
             # print('intention recognizer module produce wrong intention!')
             logger.info('intention recognizer module produce wrong intention!')
             self.error_info = 'intention recognizer module produce wrong intention!'

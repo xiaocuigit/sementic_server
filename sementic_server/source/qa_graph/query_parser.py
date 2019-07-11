@@ -256,10 +256,6 @@ class QueryParser(object):
             if len(v) >= 2:
                 combinations = itertools.combinations(v, 2)
                 combinations = sorted(combinations, key=self.query_graph.get_outdiff)
-                temp = {}
-                for pair in combinations:
-                    temp[pair] = self.query_graph.get_outdiff(pair)
-                print(temp)
                 for pair in combinations:
                     # 若两个节点之间连通，则跳过，不存在则合并
                     test_graph = nx.to_undirected(self.query_graph)

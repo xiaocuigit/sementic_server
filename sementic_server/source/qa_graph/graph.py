@@ -91,10 +91,7 @@ class Graph(nx.MultiDiGraph):
         t1 = self.get_out_index(node1)
         t2 = self.get_out_index(node2)
         r = t1-t2
-        if r >= 0:
-            return r
-        else:
-            return 0-r
+        return r
 
     def node_type_statistic(self):
         """

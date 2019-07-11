@@ -111,11 +111,12 @@ class QueryInterface(object):
                     self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
                     new_graph.remove_node(n2)
                     continue
-                n2_dict = new_graph.nodes[n2]['data']
+                n2_dict = new_graph.nodes[n2].get('data')
                 if 'data' not in new_graph.nodes[n1].keys():
                     new_graph.nodes[n1]['data'] = dict()
-                new_graph.nodes[n1]['data'].update(n2_dict)
-                new_graph.remove_node(n2)
+                if n2_dict:
+                    new_graph.nodes[n1]['data'].update(n2_dict)
+                    new_graph.remove_node(n2)
         return new_graph
 
     def graph_reduction(self):

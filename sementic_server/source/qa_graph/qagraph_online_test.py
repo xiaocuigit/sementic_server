@@ -25,7 +25,7 @@ if __name__ == '__main__':
         sentence = input("please input:")
         account_info = account.get_account_labels_info(sentence)
         intent = item_matcher.match(sentence, accounts_info=account_info)
-        result = semantic.sentence_ner_entities(intent)
+        result, _ = semantic.sentence_ner_entities(intent)
         pprint(result)
         entity = result.get('entity') + result.get('accounts')
         relation = result.get('relation')

@@ -87,8 +87,6 @@ def dependency_parser_model(result, sentence):
     relation = result.get('relation')
     intention = result.get('intent')
     data = dict(entity=entity, relation=relation, intent=intention)
-    # dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
-    #     dependency_parser.get_denpendency_tree(sentence, entity, relation)
 
     logger.info("Dependency Parser model done. Time consume: {0}".format(timeit.default_timer() - t_dependence))
     return data, None
@@ -105,21 +103,29 @@ def query_graph_model(data, dependency_graph, sentence):
     logger.info("Query Graph model...")
     t_another = timeit.default_timer()
     # 问答图模块
-    query_graph_result = dict()
+    query_graph = None
+    error_info = None
+    qg = None
     try:
-        query_graph_result = dict()
         qg = QueryParser(data, dependency_graph)
         query_graph = qg.query_graph.get_data()
         if not query_graph:
             qg = QueryParser(data)
             query_graph = qg.query_graph.get_data()
+            error_info = qg.error_info
+    except Exception as e:
+        logger.info('动态问答图构建失败！')
+        logger.info(e)
+    query_interface = None
+    try:
         qi = QueryInterface(qg.query_graph, sentence)
         query_interface = qi.get_query_data()
-        query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
     except Exception as e:
+        logger.info('查询接口转换失败！')
         logger.info(e)
+    query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
     logger.info("Query Graph model done. Time consume: {0}".format(timeit.default_timer() - t_another))
-    return query_graph_result
+    return query_graph_result, error_info
 
 
 @csrf_exempt
@@ -167,7 +173,10 @@ def get_result(request):
 
     data, dependency_graph = dependency_parser_model(result, sentence)
 
-    query_graph_result = query_graph_model(data, None, sentence)
+    # 动态问答图
+    query_graph_result, error_info = query_graph_model(data, None, sentence)
+    if error_info:
+        return JsonResponse(error_info, json_dumps_params={'ensure_ascii': False})
 
     end_time = timeit.default_timer()
 

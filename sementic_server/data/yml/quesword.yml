@@ -1,7 +1,7 @@
-Location:
+Addr:
 - 住哪
 - 住在哪
-Organization:
+Company:
 - 哪工作
 - 哪上班
 - 什么地方上班
@@ -11,7 +11,7 @@ Organization:
 - 哪儿上班
 - 在哪工作
 - 在哪儿工作
-PERSON:
+Person:
 - 是谁
 - 谁是
 - 什么人

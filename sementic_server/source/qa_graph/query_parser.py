@@ -73,6 +73,7 @@ class QueryParser(object):
     """
     def __init__(self, query_data, dependency=None):
         logger.info('Query Graph Parsing...')
+        self.error_info = None
         # print('Query Graph Parsing...')
         self.relation = query_data.setdefault('relation', list())
         self.entity = query_data.setdefault('entity', list())
@@ -96,6 +97,8 @@ class QueryParser(object):
                 else:
                     logger.info('dependency wrong!')
                     # print('dependency wrong!')
+        else:
+            logger.info('dependency not exist.')
 
         self.query_graph = None
         # 得到子图组件构成的集合，用图表示
@@ -120,10 +123,15 @@ class QueryParser(object):
             flag = self.add_default_edge()
             if not flag:
                 logger.info('default edge missing!')
+                logger.info('graph is not connected!')
+                self.error_info = 'graph is not connected!'
                 # 未添加上说明缺少默认边
-                break
+                return
 
         # 经过上面两个循环，得到连通的图，下面确定意图
+        logger.info('connected graph is already')
+        self.query_graph.show_log()
+        logger.info('next is determine intention')
         self.determine_intention()
 
     def add_default_edge(self):
@@ -181,23 +189,29 @@ class QueryParser(object):
         获取候选意图节点id
         :return:候选意图节点id
         """
-        candidates_list = list()
+        logger.info('all concept node as intention candidates')
+        intention_candidates = self.query_graph.get_concept_nodes()
+        logger.info('intention candidates is %s' % str(intention_candidates))
+
         if self.intent:
             # 意图识别提供了意图类型
-            # print(self.intent)
-            for n in self.query_graph.nodes:
-                if self.query_graph.nodes[n].get('type') == self.intent:
-                    candidates_list.append(n)
-        if len(candidates_list) == 0:
+            logger.info('intention type is %s' % self.intent)
+            new_intention_candidates = [x for x in intention_candidates
+                                        if self.query_graph.nodes[x].get('type') == self.intent]
+            intention_candidates = new_intention_candidates
+            logger.info('intention candidates is %s' % str(intention_candidates))
+
+        if len(intention_candidates) == 0:
             # print('intention recognizer module produce wrong intention!')
             logger.info('intention recognizer module produce wrong intention!')
-            intention_candidates = self.query_graph.get_concept_nodes()
-        else:
-            intention_candidates = [x for x in self.query_graph.nodes if x in candidates_list]
+            self.error_info = 'intention recognizer module produce wrong intention!'
+            return
 
         none_nodes = self.query_graph.get_none_nodes(self.intent)
         if len(none_nodes) > 0:
+            logger.info('the graph has %d blank node: %s' % (len(none_nodes), str(none_nodes)))
             intention_candidates = [x for x in intention_candidates if x in none_nodes]
+            logger.info('intention candidates is %s' % str(intention_candidates))
         return intention_candidates
 
     def determine_intention(self):
@@ -211,21 +225,18 @@ class QueryParser(object):
         :return:
         """
         intention_candidates = self.get_intention_candidate()
-
+        logger.info('determine intention by degree')
         criterion_dict = dict()
         for node in intention_candidates:
             criterion_dict[node] = self.query_graph.get_out_index(node)
 
         m = min(criterion_dict.values())
-        # 考虑到多个节点上都有最大值
+        # 考虑到多个节点上都有最值
         intention_nodes = [k for k, v in criterion_dict.items() if v == m]
-        intention_node = None
-        if len(intention_nodes) > 1:
-            intention_node = self.get_person_nodes(intention_nodes)
-        if intention_node:
-            self.add_intention_on_node(intention_node)
-        else:
-            self.add_intention_on_node(intention_nodes[0])
+        logger.info('nodes: %s have degree: %d' % (str(intention_nodes), m))
+
+        logger.info('final intention node is %d' % intention_nodes[0])
+        self.add_intention_on_node(intention_nodes[0])
 
     def get_person_nodes(self, candidates):
         """

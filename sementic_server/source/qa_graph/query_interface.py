@@ -134,14 +134,16 @@ class QueryInterface(object):
         """
         self.graph_reduction()
         for node in self.graph.nodes:
-            if self.graph.nodes[node].get('data'):
-                temp_dict = dict()
-                node_type = self.graph.nodes[node]['type']
-                if node_type not in self.entities.keys():
-                    self.entities[node_type] = list()
-                temp_dict['id'] = node
-                temp_dict.update(self.graph.nodes[node]['data'])
-                self.entities[node_type].append(temp_dict)
+            # 空节点也占一个
+            temp_dict = dict()
+            node_type = self.graph.nodes[node]['type']
+            if node_type not in self.entities.keys():
+                self.entities[node_type] = list()
+            temp_dict['id'] = node
+            temp_data = self.graph.nodes[node].get('data')
+            if temp_data:
+                temp_dict.update(self.graph.nodes[node].get('data'))
+            self.entities[node_type].append(temp_dict)
 
     def init_rels(self):
         for i, edge in enumerate(self.graph.edges):
@@ -177,8 +179,6 @@ class QueryInterface(object):
 
         intent_node = self.get_intent_node()
         shortest_path = nx.shortest_path(self.graph, header, intent_node)
-        logger.info('shortest_path:')
-        logger.info(shortest_path)
         for node in shortest_path:
             if node == header:
                 continue
@@ -213,7 +213,9 @@ class QueryInterface(object):
             temp_type = e_type.lower()
             for n, e in enumerate(self.entities[e_type]):
                 entity_id = e['id']
-                new_id = '%s%d' % (temp_type, n)
+                if entity_id == entity_id.upper():
+                    continue
+                new_id = '%s%d' % (temp_type, n+1)
                 self.find_replace(entity_id, new_id)
                 e['id'] = new_id
 

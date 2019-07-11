@@ -27,6 +27,11 @@ if __name__ == '__main__':
         entity = result.get('entity') + result.get('accounts')
         relation = result.get('relation')
         intention = result.get('intent')
+
+        if len(result.get("entity") + result.get("accounts")) == 0:
+            print({"query": sentence, "error": "实体识别模块返回空值"})
+            continue
+
         dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations =\
             DependencyParser().get_denpendency_tree(result["query"], entity, relation)
 

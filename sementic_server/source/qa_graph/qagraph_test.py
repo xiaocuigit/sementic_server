@@ -42,6 +42,9 @@ if __name__ == '__main__':
             p = os.path.join(os.getcwd(), 'test_case.json')
             json.dump(t, open(p, 'w'))
             qg = QueryParser(data, dep)
+            if qg.error_info:
+                print(qg.error_info)
+                continue
             query_graph = qg.query_graph.get_data()
             if not query_graph:
                 qg = QueryParser(data)

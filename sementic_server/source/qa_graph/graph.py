@@ -145,6 +145,30 @@ class Graph(nx.MultiDiGraph):
             print(str(e).ljust(30), '\t', str(data).ljust(30))
             logger.info('{0}\t{1}'.format(e, data))
 
+    def show_log(self):
+        """将图显示至屏幕"""
+        if not self:
+            logger.info("There is nothing to show!")
+            return
+        flag = True
+        if not self.is_multigraph():
+            flag = False
+
+        logger.info('=================The graph have {0} nodes=================='.format(len(self.nodes)))
+        for n in self.nodes:
+            data = self.nodes[n]
+            logger.info("{0}\t{1}".format(str(n).ljust(30), str(data).ljust(30)))
+
+        logger.info('The graph have %d edges'.center(100, '=') % len(self.edges))
+        for e in self.edges:
+            # multigraph的边结构为(u, v, k)
+            # 非multigraph的边结构为(u, v)
+            if flag:
+                data = self.get_edge_data(e[0], e[1], e[2])
+            else:
+                data = self.get_edge_data(e[0], e[1])
+            logger.info('{0}\t{1}'.format(e, data))
+
 
 if __name__ == '__main__':
     test_graph = nx.complete_graph(5)

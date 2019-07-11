@@ -211,7 +211,7 @@ class QueryInterface(object):
             temp_type = e_type.lower()
             for n, e in enumerate(self.entities[e_type]):
                 entity_id = e['id']
-                new_id = '%s%d' % (temp_type, n)
+                new_id = '%s%d' % (temp_type, n+1)
                 self.find_replace(entity_id, new_id)
                 e['id'] = new_id
 

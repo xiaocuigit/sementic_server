@@ -12,6 +12,7 @@ from pprint import pprint
 import json
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
+from sementic_server.source.ner_task.account import Account
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
@@ -19,9 +20,11 @@ from sementic_server.source.dependency_parser.dependency_parser import Dependenc
 if __name__ == '__main__':
     semantic = SemanticSearch()
     item_matcher = ItemMatcher(True)
+    account = Account()
     while True:
         sentence = input("please input:")
-        intent = item_matcher.match(sentence)
+        account_info = account.get_account_labels_info(sentence)
+        intent = item_matcher.match(sentence, accounts_info=account_info)
         result = semantic.sentence_ner_entities(intent)
         pprint(result)
         entity = result.get('entity') + result.get('accounts')

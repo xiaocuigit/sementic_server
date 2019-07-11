@@ -140,7 +140,9 @@ class QueryInterface(object):
             if node_type not in self.entities.keys():
                 self.entities[node_type] = list()
             temp_dict['id'] = node
-            temp_dict.update(self.graph.nodes[node]['data'])
+            temp_data = self.graph.nodes[node].get('data')
+            if temp_data:
+                temp_dict.update(self.graph.nodes[node].get('data'))
             self.entities[node_type].append(temp_dict)
 
     def init_rels(self):
@@ -211,6 +213,8 @@ class QueryInterface(object):
             temp_type = e_type.lower()
             for n, e in enumerate(self.entities[e_type]):
                 entity_id = e['id']
+                if entity_id == entity_id.upper():
+                    continue
                 new_id = '%s%d' % (temp_type, n+1)
                 self.find_replace(entity_id, new_id)
                 e['id'] = new_id

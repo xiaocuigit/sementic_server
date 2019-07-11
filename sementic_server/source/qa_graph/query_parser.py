@@ -15,7 +15,7 @@ import pandas as pd
 import csv
 import json
 import copy
-from sementic_server.source.qa_graph.graph import Graph
+from sementic_server.source.qa_graph.graph import Graph, my_disjoint_union_all
 from sementic_server.source.qa_graph.query_graph_component import QueryGraphComponent
 from sementic_server.source.qa_graph.dep_map import DepMap
 
@@ -104,7 +104,7 @@ class QueryParser(object):
         # 得到子图组件构成的集合，用图表示
         # self.component_graph = nx.disjoint_union_all(self.relation_component_list + self.entity_component_list)
         # self.component_graph的顺序决定了节点合并顺序，对最终构建的图有很大影响
-        self.component_graph = nx.disjoint_union_all(self.entity_component_list + self.relation_component_list)
+        self.component_graph = my_disjoint_union_all(self.entity_component_list + self.relation_component_list)
         self.query_graph = copy.deepcopy(self.component_graph)
         self.query_graph = Graph(self.query_graph)
         self.old_query_graph = copy.deepcopy(self.component_graph)
@@ -256,6 +256,10 @@ class QueryParser(object):
             if len(v) >= 2:
                 combinations = itertools.combinations(v, 2)
                 combinations = sorted(combinations, key=self.query_graph.get_outdiff)
+                temp = {}
+                for pair in combinations:
+                    temp[pair] = self.query_graph.get_outdiff(pair)
+                print(temp)
                 for pair in combinations:
                     # 若两个节点之间连通，则跳过，不存在则合并
                     test_graph = nx.to_undirected(self.query_graph)

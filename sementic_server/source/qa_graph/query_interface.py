@@ -147,10 +147,11 @@ class QueryInterface(object):
 
     def init_rels(self):
         for i, edge in enumerate(self.graph.edges):
+            edge_id = i+1
             temp_dict = dict()
             n, m, k = edge
-            temp_dict['id'] = 'relation%d' % i
-            self.graph.get_edge_data(n, m, k)['edge_id'] = 'relation%d' % i
+            temp_dict['id'] = 'relation%d' % edge_id
+            self.graph.get_edge_data(n, m, k)['edge_id'] = 'relation%d' % edge_id
             temp_dict['rel'] = '%s-%s' % (str(n), str(m))
             temp_dict['type'] = k
             temp_dict['value'] = self.graph.get_edge_data(n, m, k).get('value')
@@ -211,11 +212,18 @@ class QueryInterface(object):
         """
         for e_type in self.entities:
             temp_type = e_type.lower()
+            flag = False
             for n, e in enumerate(self.entities[e_type]):
                 entity_id = e['id']
                 if entity_id == entity_id.upper():
+                    # 存在一个全大写的实体
+                    flag = True
                     continue
-                new_id = '%s%d' % (temp_type, n+1)
+                if flag:
+                    new_id = '%s%d' % (temp_type, n)
+                else:
+                    new_id = '%s%d' % (temp_type, n + 1)
+
                 self.find_replace(entity_id, new_id)
                 e['id'] = new_id
 

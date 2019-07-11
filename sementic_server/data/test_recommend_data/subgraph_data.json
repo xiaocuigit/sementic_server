@@ -1,0 +1,1589 @@
+{
+  "nodes": [
+    {
+      "labels": [],
+      "nodeId": 1649783788602859996,
+      "primaryKey": "uid",
+      "primaryValue": "9011807032339002966000117944",
+      "properties": [
+        {
+          "propertyKey": "vtime",
+          "propertyValue": [
+            "[201001171925, 201707261035]"
+          ]
+        },
+        {
+          "propertyKey": "sex",
+          "propertyValue": [
+            "1"
+          ]
+        },
+        {
+          "propertyKey": "name",
+          "propertyValue": [
+            "赵会斌"
+          ]
+        },
+        {
+          "propertyKey": "birth",
+          "propertyValue": [
+            "19880812"
+          ]
+        },
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "901"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "vtime",
+        "sex",
+        "name",
+        "birth",
+        "type"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 4772999616934016888,
+      "primaryKey": "uid",
+      "primaryValue": "9011807032339002966000500371",
+      "properties": [
+        {
+          "propertyKey": "vtime",
+          "propertyValue": [
+            "[201305181742, 201709140854]"
+          ]
+        },
+        {
+          "propertyKey": "sex",
+          "propertyValue": [
+            "0"
+          ]
+        },
+        {
+          "propertyKey": "name",
+          "propertyValue": [
+            "秦源"
+          ]
+        },
+        {
+          "propertyKey": "birth",
+          "propertyValue": [
+            "19830212"
+          ]
+        },
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "901"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "vtime",
+        "sex",
+        "name",
+        "birth",
+        "type"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 1877853557519122121,
+      "primaryKey": "uid",
+      "primaryValue": "20113023099212",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "201"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "13023099212"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 3095050730130021866,
+      "primaryKey": "uid",
+      "primaryValue": "9011807032339002966000374812",
+      "properties": [
+        {
+          "propertyKey": "vtime",
+          "propertyValue": [
+            "[201305181742, 201604252341]"
+          ]
+        },
+        {
+          "propertyKey": "sex",
+          "propertyValue": [
+            "1"
+          ]
+        },
+        {
+          "propertyKey": "name",
+          "propertyValue": [
+            "任昌丰"
+          ]
+        },
+        {
+          "propertyKey": "birth",
+          "propertyValue": [
+            "19790824"
+          ]
+        },
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "901"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "vtime",
+        "sex",
+        "name",
+        "birth",
+        "type"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 1457612837521074548,
+      "primaryKey": "uid",
+      "primaryValue": "20113050792226",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "201"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "13050792226"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 6537639966961380258,
+      "primaryKey": "uid",
+      "primaryValue": "202794286932",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "202"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "794286932"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 8298734635704084085,
+      "primaryKey": "uid",
+      "primaryValue": "9011704161809007506000303340",
+      "properties": [
+        {
+          "propertyKey": "vtime",
+          "propertyValue": [
+            "[201703240101, 201703240101]"
+          ]
+        },
+        {
+          "propertyKey": "sex",
+          "propertyValue": [
+            "2"
+          ]
+        },
+        {
+          "propertyKey": "name",
+          "propertyValue": [
+            "赵同学"
+          ]
+        },
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "901"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "vtime",
+        "sex",
+        "name",
+        "type"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 4056387319162944867,
+      "primaryKey": "uid",
+      "primaryValue": "9011807032234002287000349579",
+      "properties": [
+        {
+          "propertyKey": "vtime",
+          "propertyValue": [
+            "[200901130000, 201804232207]"
+          ]
+        },
+        {
+          "propertyKey": "sex",
+          "propertyValue": [
+            "1"
+          ]
+        },
+        {
+          "propertyKey": "name",
+          "propertyValue": [
+            "张贤金"
+          ]
+        },
+        {
+          "propertyKey": "birth",
+          "propertyValue": [
+            "19760309"
+          ]
+        },
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "901"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "vtime",
+        "sex",
+        "name",
+        "birth",
+        "type"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 3004480788939513865,
+      "primaryKey": "uid",
+      "primaryValue": "9023120371481",
+      "properties": [
+        {
+          "propertyKey": "vtime",
+          "propertyValue": [
+            "[201712130956, 201712130956]"
+          ]
+        },
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "902"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "3120371481"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "vtime",
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 2604140602857183731,
+      "primaryKey": "uid",
+      "primaryValue": "3040c08702c8fc1bb434cb6d2626049a0a9",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "304"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "九龙路安徽大学2006级电子信息工程"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 1788521855862219862,
+      "primaryKey": "uid",
+      "primaryValue": "310ecacccc748d9e984027a9f608718b133",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "310"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "安徽省 淮北市 濉溪县"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 3448482571495640107,
+      "primaryKey": "uid",
+      "primaryValue": "101340621198808128736",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "101"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "340621198808128736"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 9182152389591994909,
+      "primaryKey": "uid",
+      "primaryValue": "20113485721769",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "201"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "13485721769"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 1189056516857933434,
+      "primaryKey": "uid",
+      "primaryValue": "20118913975353",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "201"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "18913975353"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 606011302801373536,
+      "primaryKey": "uid",
+      "primaryValue": "2031865575365",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "203"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "1865575365"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 8870340521970031607,
+      "primaryKey": "uid",
+      "primaryValue": "205Zhao_Huibin",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "205"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "Zhao_Huibin"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 8646235554272965240,
+      "primaryKey": "uid",
+      "primaryValue": "204zhaohuibinkt@gmail.com",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "204"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "zhaohuibinkt@gmail.com"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 4855290280960863705,
+      "primaryKey": "uid",
+      "primaryValue": "2021697210298",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "202"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "1697210298"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    },
+    {
+      "labels": [],
+      "nodeId": 4059539624022845953,
+      "primaryKey": "uid",
+      "primaryValue": "202503277226",
+      "properties": [
+        {
+          "propertyKey": "type",
+          "propertyValue": [
+            "202"
+          ]
+        },
+        {
+          "propertyKey": "value",
+          "propertyValue": [
+            "503277226"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "type",
+        "value"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 4059539624022845953,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "202503277226",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201311280000, 201610291709]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1001"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "202503277226"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1001",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 4855290280960863705,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "2021697210298",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201409181926, 201510271011]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1001"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "2021697210298"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1001",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 8646235554272965240,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "204zhaohuibinkt@gmail.com",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201506102027, 201506102027]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1002"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "204zhaohuibinkt@gmail.com"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1002",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 8870340521970031607,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "205Zhao_Huibin",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201511052115, 201707180000]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1003"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "205Zhao_Huibin"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1003",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 606011302801373536,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "2031865575365",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201707261035, 201707261035]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1004"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "2031865575365"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1004",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1189056516857933434,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20118913975353",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201001171925, 201707261035]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1005"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20118913975353"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1005",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 9182152389591994909,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20113485721769",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201312101217, 201703240103]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "0.5555555555555556"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1005"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20113485721769"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1005",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 3448482571495640107,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "101340621198808128736",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201306271235, 201605121159]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "0.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1006"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "101340621198808128736"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1006",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1788521855862219862,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "310ecacccc748d9e984027a9f608718b133",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201306271235, 201605121159]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "0.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1009"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "310ecacccc748d9e984027a9f608718b133"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1009",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 2604140602857183731,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "3040c08702c8fc1bb434cb6d2626049a0a9",
+      "properties": [
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1010"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000117944"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "3040c08702c8fc1bb434cb6d2626049a0a9"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1010",
+      "startNodeId": 1649783788602859996,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000117944"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1189056516857933434,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20118913975353",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201001171925, 201707261035]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1005"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032234002287000349579"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20118913975353"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1005",
+      "startNodeId": 4056387319162944867,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032234002287000349579"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1189056516857933434,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20118913975353",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201001171925, 201707261035]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1005"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011704161809007506000303340"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20118913975353"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1005",
+      "startNodeId": 8298734635704084085,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011704161809007506000303340"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 6537639966961380258,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "202794286932",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201506021931, 201506021931]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "kindred.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1101"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "20118913975353"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "202794286932"
+          ]
+        },
+        {
+          "propertyKey": "info",
+          "propertyValue": [
+            "{fname=Unknow, tname=爸爸, gname=All}"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to",
+        "info"
+      ],
+      "relationshipType": "1101",
+      "startNodeId": 1189056516857933434,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "20118913975353"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1457612837521074548,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20113050792226",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201506021931, 201506021931]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "kindred.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1101"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "20118913975353"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20113050792226"
+          ]
+        },
+        {
+          "propertyKey": "info",
+          "propertyValue": [
+            "{fname=Unknow, tname=二哥, gname=All}"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to",
+        "info"
+      ],
+      "relationshipType": "1103",
+      "startNodeId": 1189056516857933434,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "20118913975353"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1457612837521074548,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20113050792226",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201703240101, 201703240101]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "-0.9782608695652174"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1005"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000374812"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20113050792226"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1005",
+      "startNodeId": 3095050730130021866,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000374812"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1877853557519122121,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20113023099212",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201506021931, 201506021931]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "kindred.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1101"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "20118913975353"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20113023099212"
+          ]
+        },
+        {
+          "propertyKey": "info",
+          "propertyValue": [
+            "{fname=Unknow, tname=大姐, gname=All}"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to",
+        "info"
+      ],
+      "relationshipType": "1103",
+      "startNodeId": 1189056516857933434,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "20118913975353"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1877853557519122121,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20113023099212",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201703240101, 201703240101]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "person.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "-0.9782608695652174"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "1005"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9011807032339002966000500371"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20113023099212"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "1005",
+      "startNodeId": 4772999616934016888,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9011807032339002966000500371"
+    },
+    {
+      "direction": "OUTGOING",
+      "endNodeId": 1189056516857933434,
+      "endNodeMKey": "uid",
+      "endNodeMValue": "20118913975353",
+      "properties": [
+        {
+          "propertyKey": "relVtime",
+          "propertyValue": [
+            "[201712130956, 201712130956]"
+          ]
+        },
+        {
+          "propertyKey": "domain",
+          "propertyValue": [
+            "company.com"
+          ]
+        },
+        {
+          "propertyKey": "weight",
+          "propertyValue": [
+            "1.0"
+          ]
+        },
+        {
+          "propertyKey": "relType",
+          "propertyValue": [
+            "2001"
+          ]
+        },
+        {
+          "propertyKey": "from",
+          "propertyValue": [
+            "9023120371481"
+          ]
+        },
+        {
+          "propertyKey": "to",
+          "propertyValue": [
+            "20118913975353"
+          ]
+        }
+      ],
+      "properyKeys": [
+        "relVtime",
+        "domain",
+        "weight",
+        "relType",
+        "from",
+        "to"
+      ],
+      "relationshipType": "2001",
+      "startNodeId": 3004480788939513865,
+      "startNodeMKey": "uid",
+      "startNodeMValue": "9023120371481"
+    }
+  ]
+}

@@ -38,7 +38,7 @@ def account_recognition(sentence):
     t_account = timeit.default_timer()
     accounts_info = account_model.get_account_labels_info(sentence)
     logger.info(accounts_info)
-    logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_account))
+    logger.info("Account Recognition model done. Time consume: {0}".format(timeit.default_timer() - t_account))
     return accounts_info
 
 
@@ -66,11 +66,11 @@ def ner_model(result_intent):
     logger.info("NER model...")
     t_ner = timeit.default_timer()
     # 实体识别模块
-    result = semantic.sentence_ner_entities(result_intent)
+    result, unlabel_result = semantic.sentence_ner_entities(result_intent)
 
     logger.info(result)
     logger.info("NER model done. Time consume: {0}".format(timeit.default_timer() - t_ner))
-    return result
+    return result, unlabel_result
 
 
 def dependency_parser_model(result, sentence):
@@ -87,11 +87,11 @@ def dependency_parser_model(result, sentence):
     relation = result.get('relation')
     intention = result.get('intent')
     data = dict(entity=entity, relation=relation, intent=intention)
-    dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
-        dependency_parser.get_denpendency_tree(sentence, entity, relation)
+    # dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
+    #     dependency_parser.get_denpendency_tree(sentence, entity, relation)
 
     logger.info("Dependency Parser model done. Time consume: {0}".format(timeit.default_timer() - t_dependence))
-    return data, dependency_graph
+    return data, None
 
 
 def query_graph_model(data, dependency_graph, sentence):
@@ -156,24 +156,23 @@ def get_result(request):
 
     result_intent = error_correction_model(sentence, accounts_info=accounts_info)
 
-    result = ner_model(result_intent)
+    result, unlabel_result = ner_model(result_intent)
 
     if len(result.get("entity") + result.get("accounts")) == 0:
         return JsonResponse({"query": sentence, "error": "实体识别模块返回空值"},
                             json_dumps_params={'ensure_ascii': False})
 
-    # data, dependency_graph = dependency_parser_model(result, sentence)
+    if unlabel_result:
+        return JsonResponse(unlabel_result, json_dumps_params={'ensure_ascii': False})
 
-    entity = result.get('entity') + result.get('accounts')
-    relation = result.get('relation')
-    intention = result.get('intent')
-    data = dict(entity=entity, relation=relation, intent=intention)
+    data, dependency_graph = dependency_parser_model(result, sentence)
 
     query_graph_result = query_graph_model(data, None, sentence)
 
     end_time = timeit.default_timer()
 
     logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
+    logger.info("Final reuslt...\n{0}".format(query_graph_result))
     # 返回JSON格式数据，将 result_ner 替换成需要返回的JSON数据
     return JsonResponse(query_graph_result, json_dumps_params={'ensure_ascii': False})
 

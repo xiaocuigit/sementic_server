@@ -9,3 +9,4 @@ networkx==2.3
 pyyaml==3.12
 pypinyin==0.34.1
 pandas==0.24.2
+redis==3.2.1

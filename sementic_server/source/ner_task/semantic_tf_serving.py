@@ -215,4 +215,12 @@ class SemanticSearch(object):
                     temp = result_intent["relation"].pop(index)
                     print(temp)
 
-        return result_intent
+        unlabels = []
+        for value in result_intent["accounts"]:
+            if value["type"] == "UNLABEL":
+                unlabels.append(value["value"])
+        if len(unlabels) == 0:
+            unlabel_result = None
+        else:
+            unlabel_result = {"sentence": sentence, "unlabels": unlabels, "error": "账户类型不明确"}
+        return result_intent, unlabel_result

@@ -30,18 +30,16 @@ if __name__ == '__main__':
         entity = result.get('entity') + result.get('accounts')
         relation = result.get('relation')
         intention = result.get('intent')
-        dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
-            dependency_parser.get_denpendency_tree(result["query"], entity, relation)
+        # dependency_tree_recovered, tokens_recovered, dependency_graph, entities, relations = \
+        #     dependency_parser.get_denpendency_tree(result["query"], entity, relation)
         # pprint(dependency_graph)
-        dep = dependency_graph
+        # dep = dependency_graph
         data = dict(entity=entity, relation=relation, intent=intention)
         # pprint(dep)
         try:
             query_graph_result = dict()
-            t = dict(data=data, dep=dep)
-            p = os.path.join(os.getcwd(), 'test_case.json')
-            json.dump(t, open(p, 'w'))
-            qg = QueryParser(data, dep)
+
+            qg = QueryParser(data, None)
             query_graph = qg.query_graph.get_data()
             if not query_graph:
                 qg = QueryParser(data)

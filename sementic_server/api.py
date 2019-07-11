@@ -38,7 +38,7 @@ def account_recognition(sentence):
     t_account = timeit.default_timer()
     accounts_info = account_model.get_account_labels_info(sentence)
     logger.info(accounts_info)
-    logger.info("Error Correction model done. Time consume: {0}".format(timeit.default_timer() - t_account))
+    logger.info("Account Recognition model done. Time consume: {0}".format(timeit.default_timer() - t_account))
     return accounts_info
 
 
@@ -174,6 +174,7 @@ def get_result(request):
     end_time = timeit.default_timer()
 
     logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
+    logger.info("Final reuslt...\n{0}".format(query_graph_result))
     # 返回JSON格式数据，将 result_ner 替换成需要返回的JSON数据
     return JsonResponse(query_graph_result, json_dumps_params={'ensure_ascii': False})
 

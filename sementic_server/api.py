@@ -18,12 +18,14 @@ from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
+from sementic_server.source.recommend.recommend_server import RecommendServer
 
 # 在这里定义在整个程序都会用到的类的实例
 account_model = Account()
 semantic = SemanticSearch()
 item_matcher = ItemMatcher(new_actree=True)
 dependency_parser = DependencyParser()
+recommend_server = RecommendServer()
 
 logger = logging.getLogger("server_log")
 
@@ -184,11 +186,9 @@ def correct(request):
     :param request:
     :return:
     """
-    print("111{0}111".format(request.method))
     if request.method != 'POST':
         logger.error("仅支持post访问")
         return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
-    print("222{0}222".format(request.body))
     try:
         request_data = json.loads(request.body)
     except Exception:
@@ -271,3 +271,41 @@ def account(request):
     except Exception as e:
         logger.error(f"Account Recognition Test - {e}")
     return JsonResponse(accounts_info, json_dumps_params={'ensure_ascii': False})
+
+
+@csrf_exempt
+def recommendation(request):
+    """
+    账户识别模块单独测试接口
+    :param request:
+    :return: JSON个数数据，示例如下：
+    {
+        "raw_input": "15295668654的朋友？",
+        "entities": [
+            {"value": "15295668654", "type": "MOB_VALUE", "begin": 0, "end": 12, "code": "220"}
+        ]
+    }
+    """
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
+    try:
+        request_data = json.loads(request.body)
+    except Exception:
+        request_data = request.POST
+    logger.info(request_data)
+    key = request_data.get("key", None)
+    top_num = request_data.get("top_num", None)
+    node_type = request_data.get("node_type", None)
+    result = dict()
+    if key is None:
+        result = {"error": "Key值不能为空"}
+    try:
+        logger.info("Recommendation Model Test...")
+
+        t_account = timeit.default_timer()
+        result = recommend_server.get_recommend_result(key=key, top_num=top_num, node_type=node_type)
+        logger.info("Recommendation Model Test Done. Time consume: {0}".format(timeit.default_timer() - t_account))
+    except Exception as e:
+        logger.error(f"Account Recognition Test - {e}")
+    return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

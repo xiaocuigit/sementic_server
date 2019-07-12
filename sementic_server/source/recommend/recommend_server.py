@@ -11,6 +11,7 @@ import redis
 import timeit
 
 from pprint import pprint
+from collections import OrderedDict
 from sementic_server.source.recommend.recommendation import DynamicGraph
 from sementic_server.source.recommend.utils import *
 
@@ -46,7 +47,10 @@ class RecommendServer(object):
 
         # host是redis主机，需要redis服务端和客户端都起着 redis默认端口是6379
         pool = redis.ConnectionPool(host=config["redis"]["ip_address"], port=config["redis"]["port"],
-                                    db=config["redis"]["db"], decode_responses=True)
+                                    db=config["redis"]["db"], decode_responses=True, socket_timeout=1,
+                                    socket_connect_timeout=1,
+                                    retry_on_timeout=True)
+
         self.connect = redis.Redis(connection_pool=pool)
         if not self.connect.ping():
             self.logger("Redis connect error, please start redis service first.")
@@ -83,10 +87,33 @@ class RecommendServer(object):
         self.logger.info("Begin compute PageRank value...")
         start = timeit.default_timer()
         self.dynamic_graph.update_graph(data["node"], data["edges"])
+        self.logger.info("There are {0} nodes in graph.".format(len(self.dynamic_graph.get_nodes())))
         pr_value = self.dynamic_graph.get_page_rank()
-        sorted(pr_value.items(), key=lambda d: d[1], reverse=True)
+        pr_value = sorted(pr_value.items(), key=lambda d: d[1], reverse=True)
         self.logger.info("Done.  PageRank Algorithm time consume: {0} S".format(timeit.default_timer() - start))
         return pr_value
+
+    def get_recommend_result(self, key, top_num=10, node_type=None):
+        data = self.load_data_from_redis(key=key)
+        nodes = self.dynamic_graph.get_nodes()
+        index = 0
+        results = OrderedDict()
+        pr_value = self.get_page_rank_result(data)
+        if pr_value is None:
+            return {"error": "the graph is empty"}
+        for node_id, pr in pr_value:
+            if node_type and node_id in nodes:
+                node = nodes[node_id]["value"]
+                if node[:3] == node_type:
+                    index += 1
+                    results[node_id] = pr
+            else:
+                index += 1
+                results[node_id] = pr
+            if index == top_num:
+                break
+
+        return results
 
     def degree_count(self, data):
         """

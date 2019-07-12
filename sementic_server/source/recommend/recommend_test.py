@@ -12,22 +12,8 @@ from sementic_server.source.recommend.recommend_server import RecommendServer
 if __name__ == '__main__':
     recommend = RecommendServer()
     key = 2
-    # recommend.save_data_to_redis(key=key)
-    data = recommend.load_data_from_redis(key=key)
-    recommend.degree_count(data=data)
-    pr_sort = recommend.get_page_rank_result(data)
-    nodes = recommend.get_graph_nodes()
-    pprint(len(nodes))
-    index = 1
-    num = 0
-    for key, value in pr_sort.items():
-        num += 1
-        if key in nodes:
-            node = nodes[key]["value"]
-            if node[:3] == "100":
-                index += 1
-                pprint("{0} {1} {2}".format(key, value, node))
-                print("\n")
-        if index == 10:
-            break
-    print(num)
+    recommend.save_data_to_redis(key=key)
+    # data = recommend.load_data_from_redis(key=key)
+    # recommend.degree_count(data=data)
+    results = recommend.get_recommend_result(key=2, top_num=10, node_type="100")
+    pprint(results)

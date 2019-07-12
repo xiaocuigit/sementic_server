@@ -13,7 +13,7 @@ if __name__ == '__main__':
     recommend = RecommendServer()
     key = 2
     recommend.save_data_to_redis(key=key)
-    # data = recommend.load_data_from_redis(key=key)
-    # recommend.degree_count(data=data)
-    results = recommend.get_recommend_result(key=2, top_num=10, node_type="100")
+    data = recommend.load_data_from_redis(key=key)
+    recommend.degree_count(data=data)
+    results = recommend.get_recommend_result(key=2, top_num=10)
     pprint(results)

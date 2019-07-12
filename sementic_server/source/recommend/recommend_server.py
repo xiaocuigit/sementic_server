@@ -43,13 +43,13 @@ class RecommendServer(object):
         config = json.load(open(config_file, 'r', encoding='utf-8'))
 
         self.test_data_file = os.path.join(base_path, 'data', 'test_recommend_data',
-                                           '1001807032151001902000419975.json')
+                                           '1001711081640003790000917493.json')
 
         # host是redis主机，需要redis服务端和客户端都起着 redis默认端口是6379
         pool = redis.ConnectionPool(host=config["redis"]["ip_address"], port=config["redis"]["port"],
-                                    db=config["redis"]["db"], decode_responses=True, socket_timeout=1,
-                                    socket_connect_timeout=1,
-                                    retry_on_timeout=True)
+                                    password=config["redis"]["password"], db=config["redis"]["db"],
+                                    decode_responses=True, socket_timeout=1,
+                                    socket_connect_timeout=1, retry_on_timeout=True)
 
         self.connect = redis.Redis(connection_pool=pool)
         if not self.connect.ping():
@@ -66,7 +66,7 @@ class RecommendServer(object):
         data = self.connect.hget(name="sub_graph", key=key)
         if data is not None:
             data = json.loads(data)
-            pprint(len(data["node"]))
+            pprint(len(data["nodes"]))
             return data
         return None
 
@@ -86,7 +86,7 @@ class RecommendServer(object):
             return None
         self.logger.info("Begin compute PageRank value...")
         start = timeit.default_timer()
-        self.dynamic_graph.update_graph(data["node"], data["edges"])
+        self.dynamic_graph.update_graph(data["nodes"], data["edges"])
         self.logger.info("There are {0} nodes in graph.".format(len(self.dynamic_graph.get_nodes())))
         pr_value = self.dynamic_graph.get_page_rank()
         pr_value = sorted(pr_value.items(), key=lambda d: d[1], reverse=True)
@@ -121,7 +121,7 @@ class RecommendServer(object):
         :param data:
         :return:
         """
-        self.dynamic_graph.update_graph(data["node"], data["edges"])
+        self.dynamic_graph.update_graph(data["nodes"], data["edges"])
         in_deg_count = {}
         for id, in_degree in self.dynamic_graph.get_in_degree():
             if in_degree not in in_deg_count:

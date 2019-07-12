@@ -113,5 +113,5 @@ def write_to_neo4j(data):
 
 
 if __name__ == '__main__':
-    data_file = '../data/kg_data/22015880982936.json'
+    data_file = '../../data/test_recommend_data/1001711081640003790000917493.json'
     write_to_neo4j(data_load(data_file))

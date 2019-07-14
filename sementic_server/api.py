@@ -285,14 +285,11 @@ def account(request):
 @csrf_exempt
 def recommendation(request):
     """
-    账户识别模块单独测试接口
+    推荐模块模块接口
     :param request:
     :return: JSON个数数据，示例如下：
     {
-        "raw_input": "15295668654的朋友？",
-        "entities": [
-            {"value": "15295668654", "type": "MOB_VALUE", "begin": 0, "end": 12, "code": "220"}
-        ]
+        "nodeId": "pr_value",
     }
     """
     if request.method != 'POST':
@@ -302,19 +299,21 @@ def recommendation(request):
         request_data = json.loads(request.body)
     except Exception:
         request_data = request.POST
-    logger.info(request_data)
+
     key = request_data.get("key", None)
-    top_num = request_data.get("top_num", None)
+    top_num = request_data.get("top_num", "10")
     node_type = request_data.get("node_type", None)
     result = dict()
     if key is None:
         result = {"error": "Key值不能为空"}
     try:
-        logger.info("Recommendation Model Test...")
+        logger.info("Recommendation Model...")
 
         t_account = timeit.default_timer()
+        if top_num:
+            top_num = int(top_num)
         result = recommend_server.get_recommend_result(key=key, top_num=top_num, node_type=node_type)
-        logger.info("Recommendation Model Test Done. Time consume: {0}".format(timeit.default_timer() - t_account))
+        logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_account))
     except Exception as e:
-        logger.error(f"Account Recognition Test - {e}")
+        logger.error(f"Recommendation Error Info - {e}")
     return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

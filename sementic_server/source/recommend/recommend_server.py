@@ -25,57 +25,87 @@ class RecommendServer(object):
         """
         rootpath = str(os.getcwd()).replace("\\", "/")
         if 'source' in rootpath.split('/'):
-            base_path = os.path.join(os.path.pardir, os.path.pardir)
+            self.base_path = os.path.join(os.path.pardir, os.path.pardir)
         else:
-            base_path = os.path.join(os.getcwd(), 'sementic_server')
+            self.base_path = os.path.join(os.getcwd(), 'sementic_server')
 
-        log_path = os.path.join(base_path, 'output', 'recommend_logs')
+        log_path = os.path.join(self.base_path, 'output', 'recommend_logs')
         if not os.path.exists(log_path):
             os.makedirs(log_path)
         log_file = os.path.join(log_path, 'recommendation.log')
         self.logger = get_logger(name='recommend', path=log_file)
 
-        config_file = os.path.join(base_path, 'config', 'recommend.config')
+        config_file = os.path.join(self.base_path, 'config', 'recommend.config')
         if not os.path.exists(config_file):
-            self.logger.error("Please config redis first.")
-            raise ValueError("Please config redis first.")
+            self.logger.error("Please self.config redis first.")
+            raise ValueError("Please self.config redis first.")
 
-        config = json.load(open(config_file, 'r', encoding='utf-8'))
-
-        self.test_data_file = os.path.join(base_path, 'data', 'test_recommend_data',
-                                           '1001711081640003790000917493.json')
-
-        # host是redis主机，需要redis服务端和客户端都起着 redis默认端口是6379
-        pool = redis.ConnectionPool(host=config["redis"]["ip_address"], port=config["redis"]["port"],
-                                    password=config["redis"]["password"], db=config["redis"]["db"],
-                                    decode_responses=True, socket_timeout=1,
-                                    socket_connect_timeout=1, retry_on_timeout=True)
-
-        self.connect = redis.Redis(connection_pool=pool)
-        if not self.connect.ping():
-            self.logger("Redis connect error, please start redis service first.")
-            raise ValueError("Redis connect error, please start redis service first.")
-
+        self.config = json.load(open(config_file, 'r', encoding='utf-8'))
+        self.connect = self.__connect_redis()
         self.dynamic_graph = DynamicGraph()
+
+    def __connect_redis(self):
+        """
+        与 redis 建立连接
+        :return:
+        """
+        try:
+            # host是redis主机，需要redis服务端和客户端都起着 redis默认端口是6379
+            pool = redis.ConnectionPool(host=self.config["redis"]["ip_address"],
+                                        port=self.config["redis"]["port"],
+                                        password=self.config["redis"]["password"],
+                                        db=self.config["redis"]["db"],
+                                        decode_responses=True, socket_timeout=1,
+                                        socket_connect_timeout=1, retry_on_timeout=True)
+            connect = redis.Redis(connection_pool=pool)
+            if not connect.ping():
+                pprint("ping redis error...")
+                self.logger("Redis connect error, please start redis service first.")
+                return None
+            else:
+                pprint("Connect redis success...")
+                self.logger.info("Connect redis success...")
+                return connect
+        except Exception as e:
+            pprint("Connect redis error: {0}".format(e))
+            self.logger.info("Connect redis error: {0}".format(e))
+            return None
 
     def load_data_from_redis(self, key=None):
         """
         从 Redis 中加载查询子图数据
         :return:
         """
-        data = self.connect.hget(name="sub_graph", key=key)
-        if data is not None:
-            data = json.loads(data)
-            pprint(len(data["nodes"]))
-            return data
+        if self.connect is None or self.connect.ping() is False:
+            self.logger.error("cannot connect to redis, rebuild connection...")
+            self.logger.error("Please try again.")
+            self.connect = self.__connect_redis()
+        else:
+            data = self.connect.get(name=key)
+            if data is not None:
+                data = json.loads(data)
+                pprint(len(data["nodes"]))
+                return data
         return None
 
-    def save_data_to_redis(self, key=None):
-        test_data = json.load(open(self.test_data_file, 'r', encoding='utf-8'))
-        self.connect.hset(name='sub_graph', key=key, value=json.dumps(test_data))
-        print("write done.")
+    def save_data_to_redis(self, data_file, key=None):
+        """
+        将测试数据写入到 Redis 中
+        :param data_file:
+        :param key:
+        :return:
+        """
+        if self.connect is None or self.connect.ping() is False:
+            self.logger.error("cannot connect to redis, rebuild connection...")
+            self.logger.error("Please try again.")
+            self.connect = self.__connect_redis()
+        else:
+            if key is not None:
+                test_data = json.load(open(data_file, 'r', encoding='utf-8'))
+                self.connect.set(name=key, value=json.dumps(test_data))
+                pprint("write done.")
 
-    def get_page_rank_result(self, data=None):
+    def get_page_rank_result(self, data=None, key=None):
         """
         返回推荐结果
         :param data:
@@ -87,7 +117,7 @@ class RecommendServer(object):
         self.logger.info("Begin compute PageRank value...")
         start = timeit.default_timer()
         self.dynamic_graph.update_graph(data["nodes"], data["edges"])
-        self.logger.info("There are {0} nodes in graph.".format(len(self.dynamic_graph.get_nodes())))
+        self.logger.info("There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
         pr_value = self.dynamic_graph.get_page_rank()
         pr_value = sorted(pr_value.items(), key=lambda d: d[1], reverse=True)
         self.logger.info("Done.  PageRank Algorithm time consume: {0} S".format(timeit.default_timer() - start))
@@ -98,7 +128,7 @@ class RecommendServer(object):
         nodes = self.dynamic_graph.get_nodes()
         index = 0
         results = OrderedDict()
-        pr_value = self.get_page_rank_result(data)
+        pr_value = self.get_page_rank_result(data, key)
         if pr_value is None:
             return {"error": "the graph is empty"}
         for node_id, pr in pr_value:

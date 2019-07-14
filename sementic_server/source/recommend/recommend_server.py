@@ -136,10 +136,10 @@ class RecommendServer(object):
                 node = nodes[node_id]["value"]
                 if node[:3] == node_type:
                     index += 1
-                    results[node_id] = pr
+                    results[str(node_id)] = str(pr)
             else:
                 index += 1
-                results[node_id] = pr
+                results[str(node_id)] = str(pr)
             if index == top_num:
                 break
 

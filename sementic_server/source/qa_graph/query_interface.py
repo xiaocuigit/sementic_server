@@ -40,6 +40,7 @@ class QueryInterface(object):
         self.query_dict = dict()
 
         self.serial_process()
+        self.final_delete()
         self.init_query_dict()
 
     def literal_node_reduction(self):
@@ -240,6 +241,21 @@ class QueryInterface(object):
         self.intentions[0] = intent_str
         for relation in self.rels:
             relation['rel'] = relation['rel'].replace(entity_id, new_id)
+
+    def final_delete(self):
+        """
+        针对测试需求，删除全大写的实体
+        :return:
+        """
+        for e_type in self.entities:
+            for e in self.entities[e_type]:
+                entity_id = e['id']
+                if entity_id == entity_id.upper():
+                    self.entities[e_type].remove(e)
+                    break
+            if len(self.entities[e_type]) == 0:
+                self.entities.pop(e_type)
+                break
 
 
 if __name__ == '__main__':

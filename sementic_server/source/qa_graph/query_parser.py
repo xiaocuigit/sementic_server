@@ -135,6 +135,7 @@ class QueryParser(object):
         # 经过上面两个循环，得到连通的图，下面确定意图
         logger.info('connected graph is already')
         self.query_graph = nx.convert_node_labels_to_integers(self.query_graph)
+        self.query_graph = Graph(self.query_graph)
         self.query_graph.show_log()
         logger.info('next is determine intention')
         self.determine_intention()
@@ -209,7 +210,7 @@ class QueryParser(object):
         if len(intention_candidates) == 0:
             # print('intention recognizer module produce wrong intention!')
             logger.info('intention recognizer module produce wrong intention!')
-            self.error_info = 'intention recognizer module produce wrong intention!'
+            self.error_info = '意图冲突!'
             return
 
         none_nodes = self.query_graph.get_none_nodes(self.intent)

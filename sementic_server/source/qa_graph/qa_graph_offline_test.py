@@ -14,16 +14,16 @@ from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
 
 if __name__ == '__main__':
-    case_num = 4
+    case_num = 14
     p = os.path.join(os.getcwd(), os.path.pardir, os.path.pardir, 'data', 'test_case', 'case%d.json' % case_num)
     p = os.path.abspath(p)
 
     with open(p, 'r') as fr:
         data = json.load(fr)
     # print(data)
-    print(data['query'])
-    print(data['entity'])
-    print(data['relation'])
+    print('query', data['query'])
+    print('entity', data['entity'])
+    print('relation', data['relation'])
     qg = QueryParser(data, data['dependency'])
     qg.query_graph.show()
 
@@ -39,3 +39,4 @@ if __name__ == '__main__':
     query_interface = interface_data
     query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
     pprint(query_graph_result)
+    json.dump(query_graph_result, open('test.json', 'w'))

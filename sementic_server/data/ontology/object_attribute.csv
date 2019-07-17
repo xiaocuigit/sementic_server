@@ -21,6 +21,7 @@ PhasSSC,Person,SSC,True
 PhasBankCard,Person,BankCard,True
 PhasIDCard_DL,Person,IDCard_DL,True
 PhasIDCard_TW,Person,IDCard_TW,True
+PhasIdcard,Person,Idcard,True
 PhasFixedPhone,Person,FixedPhone,True
 PhasAddr,Person,Addr,True
 PersonHasNplace,Person,Addr
@@ -46,8 +47,8 @@ GroupHasMember,QQ,GQQ
 PersonHasAddr,Person,Addr
 ChasQQ,Company,QQ,True
 Employ,Company,Person
-LegalPerson,Company,Person,True
-Manager,Company,Person,True
+LegalPerson,Company,Person
+Manager,Company,Person
 MemberOfQQGroup,QQ,GQQ
 RegisterPlace,Company,Company
 Remark,MobileNum,MobileNum

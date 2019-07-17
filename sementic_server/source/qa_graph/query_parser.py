@@ -74,9 +74,13 @@ class QueryParser(object):
     def __init__(self, query_data, dependency=None):
         logger.info('Query Graph Parsing...')
         self.error_info = None
+
         # print('Query Graph Parsing...')
         self.relation = query_data.setdefault('relation', list())
         self.entity = query_data.setdefault('entity', list())
+
+        self.pre_process()
+
         self.intent = query_data['intent']
         self.dependency = dependency
         self.relation_component_list = list()
@@ -130,6 +134,7 @@ class QueryParser(object):
 
         # 经过上面两个循环，得到连通的图，下面确定意图
         logger.info('connected graph is already')
+        self.query_graph = nx.convert_node_labels_to_integers(self.query_graph)
         self.query_graph.show_log()
         logger.info('next is determine intention')
         self.determine_intention()
@@ -225,6 +230,8 @@ class QueryParser(object):
         :return:
         """
         intention_candidates = self.get_intention_candidate()
+        if self.error_info:
+            return
         logger.info('determine intention by degree')
         criterion_dict = dict()
         for node in intention_candidates:
@@ -282,6 +289,37 @@ class QueryParser(object):
                 relation_component.nodes['temp_0']['type'] = RELATION_DATA[r['type']]['domain']
                 relation_component.nodes['temp_1']['type'] = RELATION_DATA[r['type']]['range']
                 self.relation_component_list.append(relation_component)
+
+    def pre_process(self):
+        """
+        对账号进行过滤，如果实体中出现QQ实体，则在关系中过滤ChasQQ关系
+        :return:
+        """
+        """
+        self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',
+                        'WX_GROUP_NUM', 'ALIPAY_VALU', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
+                        'UNLABEL', 'VEHCARD_VALUE', 'IMEI_VALUE', 'MAC_VALUE']
+
+        self.p_has_account_list = ['QQ', 'MobileNum', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
+                                   'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL',
+                                   'PlateNum', 'IMEI', 'MAC']
+        """
+        account_dict = {'QQ_NUM': ['ChasQQ', 'PhasQQ'],
+                        'MOB_NUM': ['PhasMobileNum', 'ChasMobileNum'],
+                        'EMAIL_VALUE': ['PhasEmail'],
+                        'WECHAT_VALUE': ['PhasWeChat'],
+                        'ALIPAY_VALU': ['PhasAlipay'],
+                        'DOUYIN_VALUE': ['PhasDouYin'],
+                        'JD_VALUE': ['PhasJD'],
+                        'TAOBAO_VALUE': ['PhasTaoBao'],
+                        'MICROBLOG_VALUE': ['PhasMicroBlog'],
+                        'IDCARD_VALUE': ['PhasIdcard']}
+        for e in self.entity:
+            if e['type'] in account_dict.keys():
+                for rel_name in account_dict[e['type']]:
+                    for rel in self.relation:
+                        if rel['type'] == rel_name:
+                            self.relation.remove(rel)
 
 
 if __name__ == '__main__':

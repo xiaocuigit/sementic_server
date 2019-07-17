@@ -92,7 +92,7 @@ def write_to_neo4j(data):
     # CREATE CONSTRAINT ON (N:MyNode) ASSERT N.nodeId IS UNIQUE
     graph.delete_all()
     create_nodes = {}
-    for node_raw in data["nodes"]:
+    for node_raw in data["Nodes"]:
         node = Node("Node", nodeId=node_raw["primaryValue"])
 
         if node_raw["primaryValue"] not in create_nodes:
@@ -101,7 +101,7 @@ def write_to_neo4j(data):
         node.add_label(node_raw["primaryValue"][:3])
         graph.create(node)
 
-    for edge in data["edges"]:
+    for edge in data["Edges"]:
         edge_info = dict()
         edge_info["type"] = edge["relationshipType"]
         start, end = None, None
@@ -123,5 +123,5 @@ def write_to_neo4j(data):
 
 
 if __name__ == '__main__':
-    data_file = '../../data/test_recommend_data/1001711081640003790000917493.json'
+    data_file = '../../data/test_recommend_data/1001807032313002679000665513-1001903151412004888000003465.json'
     write_to_neo4j(data_load(data_file))

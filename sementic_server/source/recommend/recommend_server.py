@@ -42,7 +42,9 @@ class RecommendServer(object):
 
         self.config = json.load(open(config_file, 'r', encoding='utf-8'))
         self.connect = self.__connect_redis()
-        self.dynamic_graph = DynamicGraph(self.base_path)
+        self.dynamic_graph = DynamicGraph(multi=True, base_path=self.base_path)
+        self.person_node_type = "100"
+        self.company_node_type = "521"
 
     def __connect_redis(self):
         """
@@ -84,14 +86,14 @@ class RecommendServer(object):
             data = self.connect.get(name=key)
             if data is not None:
                 data = json.loads(data)
-                pprint(len(data["nodes"]))
+                pprint(len(data["Nodes"]))
                 return data
         return None
 
-    def save_data_to_redis(self, data_file, key=None):
+    def save_data_to_redis(self, file_path, key=None):
         """
         将测试数据写入到 Redis 中
-        :param data_file:
+        :param file_path:
         :param key:
         :return:
         """
@@ -101,58 +103,140 @@ class RecommendServer(object):
             self.connect = self.__connect_redis()
         else:
             if key is not None:
-                test_data = json.load(open(data_file, 'r', encoding='utf-8'))
+                test_data = json.load(open(file_path, 'r', encoding='utf-8'))
                 self.connect.set(name=key, value=json.dumps(test_data))
                 pprint("write done.")
 
     def get_page_rank_result(self, data=None, key=None):
         """
-        返回推荐结果
+        返回 PageRank 计算结果
+        :param key:
         :param data:
         :return:
         """
         if data is None:
             self.logger.error("data is empty...")
             return None
+        self.logger.info("Update the recommend graph...")
+        self.dynamic_graph.update_graph(data["Nodes"], data["Edges"])
+        self.logger.info("Update the recommend graph done.")
+        self.logger.info("There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
+
         self.logger.info("Begin compute PageRank value...")
         start = timeit.default_timer()
-        self.dynamic_graph.update_graph(data["nodes"], data["edges"])
-        self.logger.info("There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
         pr_value = self.dynamic_graph.get_page_rank()
         pr_value = sorted(pr_value.items(), key=lambda d: d[1], reverse=True)
         self.logger.info("Done.  PageRank Algorithm time consume: {0} S".format(timeit.default_timer() - start))
+
         return pr_value
 
-    def get_recommend_nodes(self, key, top_num=10, node_type=None):
-        data = self.load_data_from_redis(key=key)
-        nodes = self.dynamic_graph.get_nodes()
-        index = 0
-        results = OrderedDict()
+    def get_recommend_nodes(self, data, key, person_node_num, company_node_num):
+        """
+        根据 PageRank 算法推荐指定个数的人物节点和公司节点
+        :param data: 图的数据
+        :param key: 当前推荐的 key
+        :param person_node_num: 指定推荐人物节点的个数
+        :param company_node_num: 指定推荐公司节点的个数
+        :return:
+        """
         pr_value = self.get_page_rank_result(data, key)
         if pr_value is None:
             return {"error": "the graph is empty"}
+
+        person_num = 0
+        company_num = 0
+        person_uid = list()
+        company_uid = list()
+        all_uid = list()
+        nodes = self.dynamic_graph.get_nodes()
         for node_id, pr in pr_value:
-            if node_type and node_id in nodes:
-                node = nodes[node_id]["value"]
-                if node[:3] == node_type:
-                    index += 1
-                    results[str(node_id)] = str(pr)
-            else:
-                index += 1
-                results[str(node_id)] = str(pr)
-            if index == top_num:
+            node = nodes[node_id]["value"]
+            node_type = node["type"]
+            if node_type == self.person_node_type and person_num < person_node_num:
+                person_uid.append({str(node_id): str(pr)})
+                all_uid.append({str(node_id): str(pr)})
+                person_num += 1
+            elif node_type == self.company_node_type and company_num < company_node_num:
+                company_uid.append({str(node_id): str(pr)})
+                all_uid.append({str(node_id): str(pr)})
+                company_num += 1
+            elif company_num == company_node_num and person_num == person_node_num:
                 break
+        pprint(pr_value[0:20])
+        return person_uid, company_uid, all_uid
 
-        return results
+    def get_recommend_relations(self, query_path):
+        start_node_id, end_node_id = None, None
+        for index, path in enumerate(sorted(query_path.items(), key=lambda x: x[0])):
+            if index == 0:
+                start_node_id = path[1]["From"]
 
-    def get_recommend_edges(self, node_id=None, rel_type=None):
+            if index == len(query_path) - 1:
+                end_node_id = path[1]["To"]
+
+        edges_info = None
+        if start_node_id and end_node_id:
+            edges_info = self.dynamic_graph.get_edges_start_end(start_node_id, end_node_id)
+        if len(edges_info) != 0:
+            result = list()
+            try:
+                # 提取边的 relname 信息，并将其与边的类型对应起来
+                # 两个人物节点相连的边的 relInfo 字段信息示例如下，需要解析出 relname 字段的值
+                # 'relInfo': ['{fname=王华道, relname=夫妻, dtime=201907011930, domain=kindred.com, tname=王晓萍}']
+                for edge_type, info in edges_info:
+                    info = list(info)
+                    info = info[0].lstrip('{').rstrip('}').split(',')
+                    for line in info:
+                        line = line.strip()
+                        if 'relname=' in line:
+                            result.append({edge_type: line[8:]})
+                if len(result) != 0:
+                    return result
+                else:
+                    for edge_type, info in edges_info:
+                        info = list(info)
+                        info = info[0].lstrip('{').rstrip('}')
+                        result.append({edge_type: info})
+                    return result
+            except Exception as e:
+                self.logger.error(e)
+        return edges_info
+
+    def get_no_answer_results(self, query_path, person_node_num, company_node_num):
+        return None
+
+    def get_recommend_results(self, key, person_node_num, company_node_num, need_related_relation, no_answer):
         """
-        推荐与 node_id 的 rel_type 关系相近的节点
-        :param node_id:
-        :param rel_type:
+        返回最终推荐结果
+        :param key:
+        :param person_node_num:
+        :param company_node_num:
+        :param need_related_relation:
+        :param no_answer:
         :return:
         """
-        pass
+        result = dict()
+        if key is None:
+            result["error"] = "RedisKey is empty."
+            return result
+        data = self.load_data_from_redis(key=key)
+        person_uid, company_uid, all_uid = self.get_recommend_nodes(data, key, person_node_num, company_node_num)
+        result["PersonUid"] = person_uid
+        result["CompanyUid"] = company_uid
+        result["AllUid"] = all_uid
+        query_path = data["QueryPath"]
+
+        if need_related_relation:
+            relations = self.get_recommend_relations(query_path)
+            if relations is None:
+                result["RelatedRelationship"] = list()
+            else:
+                result["RelatedRelationship"] = relations
+        if no_answer:
+            no_answer_result = self.get_no_answer_results(query_path, person_node_num, company_node_num)
+            result["NoAnswer"] = no_answer_result
+
+        return result
 
     def degree_count(self, data):
         """
@@ -160,7 +244,7 @@ class RecommendServer(object):
         :param data:
         :return:
         """
-        self.dynamic_graph.update_graph(data["nodes"], data["edges"])
+        self.dynamic_graph.update_graph(data["Nodes"], data["Edges"])
         in_deg_count = {}
         for id, in_degree in self.dynamic_graph.get_in_degree():
             if in_degree not in in_deg_count:

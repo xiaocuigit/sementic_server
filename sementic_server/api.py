@@ -300,9 +300,11 @@ def recommendation(request):
     except Exception:
         request_data = request.POST
     logger.info("Recommendation Model...")
-    key = request_data.get("key", None)
-    top_num = request_data.get("top_num", "10")
-    node_type = request_data.get("node_type", None)
+    key = request_data.get("RedisKey", None)
+    person_node_num = request_data.get("PersonNodeNum", 10)
+    company_node_num = request_data.get("CompanyNodeNum", 5)
+    need_related_relation = request.get("NeedRelatedRelationship", False)
+    no_answer = request.get("NeedNoAnswer", False)
     result = dict()
     if key is None:
         result = {"error": "Key值不能为空"}
@@ -310,9 +312,11 @@ def recommendation(request):
     else:
         try:
             t_account = timeit.default_timer()
-            if top_num:
-                top_num = int(top_num)
-            result = recommend_server.get_recommend_nodes(key=key, top_num=top_num, node_type=node_type)
+            result = recommend_server.get_recommend_results(key=key,
+                                                            person_node_num=person_node_num,
+                                                            company_node_num=company_node_num,
+                                                            need_related_relation=need_related_relation,
+                                                            no_answer=no_answer)
             logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_account))
         except Exception as e:
             logger.error(f"Recommendation Error Info - {e}")

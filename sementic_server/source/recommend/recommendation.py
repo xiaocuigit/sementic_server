@@ -144,65 +144,6 @@ def pagerank_numpy(graph, alpha=0.85, personalization=None, weight='weight',
     return dict(zip(graph, map(float, largest / norm)))
 
 
-def authority_matrix(graph, nodelist=None):
-    """Returns the HITS authority matrix."""
-    M = nx.to_numpy_matrix(graph, nodelist=nodelist)
-    return M.T * M
-
-
-def hub_matrix(graph, nodelist=None):
-    """Returns the HITS hub matrix."""
-    M = nx.to_numpy_matrix(graph, nodelist=nodelist)
-    return M * M.T
-
-
-def hits_numpy(graph, normalized=True):
-    """Returns HITS hubs and authorities values for nodes.
-
-    The HITS algorithm computes two numbers for a node.
-    Authorities estimates the node value based on the incoming links.
-    Hubs estimates the node value based on outgoing links.
-
-    Parameters
-    ----------
-    graph : graph
-      A NetworkX graph
-
-    normalized : bool (default=True)
-       Normalize results by the sum of all of the values.
-
-    Returns
-    -------
-    (hubs,authorities) : two-tuple of dictionaries
-       Two dictionaries keyed by node containing the hub and authority
-       values.
-    """
-    try:
-        import numpy as np
-    except ImportError:
-        raise ImportError(
-            "hits_numpy() requires NumPy: http://scipy.org/")
-    if len(graph) == 0:
-        return {}, {}
-    H = hub_matrix(graph, list(graph))
-    e, ev = np.linalg.eig(H)
-    m = e.argsort()[-1]  # index of maximum eigenvalue
-    h = np.array(ev[:, m]).flatten()
-    A = authority_matrix(graph, list(graph))
-    e, ev = np.linalg.eig(A)
-    m = e.argsort()[-1]  # index of maximum eigenvalue
-    a = np.array(ev[:, m]).flatten()
-    if normalized:
-        h = h / h.sum()
-        a = a / a.sum()
-    else:
-        h = h / h.max()
-        a = a / a.max()
-    hubs = dict(zip(graph, map(float, h)))
-    authorities = dict(zip(graph, map(float, a)))
-    return hubs, authorities
-
-
 class DynamicGraph(object):
     """
     根据数据构建动态子图
@@ -303,6 +244,23 @@ class DynamicGraph(object):
         """
         pass
 
+    def get_edges_start_end(self, start_id, end_id):
+        """
+        返回从 start_id 节点到 end_id 节点的所有边的信息
+        :param start_id:
+        :param end_id:
+        :return:
+        """
+        if self.graph is None:
+            return None
+        if start_id not in self.graph.nodes or end_id not in self.graph.nodes:
+            return None
+        edges_info = list()
+        for u, v, edge_info in self.graph.out_edges(start_id, data=True):
+            if v == end_id:
+                edges_info.append((edge_info["type"], edge_info["value"]["relInfo"]))
+        return edges_info
+
     def get_page_rank(self):
         """
         return the page rank value of all nodes.
@@ -312,14 +270,6 @@ class DynamicGraph(object):
             raise ValueError("The graph is empty...")
         pr = pagerank_numpy(self.graph)
         return pr
-
-    def get_hits(self):
-        """
-        return the hubs and authorities value of all nodes.
-        :return: two list
-        """
-        hubs, authorities = hits_numpy(self.graph)
-        return hubs, authorities
 
     def get_nodes(self):
         """
@@ -344,14 +294,6 @@ class DynamicGraph(object):
         :return:
         """
         return self.graph
-
-    def remove_nodes(self):
-        nodes_removed = []
-        for node in self.graph.nodes:
-            if self.graph.in_degree(node) == 1 and self.graph.out_degree(node) == 0:
-                nodes_removed.append(node)
-        if len(nodes_removed) != 0:
-            self.graph.remove_nodes_from(nodes_removed)
 
     def get_degree(self):
         return self.graph.degree(self.graph.nodes)

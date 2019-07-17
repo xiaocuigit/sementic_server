@@ -180,19 +180,15 @@ class SemanticSearch(object):
         entities = self.__get_entities(sentence, pred_label_result)
 
         if len(entities) != 0:
-            entities = self.__combine_label(entities, label=self.ner_entities['ADDR'])
-            entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
-            entities = self.__combine_label(entities, label=self.ner_entities['DATE'])
-
             self.__combine_com_add(entities)
-            entities = self.__combine_label(entities, label=self.ner_entities['COMPANY'])
 
         entity = []
         for word, label in entities:
             begin = query.find(word)
-            entity.append(
-                {"type": label, "value": word, "code": self.code[label], "begin": begin,
-                 "end": begin + len(word) + 1 if begin != -1 else -1})
+            if begin != -1:
+                entity.append(
+                    {"type": label, "value": word, "code": self.code[label], "begin": begin,
+                     "end": begin + len(word) + 1 if begin != -1 else -1})
         return entity, entities
 
     def sentence_ner_entities(self, result_intent):
@@ -214,7 +210,14 @@ class SemanticSearch(object):
                 if word.find(rel["value"]) != -1:
                     temp = result_intent["relation"].pop(index)
                     print(temp)
+        # 如果识别的实体已经被识别为账户，那么其为账户的可能性更大，从实体列表里面去除该实体
+        for index, entity in enumerate(result_intent["entity"]):
+            for account in result_intent["accounts"]:
+                if account["value"].find(entity["value"]) != -1:
+                    temp = result_intent["entity"].pop(index)
+                    print(temp)
 
+        # 提取出账户识别模块识别的所有 UNLABEL 标签
         unlabels = []
         for value in result_intent["accounts"]:
             if value["type"] == "UNLABEL":

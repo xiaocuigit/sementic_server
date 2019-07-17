@@ -32,7 +32,7 @@ def is_legal_id_card(candidate):
     candidate = candidate.strip()
     candidate_list = list(candidate)
 
-    if not area[candidate[0:2]]:
+    if candidate[0:2] not in area:
         return False
     if len(candidate) == 15:
         if ((int(candidate[6:8]) + 1900) % 4 == 0 or (
@@ -105,7 +105,7 @@ def is_phone(candidate):
     :param candidate:
     :return:
     """
-    pattern_phone = r"^(\d{3}-\d{8}|\d{4}-\{7,8})$"
+    pattern_phone = r"^((\d{3}-\d{7,8})|(\d{4}-\d{7,8}))$"
     result = re.match(pattern_phone, candidate)
     if result is not None:
         return True
@@ -270,6 +270,10 @@ class Account:
         for match in re.finditer(pattern_veh, raw_string):
             begin = match.start()
             end = match.end()
+            if end < len(raw_string) and (
+                    raw_string[end].isdigit() or raw_string[end].islower() or raw_string[end].isupper()):
+                continue
+
             if begin != -1:
                 plate_num = raw_string[begin:end]
                 vehicles.append({"value": plate_num, "type": "VEHCARD_VALUE", "begin": begin, "end": end,
@@ -300,7 +304,7 @@ class Account:
         :param raw_input:
         :return:
         """
-        pattern_account = r"([a-zA-Z0-9@_\-\.:]{7,})"
+        pattern_account = r"([a-zA-Z0-9@_\-\.:]{6,})"
         account_list = []
         sentence = raw_input
         vehicles = self.match_vehicle_num(sentence)

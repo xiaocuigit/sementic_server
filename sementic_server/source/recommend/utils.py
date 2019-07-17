@@ -12,7 +12,6 @@ import json
 import yaml
 import logging
 
-from py2neo import Graph, Node, Relationship
 from logging.handlers import TimedRotatingFileHandler
 
 
@@ -87,6 +86,8 @@ def construct_edges(data):
 
 
 def write_to_neo4j(data):
+    from py2neo import Graph, Node, Relationship
+
     graph = Graph("http://localhost:7474", username="neo4j", password="123456")
     # CREATE CONSTRAINT ON (N:MyNode) ASSERT N.nodeId IS UNIQUE
     graph.delete_all()
@@ -112,8 +113,5 @@ def write_to_neo4j(data):
 
 
 if __name__ == '__main__':
-    # node_types, relation_types = get_node_relation_type()
-    # print(node_types)
-    # print(relation_types)
-    data_file = '../data/kg_data/22015880982936.json'
+    data_file = '../../data/test_recommend_data/1001711081640003790000917493.json'
     write_to_neo4j(data_load(data_file))

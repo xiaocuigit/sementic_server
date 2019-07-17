@@ -8,14 +8,17 @@
 
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
+from sementic_server.source.ner_task.account import Account
 from pprint import pprint
 
 if __name__ == '__main__':
     semantic = SemanticSearch()
     item_matcher = ItemMatcher(True)
+    account = Account()
     while True:
         sentence = input("please input:")
-        result = item_matcher.match(sentence)
+        accounts_info = account.get_account_labels_info(sentence)
+        result = item_matcher.match(sentence, accounts_info=accounts_info)
         result_ner = semantic.sentence_ner_entities(result)
         pprint(result_ner)
         entity = result.get('entity') + result.get('accounts')

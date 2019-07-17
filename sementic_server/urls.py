@@ -23,4 +23,5 @@ urlpatterns = [
     path('account/', api.account, name='account'),
     path('ner/', api.ner, name='ner'),
     path('correct/', api.correct, name='correct'),
+    path('recommendation/', api.recommendation, name='recommendation'),
 ]

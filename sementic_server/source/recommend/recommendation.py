@@ -6,7 +6,6 @@
 @version: 0.0.1
 """
 import networkx as nx
-import matplotlib.pyplot as plt
 
 
 def google_matrix(graph, alpha=0.85, personalization=None,
@@ -245,19 +244,6 @@ class DynamicGraph(object):
                 self.edges_count[relation["relationshipType"]] = 1
             else:
                 self.edges_count[relation["relationshipType"]] += 1
-
-    def show_graph(self, pr_value):
-        """
-        use matplotlib to show the graph
-        :return:
-        """
-        nx.set_node_attributes(self.graph, name='pr_value', values=pr_value)
-        positions = nx.random_layout(self.graph)
-        node_size = [x['pr_value'] * 20000 for v, x in self.graph.nodes(data=True)]
-        nx.draw_networkx_nodes(self.graph, positions, node_size=node_size, alpha=0.4)
-        nx.draw_networkx_edges(self.graph, positions)
-        nx.draw_networkx_labels(self.graph, positions, font_size=10)
-        plt.show()
 
     def get_page_rank(self):
         """

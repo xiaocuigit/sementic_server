@@ -16,12 +16,17 @@ from sementic_server.source.intent_extraction.item_matcher import replace_items_
 import logging
 logger = logging.getLogger("server_log")
 
+PINYIN_CAUTION = {
+    "en": "eng",
+    "in": "ing",
+    "on": "ong",
+    }
+
 
 def power_set(l: list):
     """
-    生成 0~l的幂集
-    :param l:  某个词的长度
-
+    生成列表l的幂集
+    :param l:一个列表
     """
     res = [[]]
     for i in l:
@@ -60,14 +65,22 @@ def _find_the_key_and_add_to_candidate(word, key, value, pos_list: list):
     :param pos_list:
     :return:无
     """
-    if key not in word:
+
+    i = word.find(key)
+    if i < 0:
         return
-    i, b, e = word.find(key), 0, len(word)
+    caution = False
+    if key in PINYIN_CAUTION.keys():
+        caution = True
+    size = len(word)
 
     while i > -1:
-        pos_list.extend([(i, i + len(key), v) for v in value])
-        # find the key word
-        i = word.find(key, i + 1, e)
+        if caution and word.find(PINYIN_CAUTION[key], i, size) is i:
+            ...
+        else:
+            pos_list.extend([(i, i + len(key), v) for v in value])
+        # find the next key word
+        i = word.find(key, i + 1, size)
 
 
 # 规则库
@@ -87,23 +100,21 @@ def transformer(word: str, replace: dict):
     if set(word.lower()) & outer != set():
         return res
 
-    n = len(word)
-    range_n = list(range(n))
-    # 拼音替换
-    combinations = power_set(range_n)[1:]
+    range_n = [i for i in range(len(word))]
+
+    combinations = power_set(range_n)
     word_py = lazy_pinyin(word)
 
     for combination in combinations:
         # for each combination
-        # 拼音
+        # 考虑每一种组合的拼音替代方案
         word_change = _replace_position_with_another_by_combination(word, word_py, combination)
         res.append(word_change)
 
-        # other wrong
+        # 在可替换词典列表中寻找可替代字符
         pos_list = []
-        for key, value in replace["pinyin"].items():
+        for key, value in replace.items():
             _find_the_key_and_add_to_candidate(word_change, key, value, pos_list)
-
 
         pos_list = sorted(pos_list, key=cmp_to_key(cmp))
         pos_list = power_set(pos_list)[1:]
@@ -111,6 +122,8 @@ def transformer(word: str, replace: dict):
         for pos_item in pos_list:
             word_change_ex = replace_items_in_sentence(word_change, pos_item)
             res.append(word_change_ex)
+
+    res.remove(word) if word in res else None
     return res
 
 
@@ -122,34 +135,38 @@ def build_wrong_table():
     dir_yml = join(si.base_path, "data", "yml")
     _int = yaml.load(open(join(dir_yml, "quesword.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     _rel = yaml.load(open(join(dir_yml, "relation.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
-    all_word = [v for vs in list(_rel.values()) + list(_int.values()) for v in vs if v is not None and len(v) > 1]
-    repl = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
+    all_words = [v for vs in list(_rel.values()) + list(_int.values()) for v in vs if v is not None and len(v) > 1]
+    replace = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
 
     # 运行
-    res_dict = {}
-    for aw in all_word:
-        res_dict[aw] = transformer(aw, repl)
+    wrong_table = {}
+    for word in all_words:
+        wrong_table[word] = transformer(word, replace)
 
     # 去重
     all_res = []
-    for v in res_dict.values():
+    for v in wrong_table.values():
         all_res.extend(v)
 
     c = Counter(all_res)
     c = {i for i in c.keys() if c[i] > 1}
 
     conflict = 0
-    for k, v in res_dict.items():
+    for k, v in wrong_table.items():
         x = c & set(v)
         conflict += len(x)
         for xi in x:
-            res_dict[k].remove(xi)
+            wrong_table[k].remove(xi)
 
     logger.info(f"Build correct table - conflict count: {conflict}")
 
     path_restable = join(dir_yml, "wrong_table.yml")
-    yaml.dump(res_dict, open(path_restable, "w", encoding="utf-8"), allow_unicode=True, default_flow_style=False)
+    yaml.dump(wrong_table, open(path_restable, "w", encoding="utf-8"), allow_unicode=True, default_flow_style=False)
 
 
 if __name__ == '__main__':
+    # build_wrong_table()
+    # si = SystemInfo()
+    # dir_yml = join(si.base_path, "data", "yml")
+    # replace = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     build_wrong_table()

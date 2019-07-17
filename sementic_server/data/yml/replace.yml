@@ -1,26 +1,289 @@
-ch:
-  哪:
-    - 那
-    - 哪儿
-    - 那儿
-  什么:
-    - 啥
+# 纠错词典构建规则——可替换词库
+# 包括：
+# 1 中文别字
+# 2 前后鼻音
+# 3 n和l
+# 4 平仄声
+# 5 可重复字符
 
-pinyin:
-  in:
-    - ing
-  en:
-    - eng
-  ing:
-    - in
-  eng:
-    - en
-  ong:
-    - "on"
-  o:
-    - "oo"
-  n:
-    - "l"
-  l:
-    - "n"
 
+# 1 中文别字校正
+哪:
+  - 那
+
+什么:
+  - 啥
+
+怎:
+  - 咋
+
+婆:
+  - 波
+  - 泼
+
+爸:
+  - 巴
+  - 吧
+  - 把
+
+妈:
+  - 马
+  - 麻
+  - 嘛
+
+爷:
+  - 也
+姨:
+  - 咦
+奶:
+  - 乃
+公:
+  - 工
+哥:
+  - 格
+  - 个
+
+# 2. 前后鼻音校正
+bin:
+- bing
+bing:
+- bin
+din:
+- ding
+ding:
+- din
+jin:
+- jing
+jing:
+- jin
+lin:
+- ling
+ling:
+- lin
+min:
+- ming
+ming:
+- min
+nin:
+- ning
+ning:
+- nin
+pin:
+- ping
+ping:
+- pin
+qin:
+- qing
+qing:
+- qin
+tin:
+- ting
+ting:
+- tin
+yin:
+- ying
+ying:
+- yin
+ben:
+- beng
+beng:
+- ben
+cen:
+- ceng
+ceng:
+- cen
+den:
+- deng
+deng:
+- den
+fen:
+- feng
+feng:
+- fen
+gen:
+- geng
+geng:
+- gen
+hen:
+- heng
+heng:
+- hen
+ken:
+- keng
+keng:
+- ken
+len:
+- leng
+leng:
+- len
+men:
+- meng
+meng:
+- men
+nen:
+- neng
+neng:
+- nen
+pen:
+- peng
+peng:
+- pen
+ren:
+- reng
+reng:
+- ren
+ten:
+- teng
+teng:
+- ten
+zen:
+- zeng
+zeng:
+- zen
+
+con:
+- cong
+cong:
+- con
+don:
+- dong
+dong:
+- don
+gon:
+- gong
+gong:
+- gon
+kon:
+- kong
+kong:
+- kon
+lon:
+- long
+long:
+- lon
+non:
+- nong
+nong:
+- non
+ron:
+- rong
+rong:
+- ron
+son:
+- song
+song:
+- son
+ton:
+- tong
+tong:
+- ton
+yon:
+- yong
+yong:
+- yon
+zon:
+- zong
+zong:
+- zon
+
+# 3 n和l校正
+ne:
+  - "le"
+le:
+  - "ne"
+na:
+  - "la"
+la:
+  - "na"
+ni:
+  - "li"
+li:
+  - "ni"
+"no":
+  - "lo"
+lo:
+  - "no"
+nu:
+  - "lu"
+lu:
+  - "nu"
+nv:
+  - "lv"
+lv:
+  - "nv"
+"nei":
+  - "na"
+
+# 4 平仄音校正
+ca:
+- cha
+ce:
+- che
+cha:
+- ca
+che:
+- ce
+chi:
+- ci
+cho:
+- co
+chu:
+- cu
+ci:
+- chi
+co:
+- cho
+cu:
+- chu
+sa:
+- sha
+se:
+- she
+sha:
+- sa
+she:
+- se
+shi:
+- si
+sho:
+- so
+shu:
+- su
+si:
+- shi
+so:
+- sho
+su:
+- shu
+za:
+- zha
+ze:
+- zhe
+zha:
+- za
+zhe:
+- ze
+zhi:
+- zi
+zho:
+- zo
+zhu:
+- zu
+zi:
+- zhi
+zo:
+- zho
+zu:
+- zhu
+
+# 5 可重复字符校正
+ao:
+  - "aoo"
+bo:
+  - "boo"
+uo:
+  - "uoo"
+mo:
+  - "moo"
+po:
+  - "poo"

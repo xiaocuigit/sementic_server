@@ -76,11 +76,11 @@ def cmp(x, y):
     :param y:数2
     :return:
     """
-    if x[1] < y[1]:
+    if x[0] < y[0]:
         return -1
-    elif x[1] > y[1]:
+    elif x[0] > y[0]:
         return 1
-    if x[2] > y[2]:
+    if x[1] > y[1]:
         return -1
     else:
         return 1
@@ -149,7 +149,6 @@ class Recognizer(object):
             _find_word_range_in_sentence(word, query, words_info)
 
         words_info = sorted(words_info, key=cmp_to_key(cmp))
-
         # 是否有重叠的关键词
         last_end = -1   # 记录上一个关键词结束的位置
         for i, t in enumerate(words_info):

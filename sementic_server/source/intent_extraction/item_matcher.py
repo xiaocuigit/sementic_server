@@ -187,6 +187,8 @@ class ItemMatcher(object):
         res_correction = {"correct_query": query, "correct": []}
 
         query4type = self.corr.query4type(query.lower())
+
+        # 处理与账号识别冲突的部分
         if ban_list is not None:
             query4type = _resolve_list_confilct(query4type, ban_list)
 
@@ -255,12 +257,15 @@ class ItemMatcher(object):
 if __name__ == '__main__':
     from pprint import pprint
 
-    i = "wxid_wodemama的mama的手机号？"
-    from sementic_server.source.ner_task.account import get_account_labels_info
+    i = "李帅的shiYOU麻麻在哪shang班？"
+    from sementic_server.source.ner_task.account import Account
+    from sementic_server.source.intent_extraction.dict_builder import build_wrong_table
+    build_wrong_table()
 
-    account = get_account_labels_info(i)
+    account = Account()
     im = ItemMatcher(new_actree=True)
-    pprint(im.match(i, accounts_info=account))
+
+    pprint(im.match(i, accounts_info=account.get_account_labels_info(i)))
     while True:
         i = input()
         pprint(im.match(i))

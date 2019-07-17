@@ -299,21 +299,21 @@ def recommendation(request):
         request_data = json.loads(request.body)
     except Exception:
         request_data = request.POST
-
+    logger.info("Recommendation Model...")
     key = request_data.get("key", None)
     top_num = request_data.get("top_num", "10")
     node_type = request_data.get("node_type", None)
     result = dict()
     if key is None:
         result = {"error": "Key值不能为空"}
-    try:
-        logger.info("Recommendation Model...")
-
-        t_account = timeit.default_timer()
-        if top_num:
-            top_num = int(top_num)
-        result = recommend_server.get_recommend_result(key=key, top_num=top_num, node_type=node_type)
-        logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_account))
-    except Exception as e:
-        logger.error(f"Recommendation Error Info - {e}")
+        logger.error(f"Recommendation Error Info - Key值不能为空")
+    else:
+        try:
+            t_account = timeit.default_timer()
+            if top_num:
+                top_num = int(top_num)
+            result = recommend_server.get_recommend_nodes(key=key, top_num=top_num, node_type=node_type)
+            logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_account))
+        except Exception as e:
+            logger.error(f"Recommendation Error Info - {e}")
     return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

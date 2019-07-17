@@ -93,22 +93,32 @@ def write_to_neo4j(data):
     graph.delete_all()
     create_nodes = {}
     for node_raw in data["nodes"]:
-        node = Node("Node", nodeId=node_raw["nodeId"], value=node_raw["primaryValue"])
-        if node_raw["nodeId"] not in create_nodes:
-            create_nodes[node_raw["nodeId"]] = node
+        node = Node("Node", nodeId=node_raw["primaryValue"])
+
+        if node_raw["primaryValue"] not in create_nodes:
+            create_nodes[node_raw["primaryValue"]] = node
+
         node.add_label(node_raw["primaryValue"][:3])
         graph.create(node)
 
     for edge in data["edges"]:
-        start_id = edge["startNodeId"]
-        end_id = edge["endNodeId"]
-        if start_id in create_nodes and end_id in create_nodes:
-            relation = Relationship(create_nodes[start_id], edge["relationshipType"], create_nodes[end_id])
+        edge_info = dict()
+        edge_info["type"] = edge["relationshipType"]
+        start, end = None, None
+        for pro in edge["properties"]:
+            edge_info[pro["propertyKey"]] = pro["propertyValue"]
+            if pro["propertyKey"] == "from":
+                start = pro["propertyValue"][0]
+            if pro["propertyKey"] == "to":
+                end = pro["propertyValue"][0]
+
+        if start in create_nodes and end in create_nodes:
+            relation = Relationship(create_nodes[start], edge["relationshipType"], create_nodes[end])
             graph.create(relation)
         else:
             print("=========error=========")
-            print(start_id)
-            print(end_id)
+            print(start)
+            print(end)
             print("=========error=========")
 
 

@@ -5,6 +5,8 @@
 @time: 2019-07-02
 @version: 0.0.1
 """
+import os
+import gensim
 import networkx as nx
 
 
@@ -206,7 +208,7 @@ class DynamicGraph(object):
     根据数据构建动态子图
     """
 
-    def __init__(self, multi=False):
+    def __init__(self, multi=False, base_path=None):
         """
         Load data and init the networkx graph
         :param data: nodes and edges
@@ -219,6 +221,13 @@ class DynamicGraph(object):
 
         self.node_count = {}
         self.edges_count = {}
+        self.embedding_file = os.path.join(base_path, 'data', 'embeddings', 'embedding_relation.txt')
+        if not os.path.exists(self.embedding_file):
+            raise ValueError("Relation embedding file do not exist, please add first.")
+        self.embeddings = None
+
+    def __load_relation_embeddings(self):
+        pass
 
     def update_graph(self, nodes, edges):
         """
@@ -232,18 +241,67 @@ class DynamicGraph(object):
         self.edges_count.clear()
 
         for node in nodes:
-            self.graph.add_node(node["nodeId"], value=node["primaryValue"], properties=node["properties"])
-            if node["primaryValue"][:3] not in self.node_count:
-                self.node_count[node["primaryValue"][:3]] = 1
+            node_info = dict()
+            for pro in node["properties"]:
+                node_info[pro["propertyKey"]] = pro["propertyValue"]
+            node_info["type"] = node["primaryValue"][:3]
+
+            self.graph.add_node(node["primaryValue"], value=node_info)
+            if node_info["type"] not in self.node_count:
+                self.node_count[node_info["type"]] = 1
             else:
-                self.node_count[node["primaryValue"][:3]] += 1
+                self.node_count[node_info["type"]] += 1
 
         for relation in edges:
-            self.graph.add_edge(relation["startNodeId"], relation["endNodeId"], type=relation["relationshipType"])
+            edge_info = dict()
+            edge_info["type"] = relation["relationshipType"]
+            start, end = None, None
+            for pro in relation["properties"]:
+                edge_info[pro["propertyKey"]] = pro["propertyValue"]
+                if pro["propertyKey"] == "from":
+                    start = pro["propertyValue"]
+                if pro["propertyKey"] == "to":
+                    end = pro["propertyValue"]
+            if len(start) != 0 and len(end) != 0:
+                self.graph.add_edge(start[0], end[0], type=relation["relationshipType"], value=edge_info)
             if relation["relationshipType"] not in self.edges_count:
                 self.edges_count[relation["relationshipType"]] = 1
             else:
                 self.edges_count[relation["relationshipType"]] += 1
+
+    def get_similarity_rel_type(self, node_id=None, rel_type=None, rel_name=None, top_num=3):
+        """
+        获取与 node_id 的 rel_type 关系相近的节点
+        :param node_id:
+        :param rel_type:
+        :param rel_name:
+        :param top_num:
+        :return:
+        """
+        if self.graph is None or node_id is None or rel_type is None:
+            return None
+        if not self.graph.has_node(node_id):
+            return None
+        results = list()
+        for s, e, rel_info in self.graph.out_edges(node_id, data=True):
+            if rel_info["type"] == rel_type:
+                results.append({"start_id": s, "end_id": e, "rel_info": rel_info})
+        for s, e, rel_info in self.graph.in_edges(node_id, data=True):
+            if rel_info["type"] == rel_type:
+                results.append({"start_id": s, "end_id": e, "rel_info": rel_info})
+        if len(results) != 0:
+            return self.__most_similarity_relations(results, rel_name, top_num)
+        else:
+            return None
+
+    def __most_similarity_relations(self, results, rel_name, top_num):
+        """
+        从 results 中计算与 rel_name 最相似的 top_num 个关系并返回。
+        :param results:
+        :param top_num:
+        :return:
+        """
+        pass
 
     def get_page_rank(self):
         """

@@ -42,7 +42,7 @@ class RecommendServer(object):
 
         self.config = json.load(open(config_file, 'r', encoding='utf-8'))
         self.connect = self.__connect_redis()
-        self.dynamic_graph = DynamicGraph()
+        self.dynamic_graph = DynamicGraph(self.base_path)
 
     def __connect_redis(self):
         """
@@ -123,7 +123,7 @@ class RecommendServer(object):
         self.logger.info("Done.  PageRank Algorithm time consume: {0} S".format(timeit.default_timer() - start))
         return pr_value
 
-    def get_recommend_result(self, key, top_num=10, node_type=None):
+    def get_recommend_nodes(self, key, top_num=10, node_type=None):
         data = self.load_data_from_redis(key=key)
         nodes = self.dynamic_graph.get_nodes()
         index = 0
@@ -144,6 +144,15 @@ class RecommendServer(object):
                 break
 
         return results
+
+    def get_recommend_edges(self, node_id=None, rel_type=None):
+        """
+        推荐与 node_id 的 rel_type 关系相近的节点
+        :param node_id:
+        :param rel_type:
+        :return:
+        """
+        pass
 
     def degree_count(self, data):
         """

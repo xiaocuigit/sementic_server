@@ -14,7 +14,10 @@ import logging
 from time import time
 from sementic_server.source.intent_extraction.recognizer import Recognizer
 from sementic_server.source.intent_extraction.system_info import SystemInfo
+from sementic_server.source.intent_extraction.dict_builder import build_wrong_table
 from sementic_server.source.intent_extraction.logger import construt_log, get_logger
+from sementic_server.source.intent_extraction.helper \
+    import replace_items_in_sentence, resolve_list_confilct, update_account_in_sentence
 
 server_logger = logging.getLogger("server_log")
 UNLABEL = 'UNLABEL'
@@ -47,72 +50,6 @@ def build_actree(dict_info, pkl_path):
     return reg
 
 
-def _resolve_list_confilct(raw_list, ban_list):
-    """
-    消解raw_list和ban_list的冲突
-    :param raw_list: 需要被消解冲突的部分
-    :param ban_list: 禁止出现的位置索引
-    :return:
-    """
-    if ban_list == list():
-        return raw_list
-
-    res_list = []
-    index_ban = set()
-    for ban in ban_list:
-        if type(ban) in {list, tuple}:
-            index_ban.update(list(range(ban[0], ban[1])))
-        else:
-            index_ban.update(list(range(ban["begin"], ban["end"])))
-
-    for item in raw_list:
-        if type(item) in {list, tuple}:
-            item_range = list(range(item[0], item[1]))
-        else:
-            item_range = list(range(item["begin"], item["end"]))
-        if index_ban.intersection(item_range) == set():
-            res_list.append(item)
-    return res_list
-
-
-def replace_items_in_sentence(sentence, items):
-    """
-    替换句子在item中出现的元素
-    :param sentence: 原始句子
-    :param items: 需要替换的item ((begin, end, value),())
-    :return:
-    """
-    size = len(items)
-    if size < 1:
-        return sentence
-    sentence_after_replace = ""
-    index = 0
-    for position, char in enumerate(sentence):
-        if position is items[index][0]:
-            sentence_after_replace += items[index][2]
-        elif position not in range(items[index][0] + 1, items[index][1]):
-            sentence_after_replace += char
-
-        if position is items[index][1] - 1 and index < size - 1:
-            index += 1
-
-    return sentence_after_replace
-
-
-def _update_account_in_sentence(accounts: list, sentence: str):
-    """
-    更新账号在句子中的位置
-    :param accounts:
-    :param sentence:
-    :return:
-    """
-    for index, info in enumerate(accounts):
-        begin = sentence.find(info["value"])
-        if begin is not info["begin"]:
-            accounts[index]["begin"] = begin
-            accounts[index]["end"] = begin + len(info["value"])
-
-
 class ItemMatcher(object):
     """
     @description: 匹配接口类
@@ -123,58 +60,71 @@ class ItemMatcher(object):
     """
 
     def __init__(self, new_actree=False):
-        self.reg = None  # 识别AC
-        self.corr = None  # 纠错AC
+        self.aho_recognizer = None  # 识别AC
+        self.aho_correction = None  # 纠错AC
         si = SystemInfo()
         self.correct_logger = get_logger("correction", si.log_path_corr)
 
         # 获得根目录的地址
-        self.dir_data = join(si.base_path, "data")
-        self.dir_yml = join(self.dir_data, "yml")
+        dir_data = join(si.base_path, "data")
+        dir_yml = join(dir_data, "yml")
 
-        self.dir_output = join(si.base_path, "output")
-        self.dir_pkl = join(self.dir_output, "pkl")
+        dir_output = join(si.base_path, "output")
+        dir_pkl = join(dir_output, "pkl")
 
         # 获得关系词和疑问词的类型词典和纠错词典
-        self.relations, self.relation_code, self.ques_word, self.wrong_word = dict(), dict(), dict(), dict()
+        self.relations, self.relation_code, self.ques_word, wrong_word, validation = \
+            dict(), dict(), dict(), dict(), dict()
         try:
-            self.relations = yaml.load(open(join(self.dir_yml, "relation.yml"),
+            self.relations = yaml.load(open(join(dir_yml, "relation.yml"),
                                             encoding="utf-8"), Loader=yaml.SafeLoader)
-            self.relation_code = yaml.load(open(join(self.dir_yml, "relation_code.yml"),
+            self.relation_code = yaml.load(open(join(dir_yml, "relation_code.yml"),
                                                 encoding="utf-8"), Loader=yaml.SafeLoader)
-            self.ques_word = yaml.load(open(join(self.dir_yml, "quesword.yml"),
+            self.ques_word = yaml.load(open(join(dir_yml, "quesword.yml"),
                                             encoding="utf-8"), Loader=yaml.SafeLoader)
-            self.wrong_word = yaml.load(open(join(self.dir_yml, "wrong_table.yml"),
+            wrong_word = yaml.load(open(join(dir_yml, "wrong_table.yml"),
                                              encoding="utf-8"), Loader=yaml.SafeLoader)
-
+            validation = yaml.load(open(join(dir_yml, "intent_validation.yml"),
+                                             encoding="utf-8"), Loader=yaml.SafeLoader)
         except FileNotFoundError as e:
-            server_logger.error(f"Cannot find the file in {self.dir_yml}, {e}")
+            server_logger.error(f"Cannot find the file in {dir_yml}, {e}")
 
-        self.reg_dict = self.relations.copy()
-        self.reg_dict.update(self.ques_word)
+        all_kv_pair = self.relations.copy()
+        all_kv_pair.update(self.ques_word)
+        all_values = {value for values in all_kv_pair.values() for value in values}
 
-        # actree
-        if not exists(self.dir_pkl):
-            mkdir(self.dir_pkl)
-        self.path_corr = join(self.dir_pkl, "corr.pkl")
-        self.path_reg = join(self.dir_pkl, "reg.pkl")
+        if validation is None:
+            is_valid = False
+        else:
+            is_valid = all_values == set(validation)
+
+        if not is_valid:
+            build_wrong_table()
+            yaml.dump(
+                list(all_values),
+                open(join(dir_yml, "intent_validation.yml"), "w", encoding="utf-8"),
+                allow_unicode=True,
+                default_flow_style=False
+            )
+
+        if not exists(dir_pkl):
+            mkdir(dir_pkl)
+        path_corr = join(dir_pkl, "corr.pkl")
+        path_reg = join(dir_pkl, "reg.pkl")
 
         if new_actree:
-            self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
-            self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
+            self.aho_correction = build_actree(dict_info=wrong_word, pkl_path=path_corr)
+            self.aho_recognizer = build_actree(dict_info=all_kv_pair, pkl_path=path_reg)
         else:
-            if not exists(self.path_corr):
-                self.corr = build_actree(dict_info=self.wrong_word, pkl_path=self.path_corr)
+            if not exists(path_corr) or not is_valid:
+                self.aho_correction = build_actree(dict_info=wrong_word, pkl_path=path_corr)
             else:
-                self.corr = load_actree(pkl_path=self.path_corr)
+                self.aho_correction = load_actree(pkl_path=path_reg)
 
-            if not exists(self.path_reg):
-                self.reg = build_actree(dict_info=self.reg_dict, pkl_path=self.path_reg)
+            if not exists(path_reg):
+                self.aho_recognizer = build_actree(dict_info=all_kv_pair, pkl_path=path_reg)
             else:
-                self.reg = load_actree(pkl_path=self.path_reg)
-
-        del self.wrong_word
-        del si
+                self.aho_recognizer = load_actree(pkl_path=path_reg)
 
     def correct(self, query, ban_list=None):
         """
@@ -186,11 +136,11 @@ class ItemMatcher(object):
         start_time = time()
         res_correction = {"correct_query": query, "correct": []}
 
-        query4type = self.corr.query4type(query.lower())
+        query4type = self.aho_correction.query4type(query.lower())
 
         # 处理与账号识别冲突的部分
         if ban_list is not None:
-            query4type = _resolve_list_confilct(query4type, ban_list)
+            query4type = resolve_list_confilct(query4type, ban_list)
 
         record = []
         # change the query to the lower.
@@ -238,10 +188,10 @@ class ItemMatcher(object):
             res["query"] = res["correct_info"]["correct_query"]
 
             res["accounts"] = \
-                _resolve_list_confilct(res["accounts"], res["correct_info"]["correct"])
-            _update_account_in_sentence(res["accounts"], res["query"])
+                resolve_list_confilct(res["accounts"], res["correct_info"]["correct"])
+            update_account_in_sentence(res["accounts"], res["query"])
 
-        for item in self.reg.query4type(res["query"]):  # 寻找query中的关系词、疑问词
+        for item in self.aho_recognizer.query4type(res["query"]):  # 寻找query中的关系词、疑问词
             if item["type"] in self.relations.keys():
                 item["code"] = self.relation_code[item["type"]]
                 res["relation"].append(item)
@@ -257,10 +207,8 @@ class ItemMatcher(object):
 if __name__ == '__main__':
     from pprint import pprint
 
-    i = "李帅的shiYOU麻麻在哪shang班？"
+    i = "住在陕西省汉中市市辖区的QQ号码1170591840的人的fuqin是谁？"
     from sementic_server.source.ner_task.account import Account
-    from sementic_server.source.intent_extraction.dict_builder import build_wrong_table
-    build_wrong_table()
 
     account = Account()
     im = ItemMatcher(new_actree=True)

@@ -12,7 +12,8 @@ from pypinyin import lazy_pinyin
 from collections import Counter
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 from sementic_server.source.intent_extraction.recognizer import cmp, cmp_to_key
-from sementic_server.source.intent_extraction.item_matcher import replace_items_in_sentence
+from sementic_server.source.intent_extraction.helper \
+    import replace_items_in_sentence, power_set, replace_position_with_another_by_combination
 import logging
 logger = logging.getLogger("server_log")
 
@@ -23,40 +24,7 @@ PINYIN_CAUTION = {
     }
 
 
-def power_set(l: list):
-    """
-    生成列表l的幂集
-    :param l:一个列表
-    """
-    res = [[]]
-    for i in l:
-        sz = len(res)
-        for j in range(sz):
-            tmp = res[j].copy()
-            tmp.append(i)
-            res.append(tmp)
-    return res
-
-
-def _replace_position_with_another_by_combination(word, another, combination):
-    """
-    根据组合更改位置上的值
-    :param word:目标词
-    :param another:更改的词
-    :param combination:位置组合
-    :return:替换后的新词
-    """
-    w = ""
-    for i in range(len(word)):
-        if i in combination:
-            w += another[i]
-        else:
-            w += word[i]
-
-    return w
-
-
-def _find_the_key_and_add_to_candidate(word, key, value, pos_list: list):
+def find_the_key_and_add_to_candidate(word, key, value, pos_list: list):
     """
     在word中查找key的位置并加入到pos_list中
     :param word:
@@ -108,13 +76,13 @@ def transformer(word: str, replace: dict):
     for combination in combinations:
         # for each combination
         # 考虑每一种组合的拼音替代方案
-        word_change = _replace_position_with_another_by_combination(word, word_py, combination)
+        word_change = replace_position_with_another_by_combination(word, word_py, combination)
         res.append(word_change)
 
         # 在可替换词典列表中寻找可替代字符
         pos_list = []
         for key, value in replace.items():
-            _find_the_key_and_add_to_candidate(word_change, key, value, pos_list)
+            find_the_key_and_add_to_candidate(word_change, key, value, pos_list)
 
         pos_list = sorted(pos_list, key=cmp_to_key(cmp))
         pos_list = power_set(pos_list)[1:]
@@ -151,14 +119,12 @@ def build_wrong_table():
     c = Counter(all_res)
     c = {i for i in c.keys() if c[i] > 1}
 
-    conflict = 0
     for k, v in wrong_table.items():
         x = c & set(v)
-        conflict += len(x)
         for xi in x:
             wrong_table[k].remove(xi)
 
-    logger.info(f"Build correct table - conflict count: {conflict}")
+    logger.info(f"Building correction table....")
 
     path_restable = join(dir_yml, "wrong_table.yml")
     yaml.dump(wrong_table, open(path_restable, "w", encoding="utf-8"), allow_unicode=True, default_flow_style=False)

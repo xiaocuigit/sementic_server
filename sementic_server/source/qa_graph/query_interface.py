@@ -117,19 +117,7 @@ class QueryInterface(object):
                     self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
                     new_graph.remove_node(n2)
                     continue
-                n2_dict = new_graph.nodes[n2].get('data')
-                if 'data' not in new_graph.nodes[n1].keys():
-                    new_graph.nodes[n1]['data'] = dict()
-                if n2_dict:
-                    """
-                    new_graph.nodes[n1]['data'].update(n2_dict)
-                    """
-                    for k, v in n2_dict.items():
-                        if k in new_graph.nodes[n1]['data'].keys():
-                            new_graph.nodes[n1]['data'][k].extend(v)
-                        else:
-                            new_graph.nodes[n1]['data'][k] = v
-                    new_graph.remove_node(n2)
+                remain_belong_reduction(new_graph, n1, n2)
         return new_graph
 
     def graph_reduction(self):
@@ -268,6 +256,26 @@ class QueryInterface(object):
             if len(self.entities[e_type]) == 0:
                 self.entities.pop(e_type)
                 break
+
+
+def remain_belong_reduction(new_graph, n1, n2):
+    """
+    belong_reduction函数拆分出来的部分，以减少复杂度
+    :return:
+    """
+    n2_dict = new_graph.nodes[n2].get('data')
+    if 'data' not in new_graph.nodes[n1].keys():
+        new_graph.nodes[n1]['data'] = dict()
+    if n2_dict:
+        """
+        new_graph.nodes[n1]['data'].update(n2_dict)
+        """
+        for k, v in n2_dict.items():
+            if k in new_graph.nodes[n1]['data'].keys():
+                new_graph.nodes[n1]['data'][k].extend(v)
+            else:
+                new_graph.nodes[n1]['data'][k] = v
+        new_graph.remove_node(n2)
 
 
 if __name__ == '__main__':

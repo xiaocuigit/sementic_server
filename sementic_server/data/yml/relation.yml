@@ -443,6 +443,8 @@ Reside:
 - 居住
 - 住进
 - 住在
+- 租房
+- 业主
 SameCase:
 - 同案人
 - 同案
@@ -544,3 +546,16 @@ PhasMicroBlog:
 
 WorkAt:
   - 工作地址
+WorkFor:
+  - 哪里工作
+  - 工作
+  - 上班
+  - 工作单位
+  - 的公司
+SameInternetBar:
+  - 同网吧
+PersonHasHplace:
+  - 籍贯
+  - 祖居地
+Employ:
+  - 员工

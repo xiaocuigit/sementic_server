@@ -58,4 +58,7 @@ SamePrison,Person,Person
 SameRoom,Person,Person
 SameTown,Person,Person
 SameTrip,Person,Person
+SameInternetBar,Person,Person
 WeChatFriend,WeChat,WeChat
+WorkAt,Person,Addr
+WorkFor,Person,Company

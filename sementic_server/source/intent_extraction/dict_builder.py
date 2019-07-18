@@ -165,8 +165,4 @@ def build_wrong_table():
 
 
 if __name__ == '__main__':
-    # build_wrong_table()
-    # si = SystemInfo()
-    # dir_yml = join(si.base_path, "data", "yml")
-    # replace = yaml.load(open(join(dir_yml, "replace.yml"), encoding="utf-8"), Loader=yaml.SafeLoader)
     build_wrong_table()

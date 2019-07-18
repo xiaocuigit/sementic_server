@@ -41,11 +41,11 @@ class Graph(nx.MultiDiGraph):
         neighbors = self.neighbors(node)
         for n in neighbors:
             # 目前判断条件为出边没有字面值，认为是空节点
-            # 没有字面值，且没有账号
+            # 没有字面值，且没有账号和地址
             # 考虑拓扑排序的终点
             account_list = ['QQ', 'MobileNum', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
                                   'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL',
-                                  'PlateNum', 'IMEI', 'MAC']
+                                  'PlateNum', 'IMEI', 'MAC', 'Addr']
             if self.nodes[n]['label'] == 'literal' or self.nodes[n]['type'] in account_list:
                 return False
         return True

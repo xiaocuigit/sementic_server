@@ -2,4 +2,4 @@ relation,domain,range,value
 PersonToPerson,Person,Person,人与人
 PersonToAddr,Person,Addr,人与地址
 PersonToCompany,Person,Company,人与公司
-PersonToCompany,Person,DouYin,人与抖音
+PersonToDouYin,Person,DouYin,人与抖音

@@ -266,11 +266,11 @@ class RecommendServer(object):
             if node_type == self.person_node_type and person_num < person_node_num:
                 person_num += 1
                 result.append(
-                    {"Uid": node_id, "Similarity": str(sim_val), "RelationName": rel_name, "RelationType": edge_type})
+                    {"Uid": node_id, "Similarity": str(sim_val), "RelName": rel_name, "RelType": edge_type})
             if node_type == self.company_node_type and company_num < company_node_num:
                 company_num += 1
                 result.append(
-                    {"Uid": node_id, "Similarity": str(sim_val), "RelationName": rel_name, "RelationType": edge_type})
+                    {"Uid": node_id, "Similarity": str(sim_val), "RelName": rel_name, "RelType": edge_type})
 
         return result
 

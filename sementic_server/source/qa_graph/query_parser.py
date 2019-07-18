@@ -34,11 +34,11 @@ def init_default_edge():
     else:
         path = os.path.join(os.getcwd(), 'sementic_server', 'data', 'ontology', 'default_relation.csv')
     path = os.path.abspath(path)
-    with open(path, 'r') as csv_file:
+    with open(path, 'r', encoding='utf-8') as csv_file:
         csv_file.readline()
         csv_reader = csv.reader(csv_file)
         for line in csv_reader:
-            DEFAULT_EDGE[line[0]] = {'domain': line[1], 'range': line[2]}
+            DEFAULT_EDGE[line[0]] = {'domain': line[1], 'range': line[2], 'value': line[3]}
 
 
 def init_relation_data():
@@ -153,13 +153,13 @@ class QueryParser(object):
                 if c[0] == edge['domain'] and c[1] == edge['range']:
                     node_0 = d0[edge['domain']][trick_index]
                     node_1 = d1[edge['range']][trick_index]
-                    self.query_graph.add_edge(node_0, node_1, key)
+                    self.query_graph.add_edge(node_0, node_1, key, type=key, value=edge['value'])
                     flag = True
                     return flag
                 elif c[1] == edge['domain'] and c[0] == edge['range']:
                     node_0 = d1[edge['domain']][trick_index]
                     node_1 = d0[edge['range']][trick_index]
-                    self.query_graph.add_edge(node_0, node_1, key)
+                    self.query_graph.add_edge(node_0, node_1, key, type=key, value=edge['value'])
                     flag = True
                     return flag
         return flag

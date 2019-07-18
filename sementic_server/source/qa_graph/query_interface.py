@@ -58,7 +58,12 @@ class QueryInterface(object):
                 for p in self.graph.predecessors(node):
                     if 'data' not in new_graph.nodes[p].keys():
                         new_graph.nodes[p]['data'] = dict()
+                    if key not in new_graph.nodes[p]['data'].keys():
+                        new_graph.nodes[p]['data'][key] = list()
+                    """
                     new_graph.nodes[p]['data'].update(temp_dict)
+                    """
+                    new_graph.nodes[p]['data'][key].append(value)
                     new_graph.remove_edge(p, node)
                     new_graph.remove_node(node)
         return new_graph
@@ -116,7 +121,14 @@ class QueryInterface(object):
                 if 'data' not in new_graph.nodes[n1].keys():
                     new_graph.nodes[n1]['data'] = dict()
                 if n2_dict:
+                    """
                     new_graph.nodes[n1]['data'].update(n2_dict)
+                    """
+                    for k, v in n2_dict.items():
+                        if k in new_graph.nodes[n1]['data'].keys():
+                            new_graph.nodes[n1]['data'][k].extend(v)
+                        else:
+                            new_graph.nodes[n1]['data'][k] = v
                     new_graph.remove_node(n2)
         return new_graph
 

@@ -132,6 +132,7 @@ class RecommendServer(object):
         self.dynamic_graph.update_graph(data["Nodes"], data["Edges"])
         self.logger.info("Update the recommend graph done.")
         self.logger.info("There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
+        self.logger.info("There are {0} edges in graph of {1}.".format(len(self.dynamic_graph.get_edge_tuples()), key))
 
         self.logger.info("Begin compute PageRank value...")
         start = timeit.default_timer()
@@ -154,6 +155,7 @@ class RecommendServer(object):
         if pr_value is None:
             return {"error": "the graph is empty"}
 
+        self.logger.info("Recommend Entities...")
         person_num = 0
         company_num = 0
         person_uid = list()
@@ -181,6 +183,7 @@ class RecommendServer(object):
         :param query_path: 用户查询路径
         :return: 存在的潜在关系
         """
+        self.logger.info("Recommend Relations...")
         start_node_id, end_node_id = None, None
         for index, path in enumerate(sorted(query_path.items(), key=lambda x: x[0])):
             if index == 0:
@@ -222,6 +225,7 @@ class RecommendServer(object):
         :param company_node_num:
         :return:
         """
+        self.logger.info("Recommend Query NoAnswer Results...")
         # 解析查询路径
         start_node_id, query_rel_name = None, None
         for index, path in enumerate(sorted(query_path.items(), key=lambda x: x[0])):

@@ -299,21 +299,27 @@ def recommendation(request):
         request_data = json.loads(request.body)
     except Exception:
         request_data = request.POST
-
-    key = request_data.get("key", None)
-    top_num = request_data.get("top_num", "10")
-    node_type = request_data.get("node_type", None)
+    logger.info("Recommendation Model...")
+    request_data = dict(request_data)
+    key = request_data.get("RedisKey", None)
+    person_node_num = request_data.get("PersonNodeNum", 3)
+    company_node_num = request_data.get("CompanyNodeNum", 3)
+    need_related_relation = request_data.get("NeedRelatedRelationship", 0)
+    no_answer = request_data.get("NeedNoAnswer", 1)
     result = dict()
     if key is None:
         result = {"error": "Key值不能为空"}
-    try:
-        logger.info("Recommendation Model...")
+        logger.error(f"Recommendation Error Info - Key值不能为空")
+    else:
+        try:
 
-        t_account = timeit.default_timer()
-        if top_num:
-            top_num = int(top_num)
-        result = recommend_server.get_recommend_result(key=key, top_num=top_num, node_type=node_type)
-        logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_account))
-    except Exception as e:
-        logger.error(f"Recommendation Error Info - {e}")
+            t_recommend = timeit.default_timer()
+            result = recommend_server.get_recommend_results(key=key,
+                                                            person_node_num=person_node_num,
+                                                            company_node_num=company_node_num,
+                                                            need_related_relation=need_related_relation,
+                                                            no_answer=no_answer)
+            logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_recommend))
+        except Exception as e:
+            logger.error(f"Recommendation Error Info - {e}")
     return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

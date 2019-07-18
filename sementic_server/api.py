@@ -301,8 +301,8 @@ def recommendation(request):
         request_data = request.POST
     logger.info("Recommendation Model...")
     key = request_data.get("RedisKey", None)
-    person_node_num = request_data.get("PersonNodeNum", 10)
-    company_node_num = request_data.get("CompanyNodeNum", 5)
+    person_node_num = request_data.get("PersonNodeNum", 3)
+    company_node_num = request_data.get("CompanyNodeNum", 3)
     need_related_relation = request.get("NeedRelatedRelationship", False)
     no_answer = request.get("NeedNoAnswer", False)
     result = dict()
@@ -311,13 +311,13 @@ def recommendation(request):
         logger.error(f"Recommendation Error Info - Key值不能为空")
     else:
         try:
-            t_account = timeit.default_timer()
+            t_recommend = timeit.default_timer()
             result = recommend_server.get_recommend_results(key=key,
                                                             person_node_num=person_node_num,
                                                             company_node_num=company_node_num,
                                                             need_related_relation=need_related_relation,
                                                             no_answer=no_answer)
-            logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_account))
+            logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_recommend))
         except Exception as e:
             logger.error(f"Recommendation Error Info - {e}")
     return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

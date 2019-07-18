@@ -11,7 +11,7 @@ import redis
 import timeit
 
 from pprint import pprint
-from collections import OrderedDict
+from gensim.models import KeyedVectors
 from sementic_server.source.recommend.recommendation import DynamicGraph
 from sementic_server.source.recommend.utils import *
 
@@ -41,8 +41,19 @@ class RecommendServer(object):
             raise ValueError("Please self.config redis first.")
 
         self.config = json.load(open(config_file, 'r', encoding='utf-8'))
+
+        embedding_file = os.path.join(self.base_path, 'data', 'embeddings', 'embedding_relation.txt')
+        if not os.path.exists(embedding_file):
+            raise ValueError("Relation embedding file do not exist, please add first.")
+        self.embedding = None
+        try:
+            model = KeyedVectors.load_word2vec_format(embedding_file, binary=False)
+            model.init_sims()
+            self.embedding = model.wv
+        except Exception as e:
+            self.logger.error("Load Relation Embedding Error: {0}".format(e))
         self.connect = self.__connect_redis()
-        self.dynamic_graph = DynamicGraph(multi=True, base_path=self.base_path)
+        self.dynamic_graph = DynamicGraph(multi=True)
         self.person_node_type = "100"
         self.company_node_type = "521"
 
@@ -130,7 +141,7 @@ class RecommendServer(object):
 
         return pr_value
 
-    def get_recommend_nodes(self, data, key, person_node_num, company_node_num):
+    def get_recommend_entities(self, data, key, person_node_num, company_node_num):
         """
         根据 PageRank 算法推荐指定个数的人物节点和公司节点
         :param data: 图的数据
@@ -162,10 +173,14 @@ class RecommendServer(object):
                 company_num += 1
             elif company_num == company_node_num and person_num == person_node_num:
                 break
-        pprint(pr_value[0:20])
         return person_uid, company_uid, all_uid
 
     def get_recommend_relations(self, query_path):
+        """
+        推荐查询路径上起始节点和终止节点之间存在的所有关系
+        :param query_path: 用户查询路径
+        :return: 存在的潜在关系
+        """
         start_node_id, end_node_id = None, None
         for index, path in enumerate(sorted(query_path.items(), key=lambda x: x[0])):
             if index == 0:
@@ -177,32 +192,104 @@ class RecommendServer(object):
         edges_info = None
         if start_node_id and end_node_id:
             edges_info = self.dynamic_graph.get_edges_start_end(start_node_id, end_node_id)
-        if len(edges_info) != 0:
+        if edges_info is not None and len(edges_info) != 0:
             result = list()
-            try:
-                # 提取边的 relname 信息，并将其与边的类型对应起来
-                # 两个人物节点相连的边的 relInfo 字段信息示例如下，需要解析出 relname 字段的值
-                # 'relInfo': ['{fname=王华道, relname=夫妻, dtime=201907011930, domain=kindred.com, tname=王晓萍}']
+
+            # 提取边的 relname 信息，并将其与边的类型对应起来
+            # 两个人物节点相连的边的 relInfo 字段信息示例如下，需要解析出 relname 字段的值
+            # 'relInfo': ['{fname=王华道, relname=夫妻, dtime=201907011930, domain=kindred.com, tname=王晓萍}']
+            for edge_type, info in edges_info:
+                rel_name = self.get_rel_name(info)
+                if rel_name:
+                    result.append({edge_type: rel_name})
+            if len(result) != 0:
+                return result
+            else:
                 for edge_type, info in edges_info:
                     info = list(info)
-                    info = info[0].lstrip('{').rstrip('}').split(',')
-                    for line in info:
-                        line = line.strip()
-                        if 'relname=' in line:
-                            result.append({edge_type: line[8:]})
-                if len(result) != 0:
-                    return result
-                else:
-                    for edge_type, info in edges_info:
-                        info = list(info)
-                        info = info[0].lstrip('{').rstrip('}')
-                        result.append({edge_type: info})
-                    return result
-            except Exception as e:
-                self.logger.error(e)
+                    info = info[0].lstrip('{').rstrip('}')
+                    result.append({edge_type: info})
+                return result
+
         return edges_info
 
     def get_no_answer_results(self, query_path, person_node_num, company_node_num):
+        """
+        从查询路径上找到第一个 To 字段为空的子路径，然后获取到该子路径上用户输入的关系名称
+        最终推荐给用户与当前查询关系相似的关系连接的实体
+        :param query_path:
+        :param person_node_num:
+        :param company_node_num:
+        :return:
+        """
+        # 解析查询路径
+        start_node_id, query_rel_name = None, None
+        for index, path in enumerate(sorted(query_path.items(), key=lambda x: x[0])):
+            if path[1]["To"] == "0":
+                start_node_id = path[1]["From"]
+                query_rel_name = path[1]["QueryRel"]
+                break
+        candidate_list = list()
+        if start_node_id is None or query_rel_name is None:
+            return candidate_list
+        # 以 start_node_id 节点为起始节点遍历其所有边，推荐与当前 query_rel_name 最相似的关系所连接的实体
+        # 限制推荐的实体类型：人物实体 和 公司实体
+        limited_node_type = [self.person_node_type, self.company_node_type]
+        candidate_nodes = self.dynamic_graph.get_candidate_nodes(start_node_id, limited_node_type)
+        if len(candidate_nodes) != 0:
+            for node_id, node_type, edge_type, edge_info in candidate_nodes:
+                rel_name = self.get_rel_name(edge_info)
+                if rel_name and rel_name in self.embedding and query_rel_name in self.embedding:
+                    # 计算图库中边的 relname 与 query_rel_name 的相似度
+                    sim_val = self.embedding.similarity(query_rel_name, rel_name)
+                    candidate_list.append((sim_val, node_id, node_type, rel_name, edge_type))
+            if len(candidate_list) != 0:
+                return self.get_sorted_no_answer_results(candidate_list, person_node_num, company_node_num)
+
+        return candidate_list
+
+    def get_sorted_no_answer_results(self, candidate_list, person_node_num, company_node_num):
+        """
+
+        :param candidate_list:
+        :param person_node_num:
+        :param company_node_num:
+        :return:
+        """
+        person_num = 0
+        company_num = 0
+        result = list()
+        for sim_val, node_id, node_type, rel_name, edge_type in sorted(candidate_list, key=lambda x: x[0],
+                                                                       reverse=True):
+            if person_num >= person_node_num and company_num >= company_node_num:
+                break
+            if node_type == self.person_node_type and person_num < person_node_num:
+                person_num += 1
+                result.append(
+                    {"Uid": node_id, "Similarity": str(sim_val), "RelationName": rel_name, "RelationType": edge_type})
+            if node_type == self.company_node_type and company_num < company_node_num:
+                company_num += 1
+                result.append(
+                    {"Uid": node_id, "Similarity": str(sim_val), "RelationName": rel_name, "RelationType": edge_type})
+
+        return result
+
+    def get_rel_name(self, edge_info, filter="relname"):
+        """
+        提取图库中边的 filter 字段指定的信息
+        :param edge_info:
+        :param filter:
+        :return:
+        """
+        try:
+            edge_info = list(edge_info)
+            edge_info = edge_info[0].lstrip('{').rstrip('}').split(',')
+            for line in edge_info:
+                line = line.strip()
+                if filter in line:
+                    return line[len(filter) + 1:]
+        except Exception as e:
+            self.logger.error("Get {0} error: {1}".format(filter, e))
         return None
 
     def get_recommend_results(self, key, person_node_num, company_node_num, need_related_relation, no_answer):
@@ -220,7 +307,7 @@ class RecommendServer(object):
             result["error"] = "RedisKey is empty."
             return result
         data = self.load_data_from_redis(key=key)
-        person_uid, company_uid, all_uid = self.get_recommend_nodes(data, key, person_node_num, company_node_num)
+        person_uid, company_uid, all_uid = self.get_recommend_entities(data, key, person_node_num, company_node_num)
         result["PersonUid"] = person_uid
         result["CompanyUid"] = company_uid
         result["AllUid"] = all_uid

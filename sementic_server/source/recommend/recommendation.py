@@ -149,7 +149,7 @@ class DynamicGraph(object):
     根据数据构建动态子图
     """
 
-    def __init__(self, multi=False, base_path=None):
+    def __init__(self, multi=False):
         """
         Load data and init the networkx graph
         :param data: nodes and edges
@@ -162,13 +162,6 @@ class DynamicGraph(object):
 
         self.node_count = {}
         self.edges_count = {}
-        self.embedding_file = os.path.join(base_path, 'data', 'embeddings', 'embedding_relation.txt')
-        if not os.path.exists(self.embedding_file):
-            raise ValueError("Relation embedding file do not exist, please add first.")
-        self.embeddings = None
-
-    def __load_relation_embeddings(self):
-        pass
 
     def update_graph(self, nodes, edges):
         """
@@ -260,6 +253,31 @@ class DynamicGraph(object):
             if v == end_id:
                 edges_info.append((edge_info["type"], edge_info["value"]["relInfo"]))
         return edges_info
+
+    def get_candidate_nodes(self, start_node_id, limited_node_type):
+        """
+        获取与 start_node_id 节点相连的属于 limited_node_type 类型的节点和边
+        :param start_node_id:
+        :param limited_node_type:
+        :return:
+        """
+        if self.graph is None:
+            return None
+        if start_node_id not in self.graph.nodes:
+            return None
+        results = list()
+        # 遍历 start_node_id 节点的所有出边
+        for from_id, to_id, edge_info in self.graph.out_edges(start_node_id, data=True):
+            node = self.graph.nodes[to_id]
+            # 节点是人物或公司节点才会加入推荐候选列表
+            if node["value"]["type"] in limited_node_type:
+                results.append((to_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"]))
+        # 遍历 start_node_id 节点的所有入边
+        for from_id, to_id, edge_info in self.graph.in_edges(start_node_id, data=True):
+            node = self.graph.nodes[from_id]
+            if node["value"]["type"] in limited_node_type:
+                results.append((from_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"]))
+        return results
 
     def get_page_rank(self):
         """

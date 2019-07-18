@@ -56,7 +56,8 @@ if __name__ == '__main__':
         query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
         pprint(query_graph_result)
 
-
+        t = qg.error_info
+        print(t)
 
 
 

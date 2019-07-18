@@ -40,6 +40,7 @@ class QueryInterface(object):
         self.query_dict = dict()
 
         self.serial_process()
+        self.final_delete()
         self.init_query_dict()
 
     def literal_node_reduction(self):
@@ -57,7 +58,12 @@ class QueryInterface(object):
                 for p in self.graph.predecessors(node):
                     if 'data' not in new_graph.nodes[p].keys():
                         new_graph.nodes[p]['data'] = dict()
+                    if key not in new_graph.nodes[p]['data'].keys():
+                        new_graph.nodes[p]['data'][key] = list()
+                    """
                     new_graph.nodes[p]['data'].update(temp_dict)
+                    """
+                    new_graph.nodes[p]['data'][key].append(value)
                     new_graph.remove_edge(p, node)
                     new_graph.remove_node(node)
         return new_graph
@@ -115,7 +121,14 @@ class QueryInterface(object):
                 if 'data' not in new_graph.nodes[n1].keys():
                     new_graph.nodes[n1]['data'] = dict()
                 if n2_dict:
+                    """
                     new_graph.nodes[n1]['data'].update(n2_dict)
+                    """
+                    for k, v in n2_dict.items():
+                        if k in new_graph.nodes[n1]['data'].keys():
+                            new_graph.nodes[n1]['data'][k].extend(v)
+                        else:
+                            new_graph.nodes[n1]['data'][k] = v
                     new_graph.remove_node(n2)
         return new_graph
 
@@ -240,6 +253,21 @@ class QueryInterface(object):
         self.intentions[0] = intent_str
         for relation in self.rels:
             relation['rel'] = relation['rel'].replace(entity_id, new_id)
+
+    def final_delete(self):
+        """
+        针对测试需求，删除全大写的实体
+        :return:
+        """
+        for e_type in self.entities:
+            for e in self.entities[e_type]:
+                entity_id = e['id']
+                if entity_id == entity_id.upper():
+                    self.entities[e_type].remove(e)
+                    break
+            if len(self.entities[e_type]) == 0:
+                self.entities.pop(e_type)
+                break
 
 
 if __name__ == '__main__':

@@ -111,10 +111,7 @@ def query_graph_model(data, dependency_graph, sentence):
     try:
         qg = QueryParser(data, dependency_graph)
         query_graph = qg.query_graph.get_data()
-        if not query_graph:
-            qg = QueryParser(data)
-            query_graph = qg.query_graph.get_data()
-            error_info = qg.error_info
+        error_info = qg.error_info
     except Exception as e:
         logger.info('动态问答图构建失败！')
         logger.info(e)
@@ -178,7 +175,7 @@ def get_result(request):
     # 动态问答图
     query_graph_result, error_info = query_graph_model(data, None, sentence)
     if error_info:
-        return JsonResponse(error_info, json_dumps_params={'ensure_ascii': False})
+        return JsonResponse({"query": sentence, "error": error_info}, json_dumps_params={'ensure_ascii': False})
 
     end_time = timeit.default_timer()
 

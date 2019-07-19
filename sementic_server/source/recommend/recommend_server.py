@@ -175,6 +175,9 @@ class RecommendServer(object):
                 company_num += 1
             elif company_num == company_node_num and person_num == person_node_num:
                 break
+        self.logger.info("Person recommendation info: {0}".format(person_uid))
+        self.logger.info("Company recommendation info: {0}".format(company_uid))
+        self.logger.info("Recommend Entities Done.")
         return person_uid, company_uid, all_uid
 
     def get_recommend_relations(self, query_path):
@@ -213,7 +216,8 @@ class RecommendServer(object):
                     info = info[0].lstrip('{').rstrip('}')
                     result.append({edge_type: info})
                 return result
-
+        self.logger.info("Relations recommendation info: {0}".format(edges_info))
+        self.logger.info("Recommend Relations Done.")
         return edges_info
 
     def get_no_answer_results(self, query_path, person_node_num, company_node_num):
@@ -235,21 +239,25 @@ class RecommendServer(object):
                 break
         candidate_list = list()
         if start_node_id is None or query_rel_name is None:
-            return candidate_list
-        # 以 start_node_id 节点为起始节点遍历其所有边，推荐与当前 query_rel_name 最相似的关系所连接的实体
-        # 限制推荐的实体类型：人物实体 和 公司实体
-        limited_node_type = [self.person_node_type, self.company_node_type]
-        candidate_nodes = self.dynamic_graph.get_candidate_nodes(start_node_id, limited_node_type)
-        if len(candidate_nodes) != 0:
-            for node_id, node_type, edge_type, edge_info in candidate_nodes:
-                rel_name = self.get_rel_name(edge_info)
-                if rel_name and rel_name in self.embedding and query_rel_name in self.embedding:
-                    # 计算图库中边的 relname 与 query_rel_name 的相似度
-                    sim_val = self.embedding.similarity(query_rel_name, rel_name)
-                    candidate_list.append((sim_val, node_id, node_type, rel_name, edge_type))
-            if len(candidate_list) != 0:
-                return self.get_sorted_no_answer_results(candidate_list, person_node_num, company_node_num)
+            self.logger.info("From or QueryRel should not None.")
+        else:
+            # 以 start_node_id 节点为起始节点遍历其所有边，推荐与当前 query_rel_name 最相似的关系所连接的实体
+            # 限制推荐的实体类型：人物实体 和 公司实体
+            limited_node_type = [self.person_node_type, self.company_node_type]
+            candidate_nodes = self.dynamic_graph.get_candidate_nodes(start_node_id, limited_node_type)
+            if len(candidate_nodes) != 0:
+                for node_id, node_type, edge_type, edge_info in candidate_nodes:
+                    rel_name = self.get_rel_name(edge_info)
+                    if rel_name and rel_name in self.embedding and query_rel_name in self.embedding:
+                        # 计算图库中边的 relname 与 query_rel_name 的相似度
+                        sim_val = self.embedding.similarity(query_rel_name, rel_name)
+                        candidate_list.append((sim_val, node_id, node_type, rel_name, edge_type))
+                if len(candidate_list) != 0:
+                    candidate_list = self.get_sorted_no_answer_results(candidate_list, person_node_num,
+                                                                       company_node_num)
 
+        self.logger.info("NoAnswer recommendation info: {0}".format(candidate_list))
+        self.logger.info("Recommend Query NoAnswer Results Done.")
         return candidate_list
 
     def get_sorted_no_answer_results(self, candidate_list, person_node_num, company_node_num):
@@ -306,6 +314,7 @@ class RecommendServer(object):
         :param no_answer:
         :return:
         """
+        self.logger.info("=======RedisKey is {0} - Recommendation Model Begin...=======".format(key))
         result = dict()
         if key is None:
             result["error"] = "RedisKey is empty."
@@ -315,18 +324,20 @@ class RecommendServer(object):
         result["PersonUid"] = person_uid
         result["CompanyUid"] = company_uid
         result["AllUid"] = all_uid
-        query_path = data["QueryPath"]
-
-        if need_related_relation:
-            relations = self.get_recommend_relations(query_path)
-            if relations is None:
-                result["RelatedRelationship"] = list()
-            else:
-                result["RelatedRelationship"] = relations
-        if no_answer:
-            no_answer_result = self.get_no_answer_results(query_path, person_node_num, company_node_num)
-            result["NoAnswer"] = no_answer_result
-
+        query_path = data.get("QueryPath", None)
+        if query_path is None:
+            self.logger.info("Query Path is None.")
+        else:
+            if need_related_relation:
+                relations = self.get_recommend_relations(query_path)
+                if relations is None:
+                    result["RelatedRelationship"] = list()
+                else:
+                    result["RelatedRelationship"] = relations
+            if no_answer:
+                no_answer_result = self.get_no_answer_results(query_path, person_node_num, company_node_num)
+                result["NoAnswer"] = no_answer_result
+        self.logger.info("=======RedisKey is {0} - Recommendation Model End...=======\n\n".format(key))
         return result
 
     def degree_count(self, data):

@@ -19,6 +19,7 @@ def get_logger(name, path):
     """
     # 定义日志文件
     logger = logging.getLogger(name)  # 不加名称设置root logger
+    logger.handlers.clear()
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s: - %(message)s',

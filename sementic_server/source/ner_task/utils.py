@@ -14,6 +14,24 @@ import logging
 import timeit
 import numpy as np
 
+ACCOUNT_MAP = {"QQ_NUM": "QQ",
+               "MOB_NUM": "Tel",
+               "PHONE_NUM": "Ftel",
+               "IDCARD_VALUE": "Idcard",
+               "EMAIL_VALUE": "Email",
+               "WECHAT_VALUE": "WechatNum",
+               "QQ_GROUP_NUM": "QQGroup",
+               "WX_GROUP_NUM": "WeChatGroup",
+               "ALIPAY_VALU": "Alipay",
+               "DOUYIN_VALUE": "DouYin",
+               "JD_VALUE": "JD",
+               "TAOBAO_VALUE": "TaoBao",
+               "MICROBLOG_VALUE": "MblogUid",
+               "VEHCARD_VALUE": "VEHCARD_VALUE",
+               "IMEI_VALUE": "IMEI_VALUE",
+               "MAC_VALUE": "MAC_VALUE",
+               "UNLABEL": "UNLABEL"}
+
 
 def load_config(config_dir):
     """
@@ -164,3 +182,43 @@ def convert_id_to_label(pred_ids_result, idx2label):
         curr_seq.append(curr_label)
     return curr_seq
 
+
+def convert_data_format(data):
+    accounts = data.get('accounts', None)
+    ner_entities = data.get('entity', None)
+    relations = data.get('relation', None)
+
+    result = dict()
+    result['query'] = data.get('query', "")
+    result['templateMatch'] = {'similarity': '0.00', 'template': "", 'code': '0'}
+    entity = dict()
+    if accounts:
+        acc = list()
+        for t in accounts:
+            if t["type"] in ACCOUNT_MAP:
+                acc.append({"tag": ACCOUNT_MAP[t["type"]], "value": t["value"], "code": t["code"]})
+        entity["account"] = acc
+
+    if ner_entities:
+        ner_name = list()
+        ner_add_com = list()
+        for n in ner_entities:
+            if n["type"] == "NAME":
+                ner_name.append(n["value"])
+            elif n["type"] == "CPNY_NAME" or n["type"] == "ADDR_VALUE":
+                ner_add_com.append(n["value"])
+
+        if len(ner_name) != 0:
+            entity["name"] = ner_name
+        if len(ner_add_com) != 0:
+            entity["addrOrInstitution"] = ner_add_com
+
+    if relations:
+        rels = list()
+        for rel in relations:
+            rels.append({"tag": rel["type"], "value": rel["value"], "code": rel["code"]})
+        if len(rels) != 0:
+            entity["relName"] = rels
+
+    result["entities"] = entity
+    return result

@@ -8,7 +8,7 @@ ChasQQ,Company,QQ,True
 Colleague,Person,Person
 CreateQQGroup,QQ,QQGroup
 CreatorOfQQGroup,QQGroup,QQ
-CreateWeChatGroup,WeChat,WeChatGroup
+CreateWeChatGroup,Person,WeChatGroup
 CreatorOfWeChatGroup,WeChatGroup,WeChat
 DouYin_FansOf,DouYin,DouYin
 Employ,Company,Person
@@ -20,7 +20,7 @@ MemberOfWeChatGroup,WeChat,WeChatGroup
 MobileNumLoginWeChat,MobileNum,WeChat
 PhasQQ,Person,QQ,True
 QQFriend,QQ,QQ
-RegisterPlace,Company,Company
+RegisterPlace,Company,Addr,True
 Remark,MobileNum,MobileNum
 Reside,Person,Addr,True
 SameCase,Person,Person

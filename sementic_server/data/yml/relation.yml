@@ -53,7 +53,7 @@ CreateQQGroup:
 - 建立群
 - 创办群
 CreateWeChatGroup:
-- null
+- 创建的微信群
 CreatorOfQQGroup:
 - 群主
 CreatorOfWeChatGroup:
@@ -400,6 +400,7 @@ MemberOfQQGroup:
 - 加入
 MemberOfWeChatGroup:
 - 群成员
+- 加入的微信群
 MicroBlog_FansOf:
 - null
 MobileNumLoginAlipay:
@@ -415,7 +416,6 @@ MobileNumLoginQQ:
 MobileNumLoginTaoBao:
 - null
 MobileNumLoginWeChat:
-- 注册
 - 报到
 - 登记
 - 登陆
@@ -431,13 +431,8 @@ QQFriend:
 - QQ好友
 - qq好友
 RegisterPlace:
-- 登记机关
-- 登记单位
-- 登记机构
 - 注册地址
 - 注册地
-- 登记部门
-- 登记处
 Remark:
 - 备注
 - 通讯录
@@ -447,6 +442,7 @@ Reside:
 - 住在
 - 租房
 - 业主
+- 借宿
 SameCase:
 - 同案人
 - 同案

@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.ner_task.account import Account
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
+from sementic_server.source.ner_task.utils import convert_data_format
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
@@ -280,6 +281,45 @@ def account(request):
 
 
 @csrf_exempt
+def account_ner(request):
+    """
+    老版本的账户识别和NER模块的接口
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
+
+    request_data = json.loads(request.body)
+    sentence = request_data['sentence']
+
+    if len(sentence) < SystemInfo.MIN_SENTENCE_LEN:
+        logger.error("输入的句子长度太短")
+        return JsonResponse({"query": sentence, "status": SystemInfo.MIN_SENTENCE_LEN},
+                            json_dumps_params={'ensure_ascii': False})
+
+    if len(sentence) > SystemInfo.MAX_SENTENCE_LEN:
+        logger.error("输入的句子长度太长")
+        return JsonResponse({"query": sentence, "status": SystemInfo.MAX_SENTENCE_LEN},
+                            json_dumps_params={'ensure_ascii': False})
+
+    start_time = timeit.default_timer()
+
+    accounts_info = account_recognition(sentence)
+
+    result_intent = error_correction_model(sentence, accounts_info=accounts_info)
+
+    result, unlabel_result = ner_model(result_intent)
+    result = convert_data_format(result)
+
+    end_time = timeit.default_timer()
+
+    logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
+    return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
+
+
+@csrf_exempt
 def recommendation(request):
     """
     推荐模块模块接口
@@ -296,21 +336,30 @@ def recommendation(request):
         request_data = json.loads(request.body)
     except Exception:
         request_data = request.POST
-
-    key = request_data.get("key", None)
-    top_num = request_data.get("top_num", "10")
-    node_type = request_data.get("node_type", None)
+    logger.info("Recommendation Model...")
+    request_data = dict(request_data)
+    key = request_data.get("RedisKey", None)
+    person_node_num = request_data.get("PersonNodeNum", "3")
+    company_node_num = request_data.get("CompanyNodeNum", "3")
+    need_related_relation = request_data.get("NeedRelatedRelationship", "False")
+    no_answer = request_data.get("NeedNoAnswer", "False")
     result = dict()
     if key is None:
         result = {"error": "Key值不能为空"}
-    try:
-        logger.info("Recommendation Model...")
-
-        t_account = timeit.default_timer()
-        if top_num:
-            top_num = int(top_num)
-        result = recommend_server.get_recommend_result(key=key, top_num=top_num, node_type=node_type)
-        logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_account))
-    except Exception as e:
-        logger.error(f"Recommendation Error Info - {e}")
+        logger.error(f"Recommendation Error Info - Key值不能为空")
+    else:
+        try:
+            need_relation = True if need_related_relation == "True" else False
+            need_no_answer = True if no_answer == "True" else False
+            person_node_num = int(person_node_num)
+            company_node_num = int(company_node_num)
+            t_recommend = timeit.default_timer()
+            result = recommend_server.get_recommend_results(key=key,
+                                                            person_node_num=person_node_num,
+                                                            company_node_num=company_node_num,
+                                                            need_related_relation=need_relation,
+                                                            no_answer=need_no_answer)
+            logger.info("Recommendation Model Done. Time consume: {0}".format(timeit.default_timer() - t_recommend))
+        except Exception as e:
+            logger.error(f"Recommendation Error Info - {e}")
     return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

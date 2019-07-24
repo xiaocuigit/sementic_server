@@ -7,17 +7,23 @@
 """
 
 import os
+import json
 
 from pprint import pprint
 from sementic_server.source.recommend.recommend_server import RecommendServer
 
 if __name__ == '__main__':
     recommend = RecommendServer()
+    # test_data_file = os.path.join(recommend.base_path, 'data', 'test_recommend_data',
+    #                               '1001807032313002679000665513-1001903151412004888000003465.json')
+
     test_data_file = os.path.join(recommend.base_path, 'data', 'test_recommend_data',
                                   '1001711081640003790000917493.json')
-    key = "2"
-    recommend.save_data_to_redis(data_file=test_data_file, key=key)
+    key = "3"
+    recommend.save_data_to_redis(file_path=test_data_file, key=key)
     data = recommend.load_data_from_redis(key=key)
     recommend.degree_count(data=data)
-    results = recommend.get_recommend_result(key=2, top_num=10)
+    results = recommend.get_recommend_results(key, 3, 3, False, True)
     pprint(results)
+    pprint(json.dumps(results))
+

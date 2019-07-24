@@ -10,3 +10,4 @@ pyyaml==3.12
 pypinyin==0.35.4
 pandas==0.24.2
 redis==3.2.1
+gensim==3.8.0

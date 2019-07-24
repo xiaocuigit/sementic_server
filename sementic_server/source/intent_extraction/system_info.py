@@ -30,3 +30,5 @@ class SystemInfo(object):
         if not exists(self.base_log_path_corr):
             makedirs(self.base_log_path_corr)
         self.log_path_corr = join(self.base_log_path_corr, "record.log")
+        self.log_path_behavior = join(self.base_log_path_corr, "behavior.log")
+

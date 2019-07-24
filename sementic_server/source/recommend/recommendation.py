@@ -5,6 +5,8 @@
 @time: 2019-07-02
 @version: 0.0.1
 """
+import os
+import gensim
 import networkx as nx
 
 
@@ -142,65 +144,6 @@ def pagerank_numpy(graph, alpha=0.85, personalization=None, weight='weight',
     return dict(zip(graph, map(float, largest / norm)))
 
 
-def authority_matrix(graph, nodelist=None):
-    """Returns the HITS authority matrix."""
-    M = nx.to_numpy_matrix(graph, nodelist=nodelist)
-    return M.T * M
-
-
-def hub_matrix(graph, nodelist=None):
-    """Returns the HITS hub matrix."""
-    M = nx.to_numpy_matrix(graph, nodelist=nodelist)
-    return M * M.T
-
-
-def hits_numpy(graph, normalized=True):
-    """Returns HITS hubs and authorities values for nodes.
-
-    The HITS algorithm computes two numbers for a node.
-    Authorities estimates the node value based on the incoming links.
-    Hubs estimates the node value based on outgoing links.
-
-    Parameters
-    ----------
-    graph : graph
-      A NetworkX graph
-
-    normalized : bool (default=True)
-       Normalize results by the sum of all of the values.
-
-    Returns
-    -------
-    (hubs,authorities) : two-tuple of dictionaries
-       Two dictionaries keyed by node containing the hub and authority
-       values.
-    """
-    try:
-        import numpy as np
-    except ImportError:
-        raise ImportError(
-            "hits_numpy() requires NumPy: http://scipy.org/")
-    if len(graph) == 0:
-        return {}, {}
-    H = hub_matrix(graph, list(graph))
-    e, ev = np.linalg.eig(H)
-    m = e.argsort()[-1]  # index of maximum eigenvalue
-    h = np.array(ev[:, m]).flatten()
-    A = authority_matrix(graph, list(graph))
-    e, ev = np.linalg.eig(A)
-    m = e.argsort()[-1]  # index of maximum eigenvalue
-    a = np.array(ev[:, m]).flatten()
-    if normalized:
-        h = h / h.sum()
-        a = a / a.sum()
-    else:
-        h = h / h.max()
-        a = a / a.max()
-    hubs = dict(zip(graph, map(float, h)))
-    authorities = dict(zip(graph, map(float, a)))
-    return hubs, authorities
-
-
 class DynamicGraph(object):
     """
     根据数据构建动态子图
@@ -232,18 +175,109 @@ class DynamicGraph(object):
         self.edges_count.clear()
 
         for node in nodes:
-            self.graph.add_node(node["nodeId"], value=node["primaryValue"], properties=node["properties"])
-            if node["primaryValue"][:3] not in self.node_count:
-                self.node_count[node["primaryValue"][:3]] = 1
+            node_info = dict()
+            for pro in node["properties"]:
+                node_info[pro["propertyKey"]] = pro["propertyValue"]
+            node_info["type"] = node["primaryValue"][:3]
+
+            self.graph.add_node(node["primaryValue"], value=node_info)
+            if node_info["type"] not in self.node_count:
+                self.node_count[node_info["type"]] = 1
             else:
-                self.node_count[node["primaryValue"][:3]] += 1
+                self.node_count[node_info["type"]] += 1
 
         for relation in edges:
-            self.graph.add_edge(relation["startNodeId"], relation["endNodeId"], type=relation["relationshipType"])
+            edge_info = dict()
+            edge_info["type"] = relation["relationshipType"]
+            start, end = None, None
+            for pro in relation["properties"]:
+                edge_info[pro["propertyKey"]] = pro["propertyValue"]
+                if pro["propertyKey"] == "from":
+                    start = pro["propertyValue"]
+                if pro["propertyKey"] == "to":
+                    end = pro["propertyValue"]
+            if len(start) != 0 and len(end) != 0:
+                self.graph.add_edge(start[0], end[0], type=relation["relationshipType"], value=edge_info)
             if relation["relationshipType"] not in self.edges_count:
                 self.edges_count[relation["relationshipType"]] = 1
             else:
                 self.edges_count[relation["relationshipType"]] += 1
+
+    def get_similarity_rel_type(self, node_id=None, rel_type=None, rel_name=None, top_num=3):
+        """
+        获取与 node_id 的 rel_type 关系相近的节点
+        :param node_id:
+        :param rel_type:
+        :param rel_name:
+        :param top_num:±
+        :return:
+        """
+        if self.graph is None or node_id is None or rel_type is None:
+            return None
+        if not self.graph.has_node(node_id):
+            return None
+        results = list()
+        for s, e, rel_info in self.graph.out_edges(node_id, data=True):
+            if rel_info["type"] == rel_type:
+                results.append({"start_id": s, "end_id": e, "rel_info": rel_info})
+        for s, e, rel_info in self.graph.in_edges(node_id, data=True):
+            if rel_info["type"] == rel_type:
+                results.append({"start_id": s, "end_id": e, "rel_info": rel_info})
+        if len(results) != 0:
+            return self.__most_similarity_relations(results, rel_name, top_num)
+        else:
+            return None
+
+    def __most_similarity_relations(self, results, rel_name, top_num):
+        """
+        从 results 中计算与 rel_name 最相似的 top_num 个关系并返回。
+        :param results:
+        :param top_num:
+        :return:
+        """
+        pass
+
+    def get_edges_start_end(self, start_id, end_id):
+        """
+        返回从 start_id 节点到 end_id 节点的所有边的信息
+        :param start_id:
+        :param end_id:
+        :return:
+        """
+        if self.graph is None:
+            return None
+        if start_id not in self.graph.nodes or end_id not in self.graph.nodes:
+            return None
+        edges_info = list()
+        for u, v, edge_info in self.graph.out_edges(start_id, data=True):
+            if v == end_id:
+                edges_info.append((edge_info["type"], edge_info["value"]["relInfo"]))
+        return edges_info
+
+    def get_candidate_nodes(self, start_node_id, limited_node_type):
+        """
+        获取与 start_node_id 节点相连的属于 limited_node_type 类型的节点和边
+        :param start_node_id:
+        :param limited_node_type:
+        :return:
+        """
+        if self.graph is None:
+            return None
+        if start_node_id not in self.graph.nodes:
+            return None
+        results = list()
+        # 遍历 start_node_id 节点的所有出边
+        for from_id, to_id, edge_info in self.graph.out_edges(start_node_id, data=True):
+            node = self.graph.nodes[to_id]
+            # 节点是人物或公司节点才会加入推荐候选列表
+            if node["value"]["type"] in limited_node_type:
+                results.append((to_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"]))
+        # 遍历 start_node_id 节点的所有入边
+        for from_id, to_id, edge_info in self.graph.in_edges(start_node_id, data=True):
+            node = self.graph.nodes[from_id]
+            if node["value"]["type"] in limited_node_type:
+                results.append((from_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"]))
+        return results
 
     def get_page_rank(self):
         """
@@ -254,14 +288,6 @@ class DynamicGraph(object):
             raise ValueError("The graph is empty...")
         pr = pagerank_numpy(self.graph)
         return pr
-
-    def get_hits(self):
-        """
-        return the hubs and authorities value of all nodes.
-        :return: two list
-        """
-        hubs, authorities = hits_numpy(self.graph)
-        return hubs, authorities
 
     def get_nodes(self):
         """
@@ -286,14 +312,6 @@ class DynamicGraph(object):
         :return:
         """
         return self.graph
-
-    def remove_nodes(self):
-        nodes_removed = []
-        for node in self.graph.nodes:
-            if self.graph.in_degree(node) == 1 and self.graph.out_degree(node) == 0:
-                nodes_removed.append(node)
-        if len(nodes_removed) != 0:
-            self.graph.remove_nodes_from(nodes_removed)
 
     def get_degree(self):
         return self.graph.degree(self.graph.nodes)

@@ -41,7 +41,34 @@ class QueryInterface(object):
 
         self.serial_process()
         self.final_delete()
+        self.add_rels_to_entities()
         self.init_query_dict()
+
+    def add_rels_to_entities(self):
+        """
+        将关系挂到相关实体上
+        :return:
+        """
+        for rel in self.rels:
+            rel_id = rel['id']
+            entity_1, entity_2 = rel['rel'].split('-')
+            self.add_rel_to_entities(rel_id, entity_1)
+            self.add_rel_to_entities(rel_id, entity_2)
+
+    def add_rel_to_entities(self, rel_id, entity_id):
+        """
+        将一个关系的id挂到相关实体上
+        :param rel_id:
+        :param entity_id:
+        :return:
+        """
+        for _, entities in self.entities.items():
+            for e in entities:
+                if e['id'] == entity_id:
+                    if not e.get('rel'):
+                        e['rel'] = list()
+                    e['rel'].append(rel_id)
+                    return
 
     def literal_node_reduction(self):
         """
@@ -115,6 +142,8 @@ class QueryInterface(object):
                 if n2.upper() == n2:
                     # 说明后一个节点为查询意图，不再规约
                     self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
+                    if 'Phas' in k:
+                        self.intention_tail = '.%s' % k.replace('Phas', '')
                     new_graph.remove_node(n2)
                     continue
                 remain_belong_reduction(new_graph, n1, n2)
@@ -263,6 +292,8 @@ def remain_belong_reduction(new_graph, n1, n2):
     belong_reduction函数拆分出来的部分，以减少复杂度
     :return:
     """
+    if n1 not in new_graph.nodes or n2 not in new_graph.nodes:
+        return
     n2_dict = new_graph.nodes[n2].get('data')
     if 'data' not in new_graph.nodes[n1].keys():
         new_graph.nodes[n1]['data'] = dict()

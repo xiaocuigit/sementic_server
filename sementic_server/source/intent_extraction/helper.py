@@ -38,7 +38,7 @@ def resolve_list_confilct(raw_list, ban_list):
     :param ban_list: 禁止出现的位置索引
     :return:
     """
-    if ban_list == list():
+    if len(ban_list) < 1:
         return raw_list
 
     res_list = []

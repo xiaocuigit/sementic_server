@@ -1,0 +1,1 @@
+{"query": "\u5728\u6cad\u9633\u8fdc\u53d1\u5efa\u6750\u6709\u9650\u516c\u53f8\u505a\u81ea\u52a8\u5316\u5de5\u7a0b\u5e08\u7684\u4eba\u662f\u8c01\uff1f", "entity": [{"type": "CPNY_NAME", "value": "\u6cad\u9633\u8fdc\u53d1\u5efa\u6750\u6709\u9650\u516c\u53f8", "code": 521, "begin": 1, "end": 12}], "relation": [], "intent": "Person", "dependency": null}

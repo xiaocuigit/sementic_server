@@ -23,33 +23,6 @@ server_logger = logging.getLogger("server_log")
 UNLABEL = 'UNLABEL'
 
 
-def load_actree(pkl_path):
-    """
-    加载已保存的Recognizer实例
-    :param pkl_path:
-    :return:ac自动机对象
-    """
-    start = time()
-    with open(pkl_path, "rb") as f:
-        reg = pickle.load(f)
-        server_logger.info(f"Loading AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")
-        return reg
-
-
-def build_actree(dict_info, pkl_path):
-    """
-    创建Recognizer实例
-    :param pkl_path:
-    :return:ac自动机对象
-    """
-    start = time()
-    reg = Recognizer(dict_info)
-    pickle.dump(reg, open(pkl_path, "wb"))
-    server_logger.info(f"Building AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")
-
-    return reg
-
-
 class ItemMatcher(object):
     """
     @description: 匹配接口类
@@ -63,7 +36,8 @@ class ItemMatcher(object):
         self.aho_recognizer = None  # 识别AC
         self.aho_correction = None  # 纠错AC
         si = SystemInfo()
-        self.correct_logger = get_logger("correction", si.log_path_corr)
+        self.correct_logger = get_logger("Correction", si.log_path_corr)
+        self.behavior_logger = get_logger("ItemMatcher", si.log_path_behavior)
 
         # 获得根目录的地址
         dir_data = join(si.base_path, "data")
@@ -74,20 +48,22 @@ class ItemMatcher(object):
 
         # 获得关系词和疑问词的类型词典和纠错词典
         self.relations, self.relation_code, self.ques_word, wrong_word, validation = \
-            dict(), dict(), dict(), dict(), dict()
+            dict(), dict(), dict(), dict(), None
+
         try:
             self.relations = yaml.load(open(join(dir_yml, "relation.yml"),
                                             encoding="utf-8"), Loader=yaml.SafeLoader)
             self.relation_code = yaml.load(open(join(dir_yml, "relation_code.yml"),
-                                                encoding="utf-8"), Loader=yaml.SafeLoader)
+                                            encoding="utf-8"), Loader=yaml.SafeLoader)
             self.ques_word = yaml.load(open(join(dir_yml, "quesword.yml"),
                                             encoding="utf-8"), Loader=yaml.SafeLoader)
             wrong_word = yaml.load(open(join(dir_yml, "wrong_table.yml"),
-                                             encoding="utf-8"), Loader=yaml.SafeLoader)
+                                            encoding="utf-8"), Loader=yaml.SafeLoader)
             validation = yaml.load(open(join(dir_yml, "intent_validation.yml"),
                                              encoding="utf-8"), Loader=yaml.SafeLoader)
         except FileNotFoundError as e:
             server_logger.error(f"Cannot find the file in {dir_yml}, {e}")
+            self.behavior_logger.error(f"Cannot find the file in {dir_yml}, {e}")
 
         all_kv_pair = self.relations.copy()
         all_kv_pair.update(self.ques_word)
@@ -113,18 +89,54 @@ class ItemMatcher(object):
         path_reg = join(dir_pkl, "reg.pkl")
 
         if new_actree:
-            self.aho_correction = build_actree(dict_info=wrong_word, pkl_path=path_corr)
-            self.aho_recognizer = build_actree(dict_info=all_kv_pair, pkl_path=path_reg)
+            self.aho_correction = self.__build_actree(dict_info=wrong_word, pkl_path=path_corr)
+            self.aho_recognizer = self.__build_actree(dict_info=all_kv_pair, pkl_path=path_reg)
         else:
             if not exists(path_corr) or not is_valid:
-                self.aho_correction = build_actree(dict_info=wrong_word, pkl_path=path_corr)
+                self.aho_correction = self.__build_actree(dict_info=wrong_word, pkl_path=path_corr)
             else:
-                self.aho_correction = load_actree(pkl_path=path_reg)
+                self.aho_correction = self.__load_actree(dict_info=wrong_word, pkl_path=path_reg)
 
             if not exists(path_reg):
-                self.aho_recognizer = build_actree(dict_info=all_kv_pair, pkl_path=path_reg)
+                self.aho_recognizer = self.__build_actree(dict_info=all_kv_pair, pkl_path=path_reg)
             else:
-                self.aho_recognizer = load_actree(pkl_path=path_reg)
+                self.aho_recognizer = self.__load_actree(dict_info=wrong_word, pkl_path=path_reg)
+
+    def __build_actree(self, dict_info, pkl_path):
+        """
+        创建Recognizer实例
+        :param pkl_path:
+        :return:ac自动机对象
+        """
+        start = time()
+        reg = Recognizer(dict_info)
+        try:
+            pickle.dump(reg, open(pkl_path, "wb"))
+            server_logger.info(f"Building AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")
+        except Exception as e:
+            self.behavior_logger.error(f"Pickle dump can't work temporarily, path: {pkl_path}, error: {e}")
+
+        return reg
+
+    def __load_actree(self, dict_info, pkl_path):
+        """
+        加载已保存的Recognizer实例
+        :param pkl_path:
+        :return:ac自动机对象
+        """
+        start = time()
+        reg = None
+
+        try:
+            with open(pkl_path, "rb") as f:
+                reg = pickle.load(f)
+                server_logger.info(f"Loading AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")
+        except Exception as e:
+            self.behavior_logger.error(f"Pickle load can't work temporarily, path: {pkl_path}, error: {e}")
+
+        if reg is None:
+            reg = self.__build_actree(dict_info, pkl_path)
+        return reg
 
     def correct(self, query, ban_list=None):
         """
@@ -133,17 +145,17 @@ class ItemMatcher(object):
         :param ban_list: 应当屏蔽的位置
         :return:    纠错列表
         """
+        self.behavior_logger.info(f"BAN-LIST: {ban_list if ban_list is not None else 'none'}")
+
         start_time = time()
         res_correction = {"correct_query": query, "correct": []}
 
         query4type = self.aho_correction.query4type(query.lower())
-
         # 处理与账号识别冲突的部分
         if ban_list is not None:
             query4type = resolve_list_confilct(query4type, ban_list)
 
         record = []
-        # change the query to the lower.
         for item in query4type:
             item["value"] = query[item["begin"]: item["end"]]
             res_correction["correct"].append(item)
@@ -153,6 +165,7 @@ class ItemMatcher(object):
 
         self.correct_logger.info(
             f"{construt_log(raw_query=query, correct_info=res_correction, using_time=time()-start_time)}")
+
         server_logger.info(f"Correcting the query time used: {time()-start_time}")
         return res_correction
 
@@ -165,6 +178,7 @@ class ItemMatcher(object):
 
         语义解析模块只需要关注'query'字段的结果。
         """
+        start_time = time()
         # 找出所有账号
         accounts_info = accounts_info if accounts_info is not None else {}
         accounts = accounts_info.get("accounts", [])
@@ -179,8 +193,6 @@ class ItemMatcher(object):
         }
 
         if need_correct:
-            # 记录unlabel标签
-
             labelled_list = [(account['begin'], account['end']) for account in accounts
                              if account['type'] is not UNLABEL]
             correct_info = self.correct(query, labelled_list)  # 纠错
@@ -201,13 +213,17 @@ class ItemMatcher(object):
                 else:
                     res["intent"] = item["type"]
 
+        self.behavior_logger.info(
+            f"INTENT-RESULT: "
+            f"{construt_log(raw_query=query, correct_info=res, using_time=time()-start_time)}\n")
+
         return res
 
 
 if __name__ == '__main__':
     from pprint import pprint
 
-    i = "住在陕西省汉中市市辖区的QQ号码1170591840的人的fuqin是谁？"
+    i = "qq号232435423是NA个人YAO请JINQUN的"
     from sementic_server.source.ner_task.account import Account
 
     account = Account()

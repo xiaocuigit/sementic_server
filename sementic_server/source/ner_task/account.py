@@ -304,7 +304,7 @@ class Account:
         :param raw_input:
         :return:
         """
-        pattern_account = r"([a-zA-Z0-9@_\-\.:]{6,})"
+        pattern_account = r"([a-zA-Z0-9@_\-\.:]{7,})"
         account_list = []
         sentence = raw_input
         vehicles = self.match_vehicle_num(sentence)

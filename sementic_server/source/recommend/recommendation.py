@@ -209,7 +209,7 @@ class DynamicGraph(object):
         :param node_id:
         :param rel_type:
         :param rel_name:
-        :param top_num:
+        :param top_num:±
         :return:
         """
         if self.graph is None or node_id is None or rel_type is None:

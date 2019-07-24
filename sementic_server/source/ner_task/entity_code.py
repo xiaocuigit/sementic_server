@@ -44,6 +44,7 @@ class EntityCode(object):
                               "JD": "JD_VALUE",
                               'IMEI': 'IMEI_VALUE',
                               "UNLABEL": "UNLABEL"}
+        
         self.punctuation = [',', '，', '~', '!', '！', '。', '.', '?', '？']
 
     def get_account(self):

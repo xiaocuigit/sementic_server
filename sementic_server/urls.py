@@ -22,6 +22,7 @@ urlpatterns = [
     path('get_result/', api.get_result, name='get_result'),
     path('account/', api.account, name='account'),
     path('ner/', api.ner, name='ner'),
+    path('account_ner/', api.account_ner, name='account_ner'),
     path('correct/', api.correct, name='correct'),
     path('recommendation/', api.recommendation, name='recommendation'),
 ]

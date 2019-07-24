@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from sementic_server.source.ner_task.system_info import SystemInfo
 from sementic_server.source.ner_task.account import Account
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
+from sementic_server.source.ner_task.utils import convert_data_format
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.qa_graph.query_parser import QueryParser
 from sementic_server.source.qa_graph.query_interface import QueryInterface
@@ -277,6 +278,45 @@ def account(request):
     except Exception as e:
         logger.error(f"Account Recognition Test - {e}")
     return JsonResponse(accounts_info, json_dumps_params={'ensure_ascii': False})
+
+
+@csrf_exempt
+def account_ner(request):
+    """
+    老版本的账户识别和NER模块的接口
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        logger.error("仅支持post访问")
+        return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
+
+    request_data = json.loads(request.body)
+    sentence = request_data['sentence']
+
+    if len(sentence) < SystemInfo.MIN_SENTENCE_LEN:
+        logger.error("输入的句子长度太短")
+        return JsonResponse({"query": sentence, "status": SystemInfo.MIN_SENTENCE_LEN},
+                            json_dumps_params={'ensure_ascii': False})
+
+    if len(sentence) > SystemInfo.MAX_SENTENCE_LEN:
+        logger.error("输入的句子长度太长")
+        return JsonResponse({"query": sentence, "status": SystemInfo.MAX_SENTENCE_LEN},
+                            json_dumps_params={'ensure_ascii': False})
+
+    start_time = timeit.default_timer()
+
+    accounts_info = account_recognition(sentence)
+
+    result_intent = error_correction_model(sentence, accounts_info=accounts_info)
+
+    result, unlabel_result = ner_model(result_intent)
+    result = convert_data_format(result)
+
+    end_time = timeit.default_timer()
+
+    logger.info("Full time consume: {0} S.\n".format(end_time - start_time))
+    return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 
 @csrf_exempt

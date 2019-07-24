@@ -9,6 +9,7 @@
 from sementic_server.source.ner_task.semantic_tf_serving import SemanticSearch
 from sementic_server.source.intent_extraction.item_matcher import ItemMatcher
 from sementic_server.source.ner_task.account import Account
+from sementic_server.source.ner_task.utils import convert_data_format
 from pprint import pprint
 
 if __name__ == '__main__':
@@ -19,7 +20,8 @@ if __name__ == '__main__':
         sentence = input("please input:")
         accounts_info = account.get_account_labels_info(sentence)
         result = item_matcher.match(sentence, accounts_info=accounts_info)
-        result_ner = semantic.sentence_ner_entities(result)
+        result_ner, _ = semantic.sentence_ner_entities(result)
+        # pprint(convert_data_format(result_ner))
         pprint(result_ner)
         entity = result.get('entity') + result.get('accounts')
         relation = result.get('relation')

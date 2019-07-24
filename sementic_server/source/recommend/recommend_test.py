@@ -7,6 +7,7 @@
 """
 
 import os
+import json
 
 from pprint import pprint
 from sementic_server.source.recommend.recommend_server import RecommendServer
@@ -24,3 +25,5 @@ if __name__ == '__main__':
     recommend.degree_count(data=data)
     results = recommend.get_recommend_results(key, 3, 3, False, True)
     pprint(results)
+    pprint(json.dumps(results))
+

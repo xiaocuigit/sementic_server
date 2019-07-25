@@ -16,7 +16,7 @@ class EntityCode(object):
     def __init__(self):
 
         self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',
-                        'WX_GROUP_NUM', 'ALIPAY_VALU', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
+                        'WX_GROUP_NUM', 'ALIPAY_VALUE', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
                         'VEHCARD_VALUE', 'IMEI_VALUE', 'MAC_VALUE', 'UNLABEL']
 
         self.ner_entities_dics = {'NAME': 'NAME', 'COMPANY': 'CPNY_NAME', 'ADDR': 'ADDR_VALUE', 'DATE': 'DATE'}
@@ -38,7 +38,7 @@ class EntityCode(object):
                               "WECHAT": "WECHAT_VALUE",
                               "ID": "IDCARD_VALUE",
                               "MBLOG": "MICROBLOG_VALUE",
-                              "ALIPAY": "ALIPAY_VALU",
+                              "ALIPAY": "ALIPAY_VALUE",
                               "DOUYIN": "DOUYIN_VALUE",
                               "TAOBAO": "TAOBAO_VALUE",
                               "JD": "JD_VALUE",

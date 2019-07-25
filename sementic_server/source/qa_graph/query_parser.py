@@ -317,7 +317,7 @@ class QueryParser(object):
         """
         """
         self.account = ['QQ_NUM', 'MOB_NUM', 'PHONE_NUM', 'IDCARD_VALUE', 'EMAIL_VALUE', 'WECHAT_VALUE', 'QQ_GROUP_NUM',
-                        'WX_GROUP_NUM', 'ALIPAY_VALU', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
+                        'WX_GROUP_NUM', 'ALIPAY_VALUE', 'DOUYIN_VALUE', 'JD_VALUE', 'TAOBAO_VALUE', 'MICROBLOG_VALUE',
                         'UNLABEL', 'VEHCARD_VALUE', 'IMEI_VALUE', 'MAC_VALUE']
 
         self.p_has_account_list = ['QQ', 'MobileNum', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
@@ -328,7 +328,7 @@ class QueryParser(object):
                         'MOB_NUM': ['PhasMobileNum', 'ChasMobileNum'],
                         'EMAIL_VALUE': ['PhasEmail'],
                         'WECHAT_VALUE': ['PhasWeChat'],
-                        'ALIPAY_VALU': ['PhasAlipay'],
+                        'ALIPAY_VALUE': ['PhasAlipay'],
                         'DOUYIN_VALUE': ['PhasDouYin'],
                         'JD_VALUE': ['PhasJD'],
                         'TAOBAO_VALUE': ['PhasTaoBao'],

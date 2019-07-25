@@ -128,9 +128,6 @@ class RecommendServer(object):
         if data is None:
             self.logger.error("data is empty...")
             return None
-        self.logger.info("Update the recommend graph...")
-        self.dynamic_graph.update_graph(data["Nodes"], data["Edges"])
-        self.logger.info("Update the recommend graph done.")
         self.logger.info("There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
         self.logger.info("There are {0} edges in graph of {1}.".format(len(self.dynamic_graph.get_edge_tuples()), key))
 
@@ -320,6 +317,9 @@ class RecommendServer(object):
             result["error"] = "RedisKey is empty."
             return result
         data = self.load_data_from_redis(key=key)
+        self.logger.info("Update the recommend graph...")
+        self.dynamic_graph.update_graph(data["Nodes"], data["Edges"])
+        self.logger.info("Update the recommend graph done.")
         person_uid, company_uid, all_uid = self.get_recommend_entities(data, key, person_node_num, company_node_num)
         result["PersonUid"] = person_uid
         result["CompanyUid"] = company_uid

@@ -70,7 +70,6 @@ EmailLoginTaoBao:
 - null
 Employ:
 - 雇佣
-- 员工
 - 雇用
 - 员工
 Kindred:
@@ -353,7 +352,6 @@ Kindred:
 - 大姨
 - 亲属
 - 高堂
-- 姐妹
 - 二侄女
 - 小姑
 - 三表姐
@@ -557,10 +555,7 @@ SameInternetBar:
 PhasOrgPlace:
   - 籍贯
   - 祖居地
-<<<<<<< HEAD
-=======
 PhasBirthPlace:
   - 出生地
   - 出生于
 
->>>>>>> 656f8837821b2eeaa3f1d41d96d10669bc96f09a

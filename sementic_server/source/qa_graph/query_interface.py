@@ -141,9 +141,11 @@ class QueryInterface(object):
                 n1, n2, k = edge
                 if n2.upper() == n2:
                     # 说明后一个节点为查询意图，不再规约
-                    self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
+                    # self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
                     if 'Phas' in k:
-                        self.intention_tail = '.%s' % k.replace('Phas', '')
+                        self.intention_tail = '.%s' % k.replace('Phas', '').lower()
+                    else:
+                        self.intention_tail = '.%s' % k.lower()
                     new_graph.remove_node(n2)
                     continue
                 remain_belong_reduction(new_graph, n1, n2)

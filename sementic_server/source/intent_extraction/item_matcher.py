@@ -35,6 +35,7 @@ class ItemMatcher(object):
     def __init__(self, new_actree=False):
         self.aho_recognizer = None  # 识别AC
         self.aho_correction = None  # 纠错AC
+
         si = SystemInfo()
         self.correct_logger = get_logger("Correction", si.log_path_corr)
         self.behavior_logger = get_logger("ItemMatcher", si.log_path_behavior)
@@ -76,12 +77,15 @@ class ItemMatcher(object):
 
         if not is_valid:
             build_wrong_table()
+            wrong_word = yaml.load(open(join(dir_yml, "wrong_table.yml"),
+                                            encoding="utf-8"), Loader=yaml.SafeLoader)
             yaml.dump(
                 list(all_values),
                 open(join(dir_yml, "intent_validation.yml"), "w", encoding="utf-8"),
                 allow_unicode=True,
                 default_flow_style=False
             )
+            new_actree = True
 
         if not exists(dir_pkl):
             mkdir(dir_pkl)
@@ -92,7 +96,7 @@ class ItemMatcher(object):
             self.aho_correction = self.__build_actree(dict_info=wrong_word, pkl_path=path_corr)
             self.aho_recognizer = self.__build_actree(dict_info=all_kv_pair, pkl_path=path_reg)
         else:
-            if not exists(path_corr) or not is_valid:
+            if not exists(path_corr):
                 self.aho_correction = self.__build_actree(dict_info=wrong_word, pkl_path=path_corr)
             else:
                 self.aho_correction = self.__load_actree(dict_info=wrong_word, pkl_path=path_reg)
@@ -207,7 +211,7 @@ class ItemMatcher(object):
             if item["type"] in self.relations.keys():
                 item["code"] = self.relation_code[item["type"]]
                 res["relation"].append(item)
-            elif item["type"] in self.ques_word:
+            if item["type"] in self.ques_word:
                 if res["intent"] is not None and res["intent"] != item["type"]:
                     res["intent"] = 'conflict'  # 冲突
                 else:

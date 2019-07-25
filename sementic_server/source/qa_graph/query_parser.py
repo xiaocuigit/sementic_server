@@ -279,7 +279,26 @@ class QueryParser(object):
             component = QueryGraphComponent(e)
             self.entity_component_list.append(nx.MultiDiGraph(component))
 
+    def company_trick(self):
+        """
+        当同时出现法人，总经理、员工等关系时，抛弃“的公司”关系
+        :return:
+        """
+        company_rels = ['LegalPerson', 'Employ', 'Manager', 'WorkFor']
+        flag = False
+        for rel in self.relation:
+            if rel['type'] in company_rels and rel['value'] != '的公司':
+                # 存在非'的公司'的关系
+                flag = True
+        if not flag:
+            return
+        for r in self.relation:
+            if r['value'] == '的公司':
+                self.relation.remove(r)
+                break
+
     def init_relation_component(self):
+        self.company_trick()
         for r in self.relation:
             if r['type'] in RELATION_DATA.keys():
                 relation_component = nx.MultiDiGraph()

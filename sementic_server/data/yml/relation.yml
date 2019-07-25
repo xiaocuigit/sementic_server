@@ -69,6 +69,7 @@ EmailLoginTaoBao:
 - null
 Employ:
 - 雇佣
+- 员工
 - 雇用
 Kindred:
 - 养父
@@ -350,6 +351,7 @@ Kindred:
 - 大姨
 - 亲属
 - 高堂
+- 姐妹
 - 二侄女
 - 小姑
 - 三表姐
@@ -557,5 +559,3 @@ SameInternetBar:
 PersonHasHplace:
   - 籍贯
   - 祖居地
-Employ:
-  - 员工

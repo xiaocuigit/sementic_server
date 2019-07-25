@@ -466,6 +466,7 @@ SameRoom:
 - 舍友
 - 同屋
 - 同宿
+- 同住舍友
 SameTown:
 - 父老乡亲
 - 乡亲
@@ -477,12 +478,14 @@ SameTrip:
 - 同行
 - 同路
 - 同车
+- 一起去
 SchoolMate:
 - 同门
 - 老师
 - 幼儿园老师
 - 小学老师
 - 高中老师
+- 中学老师
 - 大学老师
 - 职高老师
 - 导师
@@ -529,6 +532,7 @@ PhasMobileNum:
 - 手机号
 PhasEmail:
 - 邮箱
+- 邮箱地址
 PhasWeChat:
   - 微信
 PhasDouYin:
@@ -555,6 +559,7 @@ SameInternetBar:
 PhasOrgPlace:
   - 籍贯
   - 祖居地
+  - 老家的地址
 PhasBirthPlace:
   - 出生地
   - 出生于

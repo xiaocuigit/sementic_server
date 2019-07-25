@@ -1,0 +1,1 @@
+{"query": "QQ\u53f7891255203", "entity": [{"value": "891255203", "type": "QQ_NUM", "begin": 3, "end": 12, "code": 210}], "relation": [{"type": "ChasQQ", "value": "QQ\u53f7", "begin": 0, "end": 3, "code": 1002}], "intent": null, "dependency": [{"from": {"value": "891255203", "from_offset": 3, "type": "entity"}, "to": {"value": "\u53f7", "to_offset": 2, "type": null}}]}

@@ -160,12 +160,14 @@ class DynamicGraph(object):
         else:
             self.graph = nx.DiGraph()
 
+        self.person_type = "100"
         self.node_count = {}
         self.edges_count = {}
 
-    def update_graph(self, nodes, edges):
+    def update_graph(self, nodes, edges, bi_direction_edge="True"):
         """
         清空图里面的节点和边，并更新成最新的节点和边
+        :param bi_direction_edge:
         :param nodes:
         :param edges:
         :return:
@@ -197,6 +199,9 @@ class DynamicGraph(object):
                 if pro["propertyKey"] == "to":
                     end = pro["propertyValue"]
             if len(start) != 0 and len(end) != 0:
+                if bi_direction_edge == "True" and start[0][:3] == self.person_type and end[0][:3] == self.person_type:
+                    # 如果两个节点都是人物节点，则添加双向边
+                    self.graph.add_edge(end[0], start[0], type=relation["relationshipType"], value=edge_info)
                 self.graph.add_edge(start[0], end[0], type=relation["relationshipType"], value=edge_info)
             if relation["relationshipType"] not in self.edges_count:
                 self.edges_count[relation["relationshipType"]] = 1

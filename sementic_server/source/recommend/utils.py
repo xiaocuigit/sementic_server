@@ -113,6 +113,9 @@ def write_to_neo4j(data):
                 end = pro["propertyValue"][0]
 
         if start in create_nodes and end in create_nodes:
+            if start[:3] == "100" and end[:3] == "100":
+                relation = Relationship(create_nodes[end], edge["relationshipType"], create_nodes[start])
+                graph.create(relation)
             relation = Relationship(create_nodes[start], edge["relationshipType"], create_nodes[end])
             graph.create(relation)
         else:
@@ -124,5 +127,5 @@ def write_to_neo4j(data):
 
 if __name__ == '__main__':
     # data_file = '../../data/test_recommend_data/1001807032313002679000665513-1001903151412004888000003465.json'
-    data_file = '../../data/test_recommend_data/1001711081640003790000917493.json'
+    data_file = '../../data/test_recommend_data/1001807032151001902000419975-0.json'
     write_to_neo4j(data_load(data_file))

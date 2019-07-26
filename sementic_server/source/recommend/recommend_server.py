@@ -139,13 +139,12 @@ class RecommendServer(object):
 
         return pr_value
 
-    def get_recommend_entities(self, data, key, person_node_num, company_node_num):
+    def get_recommend_entities(self, data, key, return_data):
         """
         根据 PageRank 算法推荐指定个数的人物节点和公司节点
         :param data: 图的数据
         :param key: 当前推荐的 key
-        :param person_node_num: 指定推荐人物节点的个数
-        :param company_node_num: 指定推荐公司节点的个数
+        :param return_data:
         :return:
         """
         pr_value = self.get_page_rank_result(data, key)
@@ -153,29 +152,38 @@ class RecommendServer(object):
             return {"error": "the graph is empty"}
 
         self.logger.info("Recommend Entities...")
-        person_num = 0
-        company_num = 0
-        person_uid = list()
-        company_uid = list()
+        result = None
+        return_node_nums = dict()
+        all_return_num = 0
+        if return_data:
+            result = defaultdict(list)
+            for key, value in return_data.items():
+                return_node_nums[key] = int(value)
+                all_return_num += int(value)
+
         all_uid = list()
+        all_uid_num = 0
         nodes = self.dynamic_graph.get_nodes()
+        temp_num = 0
         for node_id, pr in pr_value:
             node = nodes[node_id]["value"]
             node_type = node["type"]
-            if node_type == self.person_node_type and person_num < person_node_num:
-                person_uid.append({str(node_id): str(pr)})
-                all_uid.append({str(node_id): str(pr)})
-                person_num += 1
-            elif node_type == self.company_node_type and company_num < company_node_num:
-                company_uid.append({str(node_id): str(pr)})
-                all_uid.append({str(node_id): str(pr)})
-                company_num += 1
-            elif company_num == company_node_num and person_num == person_node_num:
-                break
-        self.logger.info("Person recommendation info: {0}".format(person_uid))
-        self.logger.info("Company recommendation info: {0}".format(company_uid))
+            if len(return_node_nums) != 0:
+                if node_type in return_node_nums.keys() and len(result[node_type]) < return_node_nums[node_type]:
+                    all_uid.append({str(node_id): str(pr)})
+                    result[node_type].append({str(node_id): str(pr)})
+                    temp_num += 1
+                if temp_num == all_return_num:
+                    break
+            else:
+                if all_uid_num <= 20:
+                    all_uid.append({str(node_id): str(pr)})
+                    all_uid_num += 1
+                else:
+                    break
+        self.logger.info("All Recommendation info: {0}".format(all_uid))
         self.logger.info("Recommend Entities Done.")
-        return person_uid, company_uid, all_uid
+        return result, all_uid
 
     def get_recommend_relations(self, query_path):
         """
@@ -217,7 +225,7 @@ class RecommendServer(object):
         self.logger.info("Recommend Relations Done.")
         return edges_info
 
-    def get_no_answer_results(self, query_path, person_node_num, company_node_num):
+    def get_no_answer_results(self, query_path, return_data):
         """
         从查询路径上找到第一个 To 字段为空的子路径，然后获取到该子路径上用户输入的关系名称
         最终推荐给用户与当前查询关系相似的关系连接的实体
@@ -242,44 +250,56 @@ class RecommendServer(object):
             # 限制推荐的实体类型：人物实体 和 公司实体
             limited_node_type = [self.person_node_type, self.company_node_type]
             candidate_nodes = self.dynamic_graph.get_candidate_nodes(start_node_id, limited_node_type)
+            node_id_sets = set()
             if len(candidate_nodes) != 0:
                 for node_id, node_type, edge_type, edge_info in candidate_nodes:
+                    if node_id in node_id_sets:
+                        continue
+                    node_id_sets.add(node_id)
                     rel_name = self.get_rel_name(edge_info)
                     if rel_name and rel_name in self.embedding and query_rel_name in self.embedding:
                         # 计算图库中边的 relname 与 query_rel_name 的相似度
                         sim_val = self.embedding.similarity(query_rel_name, rel_name)
                         candidate_list.append((sim_val, node_id, node_type, rel_name, edge_type))
                 if len(candidate_list) != 0:
-                    candidate_list = self.get_sorted_no_answer_results(candidate_list, person_node_num,
-                                                                       company_node_num)
+                    candidate_list = self.get_sorted_no_answer_results(candidate_list, return_data)
 
         self.logger.info("NoAnswer recommendation info: {0}".format(candidate_list))
         self.logger.info("Recommend Query NoAnswer Results Done.")
         return candidate_list
 
-    def get_sorted_no_answer_results(self, candidate_list, person_node_num, company_node_num):
+    def get_sorted_no_answer_results(self, candidate_list, return_data):
         """
 
         :param candidate_list:
-        :param person_node_num:
-        :param company_node_num:
+        :param return_data:
         :return:
         """
-        person_num = 0
-        company_num = 0
-        result = list()
+        return_node_nums = dict()
+        count_num = 0
+        result = None
+        if return_data:
+            result = defaultdict(list)
+            for key, value in return_data.items():
+                return_node_nums[key] = int(value)
+                count_num += int(value)
+
+        temp_num = 0
         for sim_val, node_id, node_type, rel_name, edge_type in sorted(candidate_list, key=lambda x: x[0],
                                                                        reverse=True):
-            if person_num >= person_node_num and company_num >= company_node_num:
-                break
-            if node_type == self.person_node_type and person_num < person_node_num:
-                person_num += 1
-                result.append(
+            if count_num != 0:
+                if node_type in return_node_nums.keys() and len(result[node_type]) < return_node_nums[node_type]:
+                    temp_num += 1
+                    result[node_type].append(
+                        {"Uid": node_id, "Similarity": str(sim_val), "RelName": rel_name, "RelType": edge_type})
+                if temp_num == count_num:
+                    break
+            else:
+                result[node_type].append(
                     {"Uid": node_id, "Similarity": str(sim_val), "RelName": rel_name, "RelType": edge_type})
-            if node_type == self.company_node_type and company_num < company_node_num:
-                company_num += 1
-                result.append(
-                    {"Uid": node_id, "Similarity": str(sim_val), "RelName": rel_name, "RelType": edge_type})
+                temp_num += 1
+                if temp_num == 20:
+                    break
 
         return result
 
@@ -301,14 +321,14 @@ class RecommendServer(object):
             self.logger.error("Get {0} error: {1}".format(filter, e))
         return None
 
-    def get_recommend_results(self, key, person_node_num, company_node_num, need_related_relation, no_answer):
+    def get_recommend_results(self, key, return_data, need_related_relation, no_answer, bi_direction_edge="True"):
         """
         返回最终推荐结果
         :param key:
-        :param person_node_num:
-        :param company_node_num:
+        :param return_data:
         :param need_related_relation:
         :param no_answer:
+        :param bi_direction_edge:
         :return:
         """
         self.logger.info("=======RedisKey is {0} - Recommendation Model Begin...=======".format(key))
@@ -318,11 +338,11 @@ class RecommendServer(object):
             return result
         data = self.load_data_from_redis(key=key)
         self.logger.info("Update the recommend graph...")
-        self.dynamic_graph.update_graph(data["Nodes"], data["Edges"])
+        self.dynamic_graph.update_graph(data["Nodes"], data["Edges"], bi_direction_edge)
         self.logger.info("Update the recommend graph done.")
-        person_uid, company_uid, all_uid = self.get_recommend_entities(data, key, person_node_num, company_node_num)
-        result["PersonUid"] = person_uid
-        result["CompanyUid"] = company_uid
+        return_nodes, all_uid = self.get_recommend_entities(data, key, return_data)
+        if return_nodes:
+            result["ReturnNodeType"] = dict(return_nodes)
         result["AllUid"] = all_uid
         query_path = data.get("QueryPath", None)
         if query_path is None:
@@ -335,8 +355,8 @@ class RecommendServer(object):
                 else:
                     result["RelatedRelationship"] = relations
             if no_answer:
-                no_answer_result = self.get_no_answer_results(query_path, person_node_num, company_node_num)
-                result["NoAnswer"] = no_answer_result
+                no_answer_result = self.get_no_answer_results(query_path, return_data)
+                result["NoAnswer"] = dict(no_answer_result)
         self.logger.info("=======RedisKey is {0} - Recommendation Model End...=======\n\n".format(key))
         return result
 

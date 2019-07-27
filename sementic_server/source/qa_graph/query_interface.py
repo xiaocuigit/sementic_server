@@ -139,13 +139,11 @@ class QueryInterface(object):
                 # 将后一个节点的信息添加到前一个节点
                 # 删除后一个节点
                 n1, n2, k = edge
-                if n2.upper() == n2:
+                if n1 not in new_graph.nodes or n2 not in new_graph.nodes:
+                    continue
+                if n2.isupper():
                     # 说明后一个节点为查询意图，不再规约
-                    # self.intention_tail = '.%s' % new_graph.nodes[n2].get('type').lower()
-                    if 'Phas' in k:
-                        self.intention_tail = '.%s' % k.replace('Phas', '').lower()
-                    else:
-                        self.intention_tail = '.%s' % k.lower()
+                    self.intention_tail = '.%s' % new_graph.nodes[n2].get('type')
                     new_graph.remove_node(n2)
                     continue
                 remain_belong_reduction(new_graph, n1, n2)

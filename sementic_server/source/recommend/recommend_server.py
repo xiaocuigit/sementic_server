@@ -277,9 +277,8 @@ class RecommendServer(object):
         """
         return_node_nums = dict()
         count_num = 0
-        result = None
+        result = defaultdict(list)
         if return_data:
-            result = defaultdict(list)
             for key, value in return_data.items():
                 return_node_nums[key] = int(value)
                 count_num += int(value)

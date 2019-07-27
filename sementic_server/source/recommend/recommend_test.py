@@ -25,5 +25,5 @@ if __name__ == '__main__':
     recommend.degree_count(data=data)
     return_data = {"100": "5", "210": "5"}
     bi_direction_edges = "True"
-    results = recommend.get_recommend_results(key, return_data, False, True, bi_direction_edges)
+    results = recommend.get_recommend_results(key, return_data, True, True, bi_direction_edges)
     pprint(results)

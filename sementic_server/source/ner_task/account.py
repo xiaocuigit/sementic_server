@@ -293,8 +293,11 @@ class Account:
         if index != -1:
             label = self.get_closest_account_label(raw_input[:index])
             if label:
-                return self.account_label[label]
-            return None
+                if label == 'QQ' or label == 'QQ_GROUP':
+                    if account.isdigit():
+                        return self.account_label[label]
+                else:
+                    return self.account_label[label]
         return None
 
     def get_account_labels_info(self, raw_input):
@@ -304,7 +307,7 @@ class Account:
         :param raw_input:
         :return:
         """
-        pattern_account = r"([a-zA-Z0-9@_\-\.:]{7,})"
+        pattern_account = r"([a-zA-Z0-9@_\-\.:]{6,})"
         account_list = []
         sentence = raw_input
         vehicles = self.match_vehicle_num(sentence)
@@ -339,12 +342,12 @@ class Account:
                 sentence = sentence.replace(result, self.account_label['ID'])
             elif is_wechat_candidate(result):
                 label = self.get_candidate_label(raw_input, result)
-                if label:
-                    label_name = label
-                    sentence = sentence.replace(result, label)
-                elif self.is_wechat_wxid(raw_input, result):
+                if self.is_wechat_wxid(raw_input, result):
                     label_name = self.account_label['WECHAT']
                     sentence = sentence.replace(result, self.account_label['WECHAT'])
+                elif label:
+                    label_name = label
+                    sentence = sentence.replace(result, label)
                 else:
                     label_name = self.account_label['UNLABEL']
                     sentence = sentence.replace(result, self.account_label['UNLABEL'])
@@ -430,5 +433,5 @@ def test_mac():
 
 
 if __name__ == '__main__':
-    test()
+    # test()
     test_while()

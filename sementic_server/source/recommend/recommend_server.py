@@ -97,7 +97,6 @@ class RecommendServer(object):
             data = self.connect.get(name=key)
             if data is not None:
                 data = json.loads(data)
-                pprint(len(data["Nodes"]))
                 return data
         return None
 

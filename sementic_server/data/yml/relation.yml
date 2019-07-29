@@ -373,6 +373,11 @@ Kindred:
 - 妹妹
 - 三表弟
 - 夫人
+- 姐妹
+- 父
+- 父兄
+- 表嫂
+- 哥
 LegalPerson:
 - 法人
 - 公司的法定代表人
@@ -445,6 +450,7 @@ Reside:
 - 借宿
 - 家住
 - 家的地址
+- 投宿
 SameCase:
 - 同案人
 - 同案
@@ -560,9 +566,22 @@ SameInternetBar:
   - 同网吧
 PhasOrgPlace:
   - 籍贯
+  - 原籍
   - 祖居地
   - 老家的地址
 PhasBirthPlace:
   - 出生地
   - 出生于
+Friend:
+  - 朋友
+  - 挚友
+  - 至友
+  - 男友
+  - 女友
+  - 故交
+  - 故旧
+  - 密友
+Partner:
+  - 同伙
+  - 同伙人
 

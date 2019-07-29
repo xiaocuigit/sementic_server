@@ -42,22 +42,23 @@ if __name__ == '__main__':
         data = dict(query=sentence, entity=entity, relation=relation, intent=intention, dependency=None)
         print(entity)
         print(relation)
-        query_graph_result = dict()
         p = os.path.join(os.getcwd(), 'test_case.json')
         json.dump(data, open(p, 'w'))
         qg = QueryParser(data, None)
+
+        error_info = qg.error_info
+        if error_info:
+            print(error_info)
+            continue
         query_graph = qg.query_graph.get_data()
-        if not query_graph:
-            qg = QueryParser(data)
-            query_graph = qg.query_graph.get_data()
         qg.query_graph.show()
         qi = QueryInterface(qg.query_graph, intent["query"])
         query_interface = qi.get_query_data()
         query_graph_result = {'query_graph': query_graph, 'query_interface': query_interface}
         pprint(query_graph_result)
 
-        t = qg.error_info
-        print(t)
+
+
 
 
 

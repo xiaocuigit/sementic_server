@@ -31,7 +31,6 @@ ChasAddr:
 ChasQQ:
 - 拥有
 - 拥有QQ号
-- QQ号
 Colleague:
 - 同仁
 - 共事
@@ -432,6 +431,8 @@ PhasQQ:
 - 持有
 - 拥有
 - 拥有QQ号
+- QQ号
+- QQ账号
 QQFriend:
 - QQ好友
 - qq好友
@@ -451,6 +452,8 @@ Reside:
 - 家住
 - 家的地址
 - 投宿
+- 租房住在
+- 租房居住
 SameCase:
 - 同案人
 - 同案
@@ -584,4 +587,9 @@ Friend:
 Partner:
   - 同伙
   - 同伙人
+PhasPlateNum:
+  - 车牌号
+PhasVehicle:
+  - 汽车
+
 

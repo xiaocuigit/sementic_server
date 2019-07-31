@@ -137,6 +137,7 @@ class QueryInterface(object):
             if self.is_belong_property(edge):
                 # 如果这条边对应归属属性
                 # 将后一个节点的信息添加到前一个节点
+                # 还要将后一个点的所有边添加到前一个点
                 # 删除后一个节点
                 n1, n2, k = edge
                 if n1 not in new_graph.nodes or n2 not in new_graph.nodes:
@@ -144,7 +145,7 @@ class QueryInterface(object):
                 if n2.isupper():
                     # 说明后一个节点为查询意图，不再规约
                     self.intention_tail = '.%s' % new_graph.nodes[n2].get('type')
-                    new_graph.remove_node(n2)
+                    # new_graph.remove_node(n2)
                     continue
                 remain_belong_reduction(new_graph, n1, n2)
         return new_graph
@@ -178,9 +179,12 @@ class QueryInterface(object):
 
     def init_rels(self):
         for i, edge in enumerate(self.graph.edges):
+            n, m, k = edge
+            if self.is_belong_property((n, m, k)):
+                continue
             edge_id = i+1
             temp_dict = dict()
-            n, m, k = edge
+
             temp_dict['id'] = 'relation%d' % edge_id
             self.graph.get_edge_data(n, m, k)['edge_id'] = 'relation%d' % edge_id
             temp_dict['rel'] = '%s-%s' % (str(n), str(m))
@@ -211,12 +215,16 @@ class QueryInterface(object):
 
         intent_node = self.get_intent_node()
         shortest_path = nx.shortest_path(self.graph, header, intent_node)
+
         for node in shortest_path:
             if node == header:
                 continue
             old = current
             current = node
             edge = self.graph.get_edge_data(old, current, default=None)
+            k = list(edge.keys())[0]
+            if self.is_belong_property((old, current, k)):
+                continue
             if edge:
                 for v in edge.values():
                     edge_id = v['edge_id']
@@ -229,12 +237,13 @@ class QueryInterface(object):
 
     def init_query_dict(self):
         self.query_dict['query'] = self.query
-        self.query_dict['intention'] = self.intentions
+        self.query_dict['intentions'] = self.intentions
         self.query_dict['entities'] = self.entities
         self.query_dict['rels'] = self.rels
 
     def get_query_data(self):
-        return self.query_dict
+        q_data = dict_low_case(self.query_dict)
+        return q_data
 
     def serial_process(self):
         """
@@ -287,6 +296,62 @@ class QueryInterface(object):
                 break
 
 
+def get_complex(word):
+    """
+    获取一个词的复数形式
+    :param word:
+    :return:
+    """
+    word = word.lower()
+    mapping = {'company': 'companies', 'entity': 'entities'}
+    if word[-1] == 's':
+        return word
+    if word in mapping.keys():
+        return mapping[word]
+    else:
+        return '%ss' % word
+
+
+def dict_low_case(input_obj):
+    """
+    将input_dict全改为小写
+    :param input_obj:
+    :return:
+    """
+    if isinstance(input_obj, dict):
+        new_dict = dict()
+        for k, v in input_obj.items():
+            if isinstance(v, list):
+                k = get_complex(k)
+            new_dict[k.lower()] = dict_low_case(v)
+        return new_dict
+    elif isinstance(input_obj, list):
+        new_list = list()
+        for i in input_obj:
+            new_list.append(dict_low_case(i))
+        return new_list
+    elif isinstance(input_obj, str):
+        return input_obj.lower()
+    else:
+        return input_obj
+
+
+def add_succ_to_pre(new_graph, n1, n2, succ):
+    """
+    将n2的所有后继节点给n1
+    :param new_graph:
+    :param n1:
+    :param n2:
+    :param succ
+    :return:
+    """
+    for s in succ:
+        for p1, p2, k in new_graph.edges:
+            if p1 == n2 and p2 == s:
+                edge_data = new_graph.get_edge_data(p1, p2, k)
+                new_graph.add_edge(n1, s, k, **edge_data)
+
+
 def remain_belong_reduction(new_graph, n1, n2):
     """
     belong_reduction函数拆分出来的部分，以减少复杂度
@@ -294,6 +359,10 @@ def remain_belong_reduction(new_graph, n1, n2):
     """
     if n1 not in new_graph.nodes or n2 not in new_graph.nodes:
         return
+    succ = new_graph.successors(n2)
+    succ = list(succ)
+    if len(succ) > 0:
+        add_succ_to_pre(new_graph, n1, n2, succ)
     n2_dict = new_graph.nodes[n2].get('data')
     if 'data' not in new_graph.nodes[n1].keys():
         new_graph.nodes[n1]['data'] = dict()
@@ -306,6 +375,10 @@ def remain_belong_reduction(new_graph, n1, n2):
                 new_graph.nodes[n1]['data'][k].extend(v)
             else:
                 new_graph.nodes[n1]['data'][k] = v
+        new_graph.remove_node(n2)
+    else:
+        k = new_graph.nodes[n2]['type']
+        new_graph.nodes[n1]['data'][k] = list()
         new_graph.remove_node(n2)
 
 

@@ -97,7 +97,6 @@ class RecommendServer(object):
             data = self.connect.get(name=key)
             if data is not None:
                 data = json.loads(data)
-                pprint(len(data["Nodes"]))
                 return data
         return None
 
@@ -205,7 +204,6 @@ class RecommendServer(object):
             edges_info = self.dynamic_graph.get_edges_start_end(start_node_id, end_node_id)
         if edges_info is not None and len(edges_info) != 0:
             result = list()
-
             # 提取边的 relname 信息，并将其与边的类型对应起来
             # 两个人物节点相连的边的 relInfo 字段信息示例如下，需要解析出 relname 字段的值
             # 'relInfo': ['{fname=王华道, relname=夫妻, dtime=201907011930, domain=kindred.com, tname=王晓萍}']
@@ -247,15 +245,11 @@ class RecommendServer(object):
             self.logger.info("From or QueryRel should not None.")
         else:
             # 以 start_node_id 节点为起始节点遍历其所有边，推荐与当前 query_rel_name 最相似的关系所连接的实体
-            # 限制推荐的实体类型：人物实体 和 公司实体
-            limited_node_type = [self.person_node_type, self.company_node_type]
+            # 默认推荐的实体类型：人物实体
+            limited_node_type = return_data.keys() if return_data is not None else [self.person_node_type]
             candidate_nodes = self.dynamic_graph.get_candidate_nodes(start_node_id, limited_node_type)
-            node_id_sets = set()
             if len(candidate_nodes) != 0:
                 for node_id, node_type, edge_type, edge_info in candidate_nodes:
-                    if node_id in node_id_sets:
-                        continue
-                    node_id_sets.add(node_id)
                     rel_name = self.get_rel_name(edge_info)
                     if rel_name and rel_name in self.embedding and query_rel_name in self.embedding:
                         # 计算图库中边的 relname 与 query_rel_name 的相似度
@@ -310,8 +304,7 @@ class RecommendServer(object):
         :return:
         """
         try:
-            edge_info = list(edge_info)
-            edge_info = edge_info[0].lstrip('{').rstrip('}').split(',')
+            edge_info = edge_info.lstrip('{').rstrip('}').split(',')
             for line in edge_info:
                 line = line.strip()
                 if filter in line:

@@ -209,13 +209,11 @@ class SemanticSearch(object):
             for word, _ in entities:
                 if word.find(rel["value"]) != -1:
                     temp = result_intent["relation"].pop(index)
-                    print(temp)
         # 如果识别的实体已经被识别为账户，那么其为账户的可能性更大，从实体列表里面去除该实体
         for index, entity in enumerate(result_intent["entity"]):
             for account in result_intent["accounts"]:
                 if account["value"].find(entity["value"]) != -1:
                     temp = result_intent["entity"].pop(index)
-                    print(temp)
 
         # 提取出账户识别模块识别的所有 UNLABEL 标签
         unlabels = []

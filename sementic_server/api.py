@@ -343,6 +343,8 @@ def recommendation(request):
     need_related_relation = request_data.get("NeedRelatedRelationship", "False")
     no_answer = request_data.get("NeedNoAnswer", "False")
     bi_direction_edge = request_data.get("BiDirectionEdge", "False")
+    if return_data and type(return_data) == str:
+        return_data = json.loads(return_data)
     result = dict()
     if key is None:
         result = {"error": "Key值不能为空"}

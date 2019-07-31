@@ -276,8 +276,10 @@ class Account:
 
             if begin != -1:
                 plate_num = raw_string[begin:end]
-                vehicles.append({"value": plate_num, "type": "VEHCARD_VALUE", "begin": begin, "end": end,
-                                 "code": self.entity_code['VEHCARD_VALUE']})
+                label = self.get_candidate_label(raw_string, plate_num)
+                if label is None:
+                    vehicles.append({"value": plate_num, "type": "VEHCARD_VALUE", "begin": begin, "end": end,
+                                     "code": self.entity_code['VEHCARD_VALUE']})
 
         return vehicles
 
@@ -433,5 +435,5 @@ def test_mac():
 
 
 if __name__ == '__main__':
-    # test()
+    test()
     test_while()

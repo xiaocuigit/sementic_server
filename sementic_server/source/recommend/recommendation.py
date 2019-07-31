@@ -256,7 +256,7 @@ class DynamicGraph(object):
         edges_info = list()
         for u, v, edge_info in self.graph.out_edges(start_id, data=True):
             if v == end_id:
-                edges_info.append((edge_info["type"], edge_info["value"]["relInfo"]))
+                edges_info.append((edge_info["type"], edge_info["value"]["relInfo"][0]))
         return edges_info
 
     def get_candidate_nodes(self, start_node_id, limited_node_type):
@@ -270,19 +270,19 @@ class DynamicGraph(object):
             return None
         if start_node_id not in self.graph.nodes:
             return None
-        results = list()
+        results = set()
         # 遍历 start_node_id 节点的所有出边
         for from_id, to_id, edge_info in self.graph.out_edges(start_node_id, data=True):
             node = self.graph.nodes[to_id]
             # 节点是人物或公司节点才会加入推荐候选列表
             if node["value"]["type"] in limited_node_type:
-                results.append((to_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"]))
+                results.add((to_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"][0]))
         # 遍历 start_node_id 节点的所有入边
         for from_id, to_id, edge_info in self.graph.in_edges(start_node_id, data=True):
             node = self.graph.nodes[from_id]
             if node["value"]["type"] in limited_node_type:
-                results.append((from_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"]))
-        return results
+                results.add((from_id, node["value"]["type"], edge_info["type"], edge_info["value"]["relInfo"][0]))
+        return list(results)
 
     def get_page_rank(self):
         """

@@ -1,0 +1,1 @@
+{"query": "\u5bb6\u5ead\u7535\u8bdd\u662f025-66777990\u7684\u4eba\u7684QQ\u597d\u53cb\u662f\u54ea\u4e2a\u4eba\uff1f", "entity": [{"value": "025-66777990", "type": "PHONE_NUM", "begin": 5, "end": 17, "code": 470}], "relation": [{"type": "QQFriend", "value": "QQ\u597d\u53cb", "begin": 20, "end": 24, "code": 2301}], "intent": "Person", "dependency": null}

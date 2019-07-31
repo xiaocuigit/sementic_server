@@ -94,15 +94,8 @@ class QueryParser(object):
             logger.info('dependency exist.')
             # print('dependency exist.')
             dm = DepMap(self.dependency, self.relation_component_list, self.entity_component_list)
-            if dm.check_dep():
-                # 使用依存分析，获取self.component_graph
-                if dm.dep_graph and nx.algorithms.is_weakly_connected(dm.dep_graph):
-                    self.query_graph = dm.dep_graph
-                else:
-                    logger.info('dependency wrong!')
-                    # print('dependency wrong!')
-        else:
-            logger.info('dependency not exist.')
+            if dm.check_dep() and dm.dep_graph and nx.algorithms.is_weakly_connected(dm.dep_graph):
+                self.query_graph = dm.dep_graph
 
         self.query_graph = None
         # 得到子图组件构成的集合，用图表示

@@ -1,0 +1,1 @@
+{"query": "\u6cd5\u4eba\u662f\u6c6a\u6d0b\u7684\u516c\u53f8", "entity": [{"type": "NAME", "value": "\u6c6a\u6d0b", "code": 100, "begin": 3, "end": 6}], "relation": [{"type": "LegalPerson", "value": "\u6cd5\u4eba", "begin": 0, "end": 2, "code": 1002}, {"type": "WorkFor", "value": "\u7684\u516c\u53f8", "begin": 5, "end": 8, "code": 1001}], "intent": null, "dependency": null}

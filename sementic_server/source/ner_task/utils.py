@@ -184,6 +184,11 @@ def convert_id_to_label(pred_ids_result, idx2label):
 
 
 def convert_data_format(data):
+    """
+    为 accont_ner 接口转换数据格式
+    :param data:
+    :return:
+    """
     accounts = data.get('accounts', None)
     ner_entities = data.get('entity', None)
     relations = data.get('relation', None)

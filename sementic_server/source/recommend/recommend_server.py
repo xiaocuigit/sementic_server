@@ -262,9 +262,9 @@ class RecommendServer(object):
         self.logger.info("Recommend Query NoAnswer Results Done.")
         return candidate_list
 
-    def get_sorted_no_answer_results(self, candidate_list, return_data):
+    @staticmethod
+    def get_sorted_no_answer_results(candidate_list, return_data):
         """
-
         :param candidate_list:
         :param return_data:
         :return:

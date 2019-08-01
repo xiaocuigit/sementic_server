@@ -15,12 +15,14 @@ from sementic_server.source.recommend.recommend_server import RecommendServer
 if __name__ == '__main__':
     recommend = RecommendServer()
     test_data_file = os.path.join(recommend.base_path, 'data', 'test_recommend_data',
-                                  '1001508312246002855000840648-0.json')
-    key = "6"
+                                  '1001711081640003790000917493.json')
+    key = "1001711081640003790000917493"
+    # key = "1001807032250002442000335316-22015195919704"
     # recommend.save_data_to_redis(file_path=test_data_file, key=key)
     data = recommend.load_data_from_redis(key=key)
     recommend.degree_count(data=data)
-    return_data = {"100": "5", "220": "5", "521": "5"}
+    return_data = {"100": "10", "220": "10", "210": "10"}
     bi_direction_edges = "True"
-    results = recommend.get_recommend_results(key, return_data, True, True, bi_direction_edges)
+    search_len = 2
+    results = recommend.get_recommend_results(key, search_len, return_data, True, True, bi_direction_edges)
     pprint(results)

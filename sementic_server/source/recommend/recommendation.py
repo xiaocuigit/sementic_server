@@ -160,6 +160,7 @@ class DynamicGraph(object):
         else:
             self.graph = nx.DiGraph()
 
+        self.undirected_graph = self.graph.to_undirected()
         self.person_type = "100"
         self.node_count = {}
         self.edges_count = {}
@@ -173,6 +174,7 @@ class DynamicGraph(object):
         :return:
         """
         self.graph.clear()
+        self.undirected_graph.clear()
         self.node_count.clear()
         self.edges_count.clear()
 
@@ -207,6 +209,7 @@ class DynamicGraph(object):
                 self.edges_count[relation["relationshipType"]] = 1
             else:
                 self.edges_count[relation["relationshipType"]] += 1
+        self.undirected_graph = self.graph.to_undirected()
 
     def get_similarity_rel_type(self, node_id=None, rel_type=None, rel_name=None, top_num=3):
         """
@@ -317,6 +320,25 @@ class DynamicGraph(object):
         :return:
         """
         return self.graph
+
+    def is_exist_multi_paths(self, start_node_id, end_node_id, search_len=3):
+        """
+        判断两个节点是否存在路径，如果存在路径，判断是否存在多条路径
+        :param start_node_id:
+        :param end_node_id:
+        :param search_len: 限制两个节点允许的最长的路径，因为图本身是一个无向图，如果不加限制任意节点都会存在任意条路径
+        :return:
+        """
+        # 如果两个节点的最短路径长度大于限定的最短路径长度，则说明这两个节点连接度较弱，直接返回False
+        if len(nx.shortest_path(self.undirected_graph, start_node_id, end_node_id)) <= search_len:
+            paths = list(nx.all_simple_paths(self.undirected_graph, start_node_id, end_node_id, cutoff=search_len))
+            if len(paths) == 1 and len(paths[0]) > 2:
+                # 如果两个节点只存在一条路径，且该路径为非直连路径，返回False
+                return False
+            else:
+                return True
+        else:
+            return False
 
     def get_degree(self):
         return self.graph.degree(self.graph.nodes)

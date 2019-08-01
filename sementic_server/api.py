@@ -339,6 +339,7 @@ def recommendation(request):
     logger.info("Recommendation Model...")
     request_data = dict(request_data)
     key = request_data.get("RedisKey", None)
+    search_len = request_data.get("SearchLen", "3")
     return_data = request_data.get("ReturnNodeType", None)
     need_related_relation = request_data.get("NeedRelatedRelationship", "False")
     no_answer = request_data.get("NeedNoAnswer", "False")
@@ -355,6 +356,7 @@ def recommendation(request):
             need_no_answer = True if no_answer == "True" else False
             t_recommend = timeit.default_timer()
             result = recommend_server.get_recommend_results(key=key,
+                                                            search_len=int(search_len),
                                                             return_data=return_data,
                                                             need_related_relation=need_relation,
                                                             no_answer=need_no_answer,

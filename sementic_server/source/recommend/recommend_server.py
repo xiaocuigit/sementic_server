@@ -210,14 +210,14 @@ class RecommendServer(object):
             for edge_type, info in edges_info:
                 rel_name = self.get_rel_name(info)
                 if rel_name:
-                    result.append({edge_type: rel_name})
+                    result.append({"RelType": edge_type, "RelName": rel_name})
             if len(result) != 0:
                 return result
             else:
                 for edge_type, info in edges_info:
                     info = list(info)
                     info = info[0].lstrip('{').rstrip('}')
-                    result.append({edge_type: info})
+                    result.append({"RelType": edge_type, "RelName": info})
                 return result
         self.logger.info("Relations recommendation info: {0}".format(edges_info))
         self.logger.info("Recommend Relations Done.")

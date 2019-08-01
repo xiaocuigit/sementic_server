@@ -21,10 +21,11 @@ if __name__ == '__main__':
         accounts_info = account.get_account_labels_info(sentence)
         result = item_matcher.match(sentence, accounts_info=accounts_info)
         result_ner, _ = semantic.sentence_ner_entities(result)
+
         pprint(convert_data_format(result_ner))
-        # pprint(result_ner)
-        # entity = result.get('entity') + result.get('accounts')
-        # relation = result.get('relation')
-        # intention = result.get('intent')
-        # data = dict(entity=entity, relation=relation, intent=intention)
-        # pprint(data)
+
+        entity = result.get('entity') + result.get('accounts')
+        relation = result.get('relation')
+        intention = result.get('intent')
+        data = dict(entity=entity, relation=relation, intent=intention)
+        pprint(data)

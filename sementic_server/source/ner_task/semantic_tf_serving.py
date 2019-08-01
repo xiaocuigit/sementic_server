@@ -179,13 +179,13 @@ class SemanticSearch(object):
 
         entities = self.__get_entities(sentence, pred_label_result)
 
-        if len(entities) != 0:
-            self.__combine_com_add(entities)
+        # if len(entities) != 0:
+        #     self.__combine_com_add(entities)
 
         entity = []
         for word, label in entities:
             begin = query.find(word)
-            if begin != -1:
+            if begin != -1 and word.isdigit() is False:
                 entity.append(
                     {"type": label, "value": word, "code": self.code[label], "begin": begin,
                      "end": begin + len(word) + 1 if begin != -1 else -1})
@@ -208,12 +208,12 @@ class SemanticSearch(object):
         for index, rel in enumerate(result_intent["relation"]):
             for word, _ in entities:
                 if word.find(rel["value"]) != -1:
-                    temp = result_intent["relation"].pop(index)
+                    result_intent["relation"].pop(index)
         # 如果识别的实体已经被识别为账户，那么其为账户的可能性更大，从实体列表里面去除该实体
         for index, entity in enumerate(result_intent["entity"]):
             for account in result_intent["accounts"]:
                 if account["value"].find(entity["value"]) != -1:
-                    temp = result_intent["entity"].pop(index)
+                    result_intent["entity"].pop(index)
 
         # 提取出账户识别模块识别的所有 UNLABEL 标签
         unlabels = []

@@ -4,3 +4,4 @@ PersonToAddr,Person,Addr,人与地址
 PersonToCompany,Person,Company,人与公司
 PersonToDouYin,Person,DouYin,人与抖音
 PhasQQ,Person,QQ,拥有QQ
+PhasWeChat,Person,WeChat,拥有微信

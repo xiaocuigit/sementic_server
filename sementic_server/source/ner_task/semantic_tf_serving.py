@@ -144,7 +144,8 @@ class SemanticSearch(object):
                 if word != "":
                     if "##" in word:
                         word = word.replace('##', '')
-                    entities.append([word, label])
+                    if len(word) > 1:
+                        entities.append([word, label])
                     word = ""
 
                 label = self.entity_map_dic[temp_label[2:]]
@@ -155,13 +156,15 @@ class SemanticSearch(object):
             elif temp_label == 'O' and word != "":
                 if "##" in word:
                     word = word.replace('##', '')
-                entities.append([word, label])
+                if len(word) > 1:
+                    entities.append([word, label])
                 word = ""
                 label = ""
         if word != "":
             if "##" in word:
                 word = word.replace('##', '')
-            entities.append([word, label])
+            if len(word) > 1:
+                entities.append([word, label])
 
         return entities
 

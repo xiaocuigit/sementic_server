@@ -62,4 +62,5 @@ PersonToDouYin,Person,DouYin,True
 Friend,Person,Person
 Partner,Person,Person
 PhasPlateNum,Person,VehicleCard,True
-PhasVehicle,Person,car,True
+PhasVehicleCard,Person,VehicleCard,True
+PhasVehicle,Person,Vehicle,True

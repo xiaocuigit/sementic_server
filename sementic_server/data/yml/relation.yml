@@ -431,6 +431,7 @@ PhasQQ:
 - 拥有
 - 拥有QQ号
 - QQ号
+- qq号
 - QQ账号
 QQFriend:
 - QQ好友
@@ -588,6 +589,7 @@ Partner:
   - 同伙人
 PhasPlateNum:
   - 车牌号
+  - 车牌
 PhasVehicle:
   - 汽车
 

@@ -225,7 +225,8 @@ class Account(object):
                 max_label = label
         return max_label
 
-    def is_id_card(self, candidate):
+    @staticmethod
+    def is_id_card(candidate):
         """
         判断candidate是否为合法的身份证号码，包含15位和18位身份证号码两种情况
         :param candidate:

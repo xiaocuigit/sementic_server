@@ -40,8 +40,8 @@ class QueryInterface(object):
         self.query_dict = dict()
 
         self.serial_process()
-        self.final_delete()
         self.add_rels_to_entities()
+        self.final_delete()
         self.init_query_dict()
 
     def add_rels_to_entities(self):
@@ -108,7 +108,8 @@ class QueryInterface(object):
             if self.graph.nodes[node]['label'] == 'concept':
                 map_dict[node] = self.graph.nodes[node]['type'].lower() + '%d' % node
             if self.graph.nodes[node].get('intent') and self.graph.is_none_node(node):
-                map_dict[node] = self.graph.nodes[node]['type'].upper() + 'S'
+                # map_dict[node] = self.graph.nodes[node]['type'].upper() + 'S'
+                map_dict[node] = get_complex(self.graph.nodes[node]['type']).upper()
         new_graph = nx.relabel_nodes(self.graph, mapping=map_dict)
         self.graph = new_graph
 
@@ -288,7 +289,7 @@ class QueryInterface(object):
         for e_type in self.entities:
             for e in self.entities[e_type]:
                 entity_id = e['id']
-                if entity_id == entity_id.upper():
+                if entity_id == entity_id.upper() and not e.get('rel'):
                     self.entities[e_type].remove(e)
                     break
             if len(self.entities[e_type]) == 0:

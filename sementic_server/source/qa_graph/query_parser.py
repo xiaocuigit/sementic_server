@@ -117,7 +117,7 @@ class QueryParser(object):
             self.component_assemble()
         if not self.query_graph:
             self.error_info = '问句缺失必要实体'
-            return 
+            return
         while not nx.algorithms.is_weakly_connected(self.query_graph):
             # 若不连通则在联通分量之间添加默认边
             flag = self.add_default_edge()

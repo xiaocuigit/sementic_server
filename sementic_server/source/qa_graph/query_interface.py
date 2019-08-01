@@ -108,7 +108,9 @@ class QueryInterface(object):
             if self.graph.nodes[node]['label'] == 'concept':
                 map_dict[node] = self.graph.nodes[node]['type'].lower() + '%d' % node
             if self.graph.nodes[node].get('intent') and self.graph.is_none_node(node):
+                """
                 # map_dict[node] = self.graph.nodes[node]['type'].upper() + 'S'
+                """
                 map_dict[node] = get_complex(self.graph.nodes[node]['type']).upper()
         new_graph = nx.relabel_nodes(self.graph, mapping=map_dict)
         self.graph = new_graph

@@ -193,6 +193,7 @@ class RecommendServer(object):
         :return:
         """
         start_nodes = key.split('-')
+        start_nodes = [node for node in start_nodes if node != "0"]
         temp = set()
         for start_node in start_nodes:
             for node_id, pr_value in all_uid:

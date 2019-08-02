@@ -348,6 +348,7 @@ class QueryParser(object):
                         'JD_VALUE': ['PhasJD'],
                         'TAOBAO_VALUE': ['PhasTaoBao'],
                         'MICROBLOG_VALUE': ['PhasMicroBlog'],
+                        'VEHCARD_VALUE': ['PhasVehicleCard'],
                         'IDCARD_VALUE': ['PhasIdcard']}
         for e in self.entity:
             if e['type'] in account_dict.keys():

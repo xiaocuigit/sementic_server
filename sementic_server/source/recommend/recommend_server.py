@@ -183,11 +183,12 @@ class RecommendServer(object):
                 else:
                     break
         self.logger.info("All Recommendation info: {0}".format(all_uid))
-        return self.filter_entities_by_start_nodes(all_uid, key, search_len)
+        return self.filter_entities_by_start_nodes(all_uid, key, search_len, return_data)
 
-    def filter_entities_by_start_nodes(self, all_uid, key, search_len):
+    def filter_entities_by_start_nodes(self, all_uid, key, search_len, return_data):
         """
         根据key提取 start_node 节点ID，并过滤掉推荐的节点与 start_node 节点没有连接和只有单条路径的节点
+        :param return_data:
         :param all_uid: 限制两个节点存在的最大路径长度，如果不加限制，对于无向图，任意两个节点都存在多条路径
         :param key:
         :return:
@@ -204,7 +205,8 @@ class RecommendServer(object):
         final_all_uid = list()
         for node_id, pr_value in temp:
             final_all_uid.append({node_id: pr_value})
-            result[node_id[:3]].append({node_id: pr_value})
+            if return_data:
+                result[node_id[:3]].append({node_id: pr_value})
         self.logger.info("After filter Result is: {0}".format(final_all_uid))
         self.logger.info("Recommend Entities Done.")
         return result, final_all_uid
@@ -358,11 +360,8 @@ class RecommendServer(object):
         self.dynamic_graph.update_graph(data["Nodes"], data["Edges"], bi_direction_edge)
         self.logger.info("Update the recommend graph done.")
         return_nodes, all_uid = self.get_recommend_entities(data, key, return_data, search_len)
-        if return_nodes:
+        if return_data:
             result["ReturnNodeType"] = dict(return_nodes)
-        else:
-            result["error"] = "Recommend Graph is empty."
-            return result
 
         result["AllUid"] = all_uid
         query_path = data.get("QueryPath", None)

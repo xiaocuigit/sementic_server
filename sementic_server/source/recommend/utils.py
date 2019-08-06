@@ -52,7 +52,7 @@ def get_logger(name, path):
     fh.setFormatter(formatter)
 
     sh = logging.StreamHandler()
-    sh.setLevel(logging.INFO)
+    sh.setLevel(logging.CRITICAL)
     logger.addHandler(fh)
     logger.addHandler(sh)
     return logger

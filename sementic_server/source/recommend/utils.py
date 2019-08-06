@@ -5,14 +5,32 @@
 @time: 2019-07-02
 @version: 0.0.1
 """
-from collections import defaultdict
 
 import os
 import json
 import yaml
 import logging
+import signal
 
+from contextlib import contextmanager
 from logging.handlers import TimedRotatingFileHandler
+
+
+class TimeoutException(Exception):
+    pass
+
+
+@contextmanager
+def time_limited(seconds):
+    def signal_handler(signum, frame):
+        raise TimeoutException
+
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
 
 
 def get_logger(name, path):
@@ -29,12 +47,12 @@ def get_logger(name, path):
         '%(asctime)s - %(name)s - %(levelname)s: - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S')
     # 使用FileHandler输出到文件, 文件默认level:ERROR
-    fh = TimedRotatingFileHandler(path, when="D", encoding='utf-8')
+    fh = TimedRotatingFileHandler(path, when="D", encoding='utf-8', interval=1, backupCount=0)
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
 
     sh = logging.StreamHandler()
-    sh.setLevel(logging.FATAL)
+    sh.setLevel(logging.INFO)
     logger.addHandler(fh)
     logger.addHandler(sh)
     return logger

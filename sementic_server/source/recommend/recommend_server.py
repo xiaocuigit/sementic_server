@@ -5,12 +5,11 @@
 @time: 2019-07-11
 @version: 0.0.1
 """
-import os
-import json
 import redis
 import timeit
 
 from pprint import pprint
+from collections import defaultdict
 from gensim.models import KeyedVectors
 from sementic_server.source.recommend.recommendation import DynamicGraph
 from sementic_server.source.recommend.utils import *
@@ -127,15 +126,17 @@ class RecommendServer(object):
         if data is None:
             self.logger.error("data is empty...")
             return None
-        self.logger.info("There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
-        self.logger.info("There are {0} edges in graph of {1}.".format(len(self.dynamic_graph.get_edge_tuples()), key))
+
+        self.logger.info(
+            "There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
+        self.logger.info(
+            "There are {0} edges in graph of {1}.".format(len(self.dynamic_graph.get_edge_tuples()), key))
 
         self.logger.info("Begin compute PageRank value...")
         start = timeit.default_timer()
         pr_value = self.dynamic_graph.get_page_rank()
         pr_value = sorted(pr_value.items(), key=lambda d: d[1], reverse=True)
         self.logger.info("Done.  PageRank Algorithm time consume: {0} S".format(timeit.default_timer() - start))
-
         return pr_value
 
     def get_recommend_entities(self, data, key, return_data, search_len):
@@ -149,7 +150,7 @@ class RecommendServer(object):
         """
         pr_value = self.get_page_rank_result(data, key)
         if pr_value is None:
-            return {"error": "the graph is empty"}
+            return None, None
 
         self.logger.info("Recommend Entities...")
         result = None
@@ -182,7 +183,6 @@ class RecommendServer(object):
                 else:
                     break
         self.logger.info("All Recommendation info: {0}".format(all_uid))
-        self.logger.info("Recommend Entities Done.")
         return self.filter_entities_by_start_nodes(all_uid, key, search_len)
 
     def filter_entities_by_start_nodes(self, all_uid, key, search_len):
@@ -205,7 +205,8 @@ class RecommendServer(object):
         for node_id, pr_value in temp:
             final_all_uid.append({node_id: pr_value})
             result[node_id[:3]].append({node_id: pr_value})
-
+        self.logger.info("After filter Result is: {0}".format(final_all_uid))
+        self.logger.info("Recommend Entities Done.")
         return result, final_all_uid
 
     def get_recommend_relations(self, query_path):
@@ -348,7 +349,6 @@ class RecommendServer(object):
         :param bi_direction_edge: 人物节点是否为双向边
         :return:
         """
-        self.logger.info("=======RedisKey is {0} - Recommendation Model Begin...=======".format(key))
         result = dict()
         if key is None:
             result["error"] = "RedisKey is empty."
@@ -360,6 +360,10 @@ class RecommendServer(object):
         return_nodes, all_uid = self.get_recommend_entities(data, key, return_data, search_len)
         if return_nodes:
             result["ReturnNodeType"] = dict(return_nodes)
+        else:
+            result["error"] = "Recommend Graph is empty."
+            return result
+
         result["AllUid"] = all_uid
         query_path = data.get("QueryPath", None)
         if query_path is None:

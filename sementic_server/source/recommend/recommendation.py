@@ -329,7 +329,11 @@ class DynamicGraph(object):
         :param search_len: 限制两个节点允许的最长的路径，因为图本身是一个无向图，如果不加限制任意节点都会存在任意条路径
         :return:
         """
+        if start_node_id not in self.graph.nodes or end_node_id not in self.graph.nodes:
+            return False
         # 如果两个节点的最短路径长度大于限定的最短路径长度，则说明这两个节点连接度较弱，直接返回False
+        if not nx.has_path(self.undirected_graph, start_node_id, end_node_id):
+            return False
         if len(nx.shortest_path(self.undirected_graph, start_node_id, end_node_id)) <= search_len:
             paths = list(nx.all_simple_paths(self.undirected_graph, start_node_id, end_node_id, cutoff=search_len))
             if len(paths) == 1 and len(paths[0]) > 2:

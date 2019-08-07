@@ -15,7 +15,7 @@ from time import time
 from sementic_server.source.intent_extraction.recognizer import Recognizer
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 from sementic_server.source.intent_extraction.dict_builder import build_wrong_table
-from sementic_server.source.intent_extraction.logger import construt_log, get_logger
+from sementic_server.source.intent_extraction.logger import construt_log
 from sementic_server.source.intent_extraction.helper \
     import replace_items_in_sentence, resolve_list_confilct, update_account_in_sentence
 
@@ -32,13 +32,13 @@ class ItemMatcher(object):
     @version: 0.0.1
     """
 
-    def __init__(self, new_actree=False):
+    def __init__(self, loggers: list, new_actree=False):
         self.aho_recognizer = None  # 识别AC
         self.aho_correction = None  # 纠错AC
 
         si = SystemInfo()
-        self.correct_logger = get_logger("Correction", si.log_path_corr)
-        self.behavior_logger = get_logger("ItemMatcher", si.log_path_behavior)
+        self.correct_logger = loggers[0]
+        self.behavior_logger = loggers[1]
 
         # 获得根目录的地址
         dir_data = join(si.base_path, "data")
@@ -113,7 +113,7 @@ class ItemMatcher(object):
         :return:ac自动机对象
         """
         start = time()
-        reg = Recognizer(dict_info)
+        reg = Recognizer(dict_info, behavior_log=self.behavior_logger)
         try:
             pickle.dump(reg, open(pkl_path, "wb"))
             server_logger.info(f"Building AC-Tree \"{pkl_path.split('/')[-1]}\", time used: {time() - start}")

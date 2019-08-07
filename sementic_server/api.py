@@ -24,11 +24,13 @@ from sementic_server.source.recommend.recommend_server import RecommendServer
 # 定义整体服务用到的日志文件
 logger = logging.getLogger("server_log")
 recommend_logger = logging.getLogger("recommend_log")
+correction_logger = logging.getLogger("correction_log")
+correction_behavior_logger = logging.getLogger("correction_behavior_log")
 
 # 在这里定义在整个程序都会用到的类的实例
 account_model = Account()
 semantic = SemanticSearch()
-item_matcher = ItemMatcher(new_actree=True)
+item_matcher = ItemMatcher(loggers=[correction_logger, correction_behavior_logger], new_actree=True)
 dependency_parser = DependencyParser()
 recommend_server = RecommendServer(recommend_logger)
 
@@ -200,7 +202,7 @@ def correct(request):
         return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
     try:
         request_data = json.loads(request.body)
-    except Exception:
+    except json.JSONDecodeError:
         request_data = request.POST
     print(request)
     sentence = request_data['sentence']

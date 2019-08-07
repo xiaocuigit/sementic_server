@@ -31,12 +31,21 @@ ALLOWED_HOSTS = ['*', ]
 # Application definition
 LOGGING_DIR = "./sementic_server/output/logs"
 RECOMMEND_LOGGING_DIR = "./sementic_server/output/recommend_logs"
+CORRECTION_LOGGING_DIR = "./sementic_server/output/correction_record/record"
+CORRECTION_BEHAVIOR_LOGGING_DIR = "./sementic_server/output/correction_record/behavior"
+
 
 if not os.path.exists(LOGGING_DIR):
     os.makedirs(LOGGING_DIR)
 
 if not os.path.exists(RECOMMEND_LOGGING_DIR):
     os.makedirs(RECOMMEND_LOGGING_DIR)
+
+if not os.path.exists(CORRECTION_LOGGING_DIR):
+    os.makedirs(CORRECTION_LOGGING_DIR)
+
+if not os.path.exists(CORRECTION_BEHAVIOR_LOGGING_DIR):
+    os.makedirs(CORRECTION_BEHAVIOR_LOGGING_DIR)
 
 LOGGING = {
     'version': 1,
@@ -70,6 +79,20 @@ LOGGING = {
             "when": "D",
             'formatter': 'simple',
             'filename': '%s/recommendation.log' % RECOMMEND_LOGGING_DIR
+        },
+        'fileHandler_correction': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            "when": "D",
+            'formatter': 'simple',
+            'filename': '%s/correction.log' % CORRECTION_LOGGING_DIR
+        },
+        'fileHandler_correction_behavior': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            "when": "D",
+            'formatter': 'simple',
+            'filename': '%s/correction_behavior.log' % CORRECTION_BEHAVIOR_LOGGING_DIR
         }
 
     },
@@ -83,7 +106,17 @@ LOGGING = {
             'handlers': ['console', 'fileHandler_recommend'],
             'level': 'INFO',
             'propagate': False
-        }
+        },
+        'correction_log': {
+            'handlers': ['console', 'fileHandler_correction'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'correction_behavior_log': {
+            'handlers': ['console', 'fileHandler_correction_behavior'],
+            'level': 'INFO',
+            'propagate': False
+        },
     }
 }
 

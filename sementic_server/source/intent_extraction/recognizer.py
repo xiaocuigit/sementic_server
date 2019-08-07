@@ -7,7 +7,7 @@
 """
 from sementic_server.source.intent_extraction.actree import Aho
 from functools import cmp_to_key
-from sementic_server.source.intent_extraction.logger import get_logger
+from sementic_server.source.intent_extraction.logger import construt_log
 from sementic_server.source.intent_extraction.system_info import SystemInfo
 
 
@@ -112,13 +112,13 @@ class Recognizer(object):
     @time: 2019-05-29
     @version: 0.0.1
     """
-    def __init__(self, vocab: dict):
+    def __init__(self, vocab: dict, behavior_log):
         """
         利用词典建树
         :param vocab:
         """
         si = SystemInfo()
-        self.behavior_logger = get_logger("Recognizer", si.log_path_behavior)
+        self.behavior_logger = behavior_log
         self.w2tp, self.c2id, self.id2c = build_vocab(vocab)
         self.actree = Aho()
         for vls in vocab.values():

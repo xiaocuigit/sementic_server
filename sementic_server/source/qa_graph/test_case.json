@@ -1,0 +1,1 @@
+{"query": "\u8f66\u724c\u53f7\u662f\u8d63F98765\u7684\u4eba", "entity": [{"value": "\u8d63F98765", "type": "VEHCARD_VALUE", "begin": 4, "end": 11, "code": 420}], "relation": [{"type": "PhasVehicleCard", "value": "\u8f66\u724c\u53f7", "begin": 0, "end": 3, "code": 0}], "intent": null, "dependency": null}

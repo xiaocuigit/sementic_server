@@ -1,0 +1,1 @@
+{"query": "\u624b\u673a\u53f713995684569", "entity": [{"value": "13995684569", "type": "MOB_NUM", "begin": 3, "end": 14, "code": 220}], "relation": [{"type": "PhasMobileNum", "value": "\u624b\u673a\u53f7", "begin": 0, "end": 3, "code": 1001}], "intent": null, "dependency": null}

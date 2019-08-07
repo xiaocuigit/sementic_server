@@ -33,7 +33,7 @@ class QueryGraphComponent(Graph):
 
         self.p_has_account_list = ['QQ', 'MobileNum', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
                                    'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL',
-                                   'PlateNum', 'IMEI', 'MAC']
+                                   'VehicleCard', 'IMEI', 'MAC']
         if entity['type'] in self.account:
             self.init_account_component()
         elif entity['type'] == 'NAME':

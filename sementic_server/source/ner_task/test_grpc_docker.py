@@ -15,7 +15,7 @@ if __name__ == '__main__':
     sen = "在东莞常平司马村珠江啤酒厂斜对面合租的15842062826的老婆"
     model_serving = ModelServing('NER')
 
-    ner_result = model_serving.test_send_grpc_request_ner(sen)
+    sentence, pred_label_result = model_serving.send_grpc_request_ner(sen)
 
-    if ner_result:
+    if sentence is not None:
         print('NER service test success.')

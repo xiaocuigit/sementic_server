@@ -21,14 +21,18 @@ from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 from sementic_server.source.recommend.recommend_server import RecommendServer
 
+# 定义整体服务用到的日志文件
+logger = logging.getLogger("server_log")
+recommend_logger = logging.getLogger("recommend_log")
+correction_logger = logging.getLogger("correction_log")
+correction_behavior_logger = logging.getLogger("correction_behavior_log")
+
 # 在这里定义在整个程序都会用到的类的实例
 account_model = Account()
 semantic = SemanticSearch()
-item_matcher = ItemMatcher(new_actree=True)
+item_matcher = ItemMatcher(loggers=[correction_logger, correction_behavior_logger], new_actree=True)
 dependency_parser = DependencyParser()
-recommend_server = RecommendServer()
-
-logger = logging.getLogger("server_log")
+recommend_server = RecommendServer(recommend_logger)
 
 
 def account_recognition(sentence):
@@ -339,10 +343,11 @@ def recommendation(request):
     logger.info("Recommendation Model...")
     request_data = dict(request_data)
     key = request_data.get("RedisKey", None)
+    search_len = request_data.get("SearchLen", "3")
     return_data = request_data.get("ReturnNodeType", None)
     need_related_relation = request_data.get("NeedRelatedRelationship", "False")
     no_answer = request_data.get("NeedNoAnswer", "False")
-    bi_direction_edge = request_data.get("BiDirectionEdge", "False")
+    bi_direction_edge = request_data.get("BiDirectionEdge", "True")
     if return_data and type(return_data) == str:
         return_data = json.loads(return_data)
     result = dict()
@@ -355,6 +360,7 @@ def recommendation(request):
             need_no_answer = True if no_answer == "True" else False
             t_recommend = timeit.default_timer()
             result = recommend_server.get_recommend_results(key=key,
+                                                            search_len=int(search_len),
                                                             return_data=return_data,
                                                             need_related_relation=need_relation,
                                                             no_answer=need_no_answer,

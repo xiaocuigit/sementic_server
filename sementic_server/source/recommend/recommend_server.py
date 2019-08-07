@@ -11,15 +11,15 @@ import redis
 import timeit
 
 from pprint import pprint
+from collections import defaultdict
 from gensim.models import KeyedVectors
 from sementic_server.source.recommend.recommendation import DynamicGraph
-from sementic_server.source.recommend.utils import *
 
 
 class RecommendServer(object):
     """提供推荐服务"""
 
-    def __init__(self):
+    def __init__(self, logger):
         """
         推荐模块初始化操作
         """
@@ -29,11 +29,7 @@ class RecommendServer(object):
         else:
             self.base_path = os.path.join(os.getcwd(), 'sementic_server')
 
-        log_path = os.path.join(self.base_path, 'output', 'recommend_logs')
-        if not os.path.exists(log_path):
-            os.makedirs(log_path)
-        log_file = os.path.join(log_path, 'recommendation.log')
-        self.logger = get_logger(name='recommend', path=log_file)
+        self.logger = logger
 
         config_file = os.path.join(self.base_path, 'config', 'recommend.config')
         if not os.path.exists(config_file):
@@ -73,7 +69,7 @@ class RecommendServer(object):
             connect = redis.Redis(connection_pool=pool)
             if not connect.ping():
                 pprint("ping redis error...")
-                self.logger("Redis connect error, please start redis service first.")
+                self.logger.error("Redis connect error, please start redis service first.")
                 return None
             else:
                 pprint("Connect redis success...")
@@ -127,20 +123,23 @@ class RecommendServer(object):
         if data is None:
             self.logger.error("data is empty...")
             return None
-        self.logger.info("There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
-        self.logger.info("There are {0} edges in graph of {1}.".format(len(self.dynamic_graph.get_edge_tuples()), key))
+
+        self.logger.info(
+            "There are {0} nodes in graph of {1}.".format(len(self.dynamic_graph.get_nodes()), key))
+        self.logger.info(
+            "There are {0} edges in graph of {1}.".format(len(self.dynamic_graph.get_edge_tuples()), key))
 
         self.logger.info("Begin compute PageRank value...")
         start = timeit.default_timer()
         pr_value = self.dynamic_graph.get_page_rank()
         pr_value = sorted(pr_value.items(), key=lambda d: d[1], reverse=True)
         self.logger.info("Done.  PageRank Algorithm time consume: {0} S".format(timeit.default_timer() - start))
-
         return pr_value
 
-    def get_recommend_entities(self, data, key, return_data):
+    def get_recommend_entities(self, data, key, return_data, search_len):
         """
         根据 PageRank 算法推荐指定个数的人物节点和公司节点
+        :param search_len:
         :param data: 图的数据
         :param key: 当前推荐的 key
         :param return_data:
@@ -148,7 +147,7 @@ class RecommendServer(object):
         """
         pr_value = self.get_page_rank_result(data, key)
         if pr_value is None:
-            return {"error": "the graph is empty"}
+            return None, None
 
         self.logger.info("Recommend Entities...")
         result = None
@@ -156,8 +155,8 @@ class RecommendServer(object):
         all_return_num = 0
         if return_data:
             result = defaultdict(list)
-            for key, value in return_data.items():
-                return_node_nums[key] = int(value)
+            for node_type, value in return_data.items():
+                return_node_nums[node_type] = int(value)
                 all_return_num += int(value)
 
         all_uid = list()
@@ -169,20 +168,45 @@ class RecommendServer(object):
             node_type = node["type"]
             if len(return_node_nums) != 0:
                 if node_type in return_node_nums.keys() and len(result[node_type]) < return_node_nums[node_type]:
-                    all_uid.append({str(node_id): str(pr)})
+                    all_uid.append((str(node_id), str(pr)))
                     result[node_type].append({str(node_id): str(pr)})
                     temp_num += 1
                 if temp_num == all_return_num:
                     break
             else:
                 if all_uid_num <= 20:
-                    all_uid.append({str(node_id): str(pr)})
+                    all_uid.append((str(node_id), str(pr)))
                     all_uid_num += 1
                 else:
                     break
         self.logger.info("All Recommendation info: {0}".format(all_uid))
+        return self.filter_entities_by_start_nodes(all_uid, key, search_len, return_data)
+
+    def filter_entities_by_start_nodes(self, all_uid, key, search_len, return_data):
+        """
+        根据key提取 start_node 节点ID，并过滤掉推荐的节点与 start_node 节点没有连接和只有单条路径的节点
+        :param return_data:
+        :param all_uid: 限制两个节点存在的最大路径长度，如果不加限制，对于无向图，任意两个节点都存在多条路径
+        :param key:
+        :return:
+        """
+        start_nodes = key.split('-')
+        start_nodes = [node for node in start_nodes if node != "0"]
+        temp = set()
+        for start_node in start_nodes:
+            for node_id, pr_value in all_uid:
+                if self.dynamic_graph.is_exist_multi_paths(start_node, node_id, search_len):
+                    temp.add((node_id, pr_value))
+        temp = sorted(list(temp), key=lambda x: x[1], reverse=True)
+        result = defaultdict(list)
+        final_all_uid = list()
+        for node_id, pr_value in temp:
+            final_all_uid.append({node_id: pr_value})
+            if return_data:
+                result[node_id[:3]].append({node_id: pr_value})
+        self.logger.info("After filter Result is: {0}".format(final_all_uid))
         self.logger.info("Recommend Entities Done.")
-        return result, all_uid
+        return result, final_all_uid
 
     def get_recommend_relations(self, query_path):
         """
@@ -210,14 +234,14 @@ class RecommendServer(object):
             for edge_type, info in edges_info:
                 rel_name = self.get_rel_name(info)
                 if rel_name:
-                    result.append({edge_type: rel_name})
+                    result.append({"RelType": edge_type, "RelName": rel_name})
             if len(result) != 0:
                 return result
             else:
                 for edge_type, info in edges_info:
                     info = list(info)
                     info = info[0].lstrip('{').rstrip('}')
-                    result.append({edge_type: info})
+                    result.append({"RelType": edge_type, "RelName": info})
                 return result
         self.logger.info("Relations recommendation info: {0}".format(edges_info))
         self.logger.info("Recommend Relations Done.")
@@ -228,8 +252,7 @@ class RecommendServer(object):
         从查询路径上找到第一个 To 字段为空的子路径，然后获取到该子路径上用户输入的关系名称
         最终推荐给用户与当前查询关系相似的关系连接的实体
         :param query_path:
-        :param person_node_num:
-        :param company_node_num:
+        :param return_data:
         :return:
         """
         self.logger.info("Recommend Query NoAnswer Results...")
@@ -262,9 +285,9 @@ class RecommendServer(object):
         self.logger.info("Recommend Query NoAnswer Results Done.")
         return candidate_list
 
-    def get_sorted_no_answer_results(self, candidate_list, return_data):
+    @staticmethod
+    def get_sorted_no_answer_results(candidate_list, return_data):
         """
-
         :param candidate_list:
         :param return_data:
         :return:
@@ -313,39 +336,50 @@ class RecommendServer(object):
             self.logger.error("Get {0} error: {1}".format(filter, e))
         return None
 
-    def get_recommend_results(self, key, return_data, need_related_relation, no_answer, bi_direction_edge="True"):
+    def get_recommend_results(self, key, search_len, return_data, need_related_relation, no_answer,
+                              bi_direction_edge="True"):
         """
         返回最终推荐结果
-        :param key:
-        :param return_data:
-        :param need_related_relation:
-        :param no_answer:
-        :param bi_direction_edge:
+        :param key: Redis Key
+        :param search_len: 限制两个节点存在的最大路径长度，如果不加限制，对于无向图，任意两个节点都存在多条路径
+        :param return_data: 指定返回的实体类型和个数
+        :param need_related_relation: 是否需要推荐潜在关系
+        :param no_answer: 是否需要NoAnswer推荐
+        :param bi_direction_edge: 人物节点是否为双向边
         :return:
         """
         self.logger.info("=======RedisKey is {0} - Recommendation Model Begin...=======".format(key))
         result = dict()
-        if key is None:
-            result["error"] = "RedisKey is empty."
-            return result
+
         data = self.load_data_from_redis(key=key)
+
+        if data is None:
+            result["error"] = "Cannot get data from Redis by key: {0}".format(key)
+            self.logger.error("Cannot get data from Redis by key: {0}".format(key))
+            self.logger.info("=======RedisKey is {0} - Recommendation Model End...=======\n\n".format(key))
+            return result
+
         self.logger.info("Update the recommend graph...")
         self.dynamic_graph.update_graph(data["Nodes"], data["Edges"], bi_direction_edge)
         self.logger.info("Update the recommend graph done.")
-        return_nodes, all_uid = self.get_recommend_entities(data, key, return_data)
-        if return_nodes:
+        # 推荐相关实体
+        return_nodes, all_uid = self.get_recommend_entities(data, key, return_data, search_len)
+        if return_data:
             result["ReturnNodeType"] = dict(return_nodes)
+
         result["AllUid"] = all_uid
         query_path = data.get("QueryPath", None)
         if query_path is None:
             self.logger.info("Query Path is None.")
         else:
+            # 推荐潜在关系
             if need_related_relation:
                 relations = self.get_recommend_relations(query_path)
                 if relations is None:
                     result["RelatedRelationship"] = list()
                 else:
                     result["RelatedRelationship"] = relations
+            # NoAnswer推荐
             if no_answer:
                 no_answer_result = self.get_no_answer_results(query_path, return_data)
                 result["NoAnswer"] = dict(no_answer_result)

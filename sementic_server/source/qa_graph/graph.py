@@ -45,7 +45,7 @@ class Graph(nx.MultiDiGraph):
             # 考虑拓扑排序的终点
             account_list = ['QQ', 'MobileNum', 'FixedPhone', 'Idcard', 'Email', 'WeChat', 'QQGroup',
                                   'WeChatGroup', 'Alipay', 'DouYin', 'JD', 'TaoBao', 'MicroBlog', 'UNLABEL',
-                                  'PlateNum', 'IMEI', 'MAC', 'Addr']
+                                  'VehicleCard', 'IMEI', 'MAC', 'Addr']
             if self.nodes[n]['label'] == 'literal' or self.nodes[n]['type'] in account_list:
                 return False
         return True

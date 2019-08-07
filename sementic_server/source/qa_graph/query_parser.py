@@ -117,7 +117,7 @@ class QueryParser(object):
             self.component_assemble()
         if not self.query_graph:
             self.error_info = '问句缺失必要实体'
-            return 
+            return
         while not nx.algorithms.is_weakly_connected(self.query_graph):
             # 若不连通则在联通分量之间添加默认边
             flag = self.add_default_edge()
@@ -136,11 +136,17 @@ class QueryParser(object):
         logger.info('next is determine intention')
         self.determine_intention()
 
-    def add_default_edge(self):
+    def add_default_edge_between_components(self, components_set, c1, c2):
+        """
+        在两个连通分量之间添加默认边
+        :param components_set:
+        :param c1:
+        :param c2:
+        :return:
+        """
         flag = False
-        components_set = self.query_graph.get_connected_components_subgraph()
-        d0 = Graph(components_set[0]).node_type_statistic()
-        d1 = Graph(components_set[1]).node_type_statistic()
+        d0 = Graph(components_set[c1]).node_type_statistic()
+        d1 = Graph(components_set[c2]).node_type_statistic()
         candidates = itertools.product(d0.keys(), d1.keys())
         candidates = list(candidates)
         trick_index = 0
@@ -158,6 +164,19 @@ class QueryParser(object):
                     self.query_graph.add_edge(node_0, node_1, key, type=key, value=edge['value'])
                     flag = True
                     return flag
+        return flag
+
+    def add_default_edge(self):
+        """
+        添加默认边
+        :return:
+        """
+        flag = False
+        components_set = self.query_graph.get_connected_components_subgraph()
+        for i in range(len(components_set)):
+            flag = self.add_default_edge_between_components(components_set, i, i+1)
+            if flag:
+                break
         return flag
 
     def determine_intention_by_type(self):
@@ -329,13 +348,16 @@ class QueryParser(object):
                         'JD_VALUE': ['PhasJD'],
                         'TAOBAO_VALUE': ['PhasTaoBao'],
                         'MICROBLOG_VALUE': ['PhasMicroBlog'],
+                        'VEHCARD_VALUE': ['PhasVehicleCard'],
                         'IDCARD_VALUE': ['PhasIdcard']}
         for e in self.entity:
             if e['type'] in account_dict.keys():
                 for rel_name in account_dict[e['type']]:
-                    for rel in self.relation:
-                        if rel['type'] == rel_name:
-                            self.relation.remove(rel)
+                    new_relation = [x for x in self.relation if x['type'] != rel_name]
+                    self.relation = new_relation
+                    # for rel in self.relation:
+                    #     if rel['type'] == rel_name:
+                    #         self.relation.remove(rel)
 
 
 if __name__ == '__main__':

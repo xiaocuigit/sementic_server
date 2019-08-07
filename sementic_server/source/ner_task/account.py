@@ -179,7 +179,7 @@ def is_mac(candidate):
         return False
 
 
-class Account:
+class Account(object):
     """
     账户识别类
     """
@@ -225,14 +225,15 @@ class Account:
                 max_label = label
         return max_label
 
-    def is_id_card(self, candidate):
+    @staticmethod
+    def is_id_card(candidate):
         """
         判断candidate是否为合法的身份证号码，包含15位和18位身份证号码两种情况
         :param candidate:
         :return:
         """
-        pattern_id = r"^(([1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx])|([" \
-                     r"1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}))$"
+        pattern_id = r"^(([1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[" \
+                     r"0-9Xx])|([1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}))$"
         result = re.match(pattern_id, candidate)
         if result is not None:
             return is_legal_id_card(candidate)
@@ -385,6 +386,10 @@ class Account:
 
 
 def test():
+    """
+    测试用例
+    :return:
+    """
     t1 = "15295668658住在哪里？34.54,2656353125"
     t2 = "xiaocui-kindle@163.com住在哪里？"
     t3 = "手机号是15295668650的人住在哪里？"
@@ -413,25 +418,14 @@ def test():
 
 
 def test_while():
+    """
+    单句测试账户识别模块
+    :return:
+    """
     account = Account()
     while True:
         sentence = input("input:")
         pprint(account.get_account_labels_info(sentence))
-
-
-def test_vehicle_num():
-    account = Account()
-    while True:
-        sentence = input("input:")
-        result = account.match_vehicle_num(sentence)
-        pprint(result)
-
-
-def test_mac():
-    while True:
-        sentence = input("input:")
-        result = is_mac(sentence)
-        pprint(result)
 
 
 if __name__ == '__main__':

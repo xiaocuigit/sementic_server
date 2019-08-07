@@ -9,33 +9,6 @@
 import os
 import json
 import yaml
-import logging
-from logging.handlers import TimedRotatingFileHandler
-
-
-def get_logger(name, path):
-    """
-    定义日志文件
-    :param name:日志名
-    :param path:日志路径
-    :return:
-    """
-    # 定义日志文件
-    logger = logging.getLogger(name)  # 不加名称设置root logger
-    logger.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s: - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S')
-    # 使用FileHandler输出到文件, 文件默认level:ERROR
-    fh = TimedRotatingFileHandler(path, when="D", encoding='utf-8', interval=1, backupCount=0)
-    fh.setLevel(logging.INFO)
-    fh.setFormatter(formatter)
-
-    sh = logging.StreamHandler()
-    sh.setLevel(logging.CRITICAL)
-    logger.addHandler(fh)
-    logger.addHandler(sh)
-    return logger
 
 
 def data_load(data_file):

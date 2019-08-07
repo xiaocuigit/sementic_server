@@ -350,11 +350,6 @@ class RecommendServer(object):
         """
         self.logger.info("=======RedisKey is {0} - Recommendation Model Begin...=======".format(key))
         result = dict()
-        if key is None:
-            result["error"] = "RedisKey is empty."
-            self.logger.error("RedisKey is empty.")
-            self.logger.info("=======RedisKey is {0} - Recommendation Model End...=======\n\n".format(key))
-            return result
 
         data = self.load_data_from_redis(key=key)
 

@@ -13,8 +13,8 @@ from sementic_server.source.recommend.recommend_server import RecommendServer
 if __name__ == '__main__':
     recommend = RecommendServer()
     test_data_file = os.path.join(recommend.base_path, 'data', 'test_recommend_data',
-                                  '1001612080303000126000085906-22018914724642.json')
-    key = "1001612080303000126000085906-22018914724642"
+                                  '1001711081640003790000917493.json')
+    key = "1001711081640003790000917493"
     recommend.save_data_to_redis(file_path=test_data_file, key=key)
     data = recommend.load_data_from_redis(key=key)
     recommend.degree_count(data=data)

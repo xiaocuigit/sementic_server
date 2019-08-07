@@ -30,9 +30,13 @@ ALLOWED_HOSTS = ['*', ]
 
 # Application definition
 LOGGING_DIR = "./sementic_server/output/logs"
+RECOMMEND_LOGGING_DIR = "./sementic_server/output/recommend_logs"
 
 if not os.path.exists(LOGGING_DIR):
     os.makedirs(LOGGING_DIR)
+
+if not os.path.exists(RECOMMEND_LOGGING_DIR):
+    os.makedirs(RECOMMEND_LOGGING_DIR)
 
 LOGGING = {
     'version': 1,
@@ -59,12 +63,24 @@ LOGGING = {
             "when": "D",
             'formatter': 'simple',
             'filename': '%s/server.log' % LOGGING_DIR
+        },
+        'fileHandler_recommend': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            "when": "D",
+            'formatter': 'simple',
+            'filename': '%s/recommendation.log' % RECOMMEND_LOGGING_DIR
         }
 
     },
     'loggers': {  # 记录器
         'server_log': {
             'handlers': ['console', 'fileHandler'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'recommend_log': {
+            'handlers': ['console', 'fileHandler_recommend'],
             'level': 'INFO',
             'propagate': False
         }

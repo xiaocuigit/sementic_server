@@ -5,6 +5,8 @@
 @time: 2019-07-11
 @version: 0.0.1
 """
+import os
+import json
 import redis
 import timeit
 
@@ -12,13 +14,12 @@ from pprint import pprint
 from collections import defaultdict
 from gensim.models import KeyedVectors
 from sementic_server.source.recommend.recommendation import DynamicGraph
-from sementic_server.source.recommend.utils import *
 
 
 class RecommendServer(object):
     """提供推荐服务"""
 
-    def __init__(self):
+    def __init__(self, logger):
         """
         推荐模块初始化操作
         """
@@ -28,11 +29,7 @@ class RecommendServer(object):
         else:
             self.base_path = os.path.join(os.getcwd(), 'sementic_server')
 
-        log_path = os.path.join(self.base_path, 'output', 'recommend_logs')
-        if not os.path.exists(log_path):
-            os.makedirs(log_path)
-        log_file = os.path.join(log_path, 'recommendation.log')
-        self.logger = get_logger(name='recommend', path=log_file)
+        self.logger = logger
 
         config_file = os.path.join(self.base_path, 'config', 'recommend.config')
         if not os.path.exists(config_file):
@@ -72,7 +69,7 @@ class RecommendServer(object):
             connect = redis.Redis(connection_pool=pool)
             if not connect.ping():
                 pprint("ping redis error...")
-                self.logger("Redis connect error, please start redis service first.")
+                self.logger.error("Redis connect error, please start redis service first.")
                 return None
             else:
                 pprint("Connect redis success...")
@@ -351,14 +348,26 @@ class RecommendServer(object):
         :param bi_direction_edge: 人物节点是否为双向边
         :return:
         """
+        self.logger.info("=======RedisKey is {0} - Recommendation Model Begin...=======".format(key))
         result = dict()
         if key is None:
             result["error"] = "RedisKey is empty."
+            self.logger.error("RedisKey is empty.")
+            self.logger.info("=======RedisKey is {0} - Recommendation Model End...=======\n\n".format(key))
             return result
+
         data = self.load_data_from_redis(key=key)
+
+        if data is None:
+            result["error"] = "Cannot get data from Redis by key: {0}".format(key)
+            self.logger.error("Cannot get data from Redis by key: {0}".format(key))
+            self.logger.info("=======RedisKey is {0} - Recommendation Model End...=======\n\n".format(key))
+            return result
+
         self.logger.info("Update the recommend graph...")
         self.dynamic_graph.update_graph(data["Nodes"], data["Edges"], bi_direction_edge)
         self.logger.info("Update the recommend graph done.")
+        # 推荐相关实体
         return_nodes, all_uid = self.get_recommend_entities(data, key, return_data, search_len)
         if return_data:
             result["ReturnNodeType"] = dict(return_nodes)
@@ -368,12 +377,14 @@ class RecommendServer(object):
         if query_path is None:
             self.logger.info("Query Path is None.")
         else:
+            # 推荐潜在关系
             if need_related_relation:
                 relations = self.get_recommend_relations(query_path)
                 if relations is None:
                     result["RelatedRelationship"] = list()
                 else:
                     result["RelatedRelationship"] = relations
+            # NoAnswer推荐
             if no_answer:
                 no_answer_result = self.get_no_answer_results(query_path, return_data)
                 result["NoAnswer"] = dict(no_answer_result)

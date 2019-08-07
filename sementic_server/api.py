@@ -21,14 +21,16 @@ from sementic_server.source.qa_graph.query_interface import QueryInterface
 from sementic_server.source.dependency_parser.dependency_parser import DependencyParser
 from sementic_server.source.recommend.recommend_server import RecommendServer
 
+# 定义整体服务用到的日志文件
+logger = logging.getLogger("server_log")
+recommend_logger = logging.getLogger("recommend_log")
+
 # 在这里定义在整个程序都会用到的类的实例
 account_model = Account()
 semantic = SemanticSearch()
 item_matcher = ItemMatcher(new_actree=True)
 dependency_parser = DependencyParser()
-recommend_server = RecommendServer()
-
-logger = logging.getLogger("server_log")
+recommend_server = RecommendServer(recommend_logger)
 
 
 def account_recognition(sentence):
@@ -343,7 +345,7 @@ def recommendation(request):
     return_data = request_data.get("ReturnNodeType", None)
     need_related_relation = request_data.get("NeedRelatedRelationship", "False")
     no_answer = request_data.get("NeedNoAnswer", "False")
-    bi_direction_edge = request_data.get("BiDirectionEdge", "False")
+    bi_direction_edge = request_data.get("BiDirectionEdge", "True")
     if return_data and type(return_data) == str:
         return_data = json.loads(return_data)
     result = dict()

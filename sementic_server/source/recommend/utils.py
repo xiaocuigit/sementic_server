@@ -10,27 +10,7 @@ import os
 import json
 import yaml
 import logging
-import signal
-
-from contextlib import contextmanager
 from logging.handlers import TimedRotatingFileHandler
-
-
-class TimeoutException(Exception):
-    pass
-
-
-@contextmanager
-def time_limited(seconds):
-    def signal_handler(signum, frame):
-        raise TimeoutException
-
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        signal.alarm(0)
 
 
 def get_logger(name, path):

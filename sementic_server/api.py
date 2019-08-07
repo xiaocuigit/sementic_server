@@ -198,7 +198,7 @@ def correct(request):
         return JsonResponse({"result": {}, "msg": "仅支持post访问"}, json_dumps_params={'ensure_ascii': False})
     try:
         request_data = json.loads(request.body)
-    except Exception:
+    except json.JSONDecodeError:
         request_data = request.POST
     print(request)
     sentence = request_data['sentence']

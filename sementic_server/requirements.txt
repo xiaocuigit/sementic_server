@@ -2,7 +2,7 @@ numpy==1.15.0
 tensorflow-serving-api==1.13.0
 grpcio==1.15.0
 tensorflow==1.12.0
-django==2.2
+django==2.2.13
 jieba==0.39
 requests==2.19.1
 networkx==2.3
